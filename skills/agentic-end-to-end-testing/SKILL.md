@@ -59,7 +59,7 @@ Footguns, timing/ordering caveats, nondeterminism noted while recording.
 4. **Capture evidence** (see Pick Your Evidence below).
 5. **Verify the evidence itself.** Extract a frame from the movie and read it. Re-read the capture file. Cross-check every rendered claim against on-disk ground truth — the UI can lie or lag; the log, database, or file is authoritative. Evidence you didn't inspect is evidence you don't have.
 6. **Clean up, idempotently.** Shut down what you spawned, remove scratch dirs, leave pre-existing instances running and untouched. Never touch state you didn't create.
-7. **Report per-assertion pass/fail with the concrete observation** — the rendered text, the on-disk value, the exit code. A vague "looks fine" is a failed report.
+7. **Report per-assertion pass/fail with the concrete observation** (or PASS-WITH-NOTE for a pre-declared tolerance — see [runner-prompt.md](runner-prompt.md)) — the rendered text, the on-disk value, the exit code. A vague "looks fine" is a failed report.
 
 ## Pick Your Interface
 
@@ -100,6 +100,16 @@ Ask one question: **what would be impossible to fabricate here?** Then capture t
 | "The assertion is too strict, I'll adjust it" | NEVER weaken, skip, or reinterpret an assertion to make it pass. |
 | "I proved the backend, so the feature works" | Different claim. Say exactly what you exercised, then drive the real interface — or state that you didn't. |
 | "My check passed" | A check that would also pass with the feature broken proves nothing — a broken detector and a clean run are indistinguishable. |
+
+**Red flags.** Stop the moment any of these is true mid-run:
+
+- You are about to report a verdict and never launched the app.
+- You wrote an evidence file you never re-read.
+- You edited an assertion after the run started.
+- You produced a movie whose frames you haven't looked at.
+- An attempt failed — a blocked recorder, a crashed capture — and your report doesn't mention it.
+
+All of these mean: stop, run the real thing, look at the real output.
 
 ## Integration
 
