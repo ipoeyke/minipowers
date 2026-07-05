@@ -63,6 +63,7 @@ digraph process {
     "Read plan, note context and global constraints, create todos" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent (../requesting-code-review/code-reviewer.md)" [shape=box];
+    "Offer spec-derived e2e verification (./spec-derived-e2e.md)" [shape=box];
     "Use superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "Read plan, note context and global constraints, create todos" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -78,7 +79,8 @@ digraph process {
     "Mark task complete in todo list and progress ledger" -> "More tasks remain?";
     "More tasks remain?" -> "Dispatch implementer subagent (./implementer-prompt.md)" [label="yes"];
     "More tasks remain?" -> "Dispatch final code reviewer subagent (../requesting-code-review/code-reviewer.md)" [label="no"];
-    "Dispatch final code reviewer subagent (../requesting-code-review/code-reviewer.md)" -> "Use superpowers:finishing-a-development-branch";
+    "Dispatch final code reviewer subagent (../requesting-code-review/code-reviewer.md)" -> "Offer spec-derived e2e verification (./spec-derived-e2e.md)";
+    "Offer spec-derived e2e verification (./spec-derived-e2e.md)" -> "Use superpowers:finishing-a-development-branch";
 }
 ```
 
@@ -263,32 +265,15 @@ a ledger file, not only in todos.
 - `git clean -fdx` will destroy the ledger (it's git-ignored scratch); if
   that happens, recover from `git log`.
 
-## Optional: Spec-Derived E2E Verification
+## Before Finishing: Offer E2E Verification
 
-Applies only when a spec governing the code the plan touches — the spec
-the plan implements, or a repo spec covering that surface — contains an
-"E2E scenario cards" section, or your human partner asked for end-to-end
-verification. Otherwise this section does not apply — skip it entirely.
-
-- At skill start, when you read the plan, open the spec it names — and if
-  it names none, check the repo's spec directory (e.g.
-  `docs/superpowers/specs/`) for specs governing the code the plan
-  touches — and check for an "E2E scenario cards" section. If present,
-  add a pending "spec-derived e2e verification" item to your todo list
-  and the progress ledger so compaction cannot lose it.
-- After the final whole-branch review passes: use
-  superpowers:agentic-end-to-end-testing. Dispatch a card-author subagent
-  per its authoring-cards-from-a-spec.md, run its
-  scripts/check-cards-against-spec yourself on the author's output
-  (self-attestation is not the gate), then dispatch a runner subagent per
-  its runner-prompt.md against the built branch.
-- Card FAILs are findings: dispatch ONE fix subagent with the complete
-  list, then re-run the failed cards. The card author never fixes. Fix-wave
-  commits land after the final review, so give the fix diff its own
-  task-review gate before finishing — a green re-run alone does not ship
-  unreviewed changes.
-- Results land before superpowers:finishing-a-development-branch, so
-  "ready to merge" includes live-scenario evidence.
+After the final whole-branch review passes and before
+superpowers:finishing-a-development-branch, offer your human partner
+spec-derived e2e verification: scenario cards derived from the governing
+spec, run live against the built branch. If they accept — or asked for
+end-to-end verification earlier — follow
+[spec-derived-e2e.md](spec-derived-e2e.md). If they decline, proceed to
+finishing.
 
 ## Prompt Templates
 
@@ -436,7 +421,7 @@ Done!
 - **superpowers:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
 - **superpowers:writing-plans** - Creates the plan this skill executes
 - **superpowers:requesting-code-review** - Code review template for the final whole-branch review
-- **superpowers:agentic-end-to-end-testing** - Optional spec-derived e2e verification after the final review (see Optional: Spec-Derived E2E Verification)
+- **superpowers:agentic-end-to-end-testing** - Spec-derived e2e verification, offered before finishing (see [spec-derived-e2e.md](spec-derived-e2e.md))
 - **superpowers:finishing-a-development-branch** - Complete development after all tasks
 
 **Subagents should use:**
