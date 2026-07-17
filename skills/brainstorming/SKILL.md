@@ -43,6 +43,9 @@ implementation skill after brainstorming.
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → plan → implementation cycle.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
+- If a fact is discoverable in the environment (files, git history, docs, running a command), look it up instead of asking. Questions are reserved for decisions and preferences that are genuinely the user's to make.
+- With every question, include your recommended answer and why - the user can then confirm with a word or push back
+- Ask questions in dependency order: settle upstream decisions before the downstream ones that hinge on them, so answers don't get invalidated
 - Prefer multiple choice questions when possible, but open-ended is fine too
 - Only one question per message - if a topic needs more exploration, break it into multiple questions
 - Focus on understanding: purpose, constraints, success criteria
@@ -109,6 +112,8 @@ Wait for the user's response. If they request changes, make them and re-run the 
 ## Key Principles
 
 - **One question at a time** - Don't overwhelm with multiple questions
+- **Recommend with every question** - Attach your recommended answer so confirming takes one word
+- **Look up facts, ask decisions** - Never ask the user something the environment can answer
 - **Multiple choice preferred** - Easier to answer than open-ended when possible
 - **YAGNI ruthlessly** - Remove unnecessary features from all designs
 - **Explore alternatives** - Always propose 2-3 approaches before settling
