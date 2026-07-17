@@ -18,16 +18,22 @@ system or an underspecified request gets the full flow below. A small, fully
 specified change gets a two-sentence design and a single approval question.
 What you may never skip is presenting SOME design and getting approval before
 implementing — unexamined assumptions are where wasted work comes from.
+Even on the lightweight path, still write the spec file (a few sentences is
+fine) and get the user's approval of it: the file is what gets committed at
+execution start, and writing-plans needs it as input. What the lightweight
+path compresses is the questioning and the alternatives, not the artifact.
 
 ## Checklist
 
-Create a task for each of these items and complete them in order:
+Create a task for each of these items and complete them in order (on the
+lightweight path, items 2-3 may collapse into the design itself — items 1
+and 4-8 always happen):
 
 1. **Explore project context** — check files, docs, recent commits
 2. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 3. **Propose 2-3 approaches** — with trade-offs and your recommendation
-4. **Present design** — in sections scaled to their complexity, get user approval after each section
-5. **Write design doc** — save to `docs/specs/YYYY-MM-DD-<topic>-design.md` (do NOT commit)
+4. **Present design** — in sections scaled to their complexity, get user approval after each section; apply the "Design for isolation and clarity" and "Working in existing codebases" guidance below
+5. **Write design doc** — save to `docs/specs/YYYY-MM-DD-<topic>-design.md` (do NOT commit — see below)
 6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
 7. **User reviews written spec** — ask user to review the spec file before proceeding
 8. **Transition to implementation** — invoke writing-plans skill to create implementation plan
@@ -98,7 +104,9 @@ After writing the spec document, look at it with fresh eyes:
 Fix any issues inline. No need to re-review — just fix and move on.
 
 **User Review Gate:**
-After the spec review loop passes, ask the user to review the written spec before proceeding:
+The user approved the design in conversation; this second gate is for the
+written artifact — the act of writing it down introduces drift, and the file
+(not the chat) is what writing-plans consumes. Ask the user to review it:
 
 > "Spec written to `<path>`. Please review it and let me know if you want to make any changes before we start writing out the implementation plan."
 
@@ -107,7 +115,7 @@ Wait for the user's response. If they request changes, make them and re-run the 
 **Implementation:**
 
 - Invoke the writing-plans skill to create a detailed implementation plan
-- Do NOT invoke any other skill. writing-plans is the next step.
+- Do NOT invoke any other implementation skill. writing-plans is the next step.
 
 ## Key Principles
 
@@ -116,6 +124,6 @@ Wait for the user's response. If they request changes, make them and re-run the 
 - **Look up facts, ask decisions** - Never ask the user something the environment can answer
 - **Multiple choice preferred** - Easier to answer than open-ended when possible
 - **YAGNI ruthlessly** - Remove unnecessary features from all designs
-- **Explore alternatives** - Always propose 2-3 approaches before settling
+- **Explore alternatives** - Propose 2-3 approaches for genuinely open design decisions
 - **Incremental validation** - Present design, get approval before moving on
 - **Be flexible** - Go back and clarify when something doesn't make sense

@@ -164,10 +164,12 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 ## Execution Handoff
 
 After the self-review passes, proceed DIRECTLY to execution — do not ask the
-human to review the plan and do not ask which execution mode to use. The plan
-is a machine-facing artifact (routinely 1000+ lines); the human already gated
-the spec, and execution's pre-flight review plus per-task reviewers are the
-net for plan defects.
+human for a general plan review or approval. The plan is a machine-facing
+artifact (routinely 1000+ lines); the human already gated the spec, and
+execution's pre-flight review plus per-task reviewers are the net for plan
+defects. (Subagent-driven-development's pre-flight step may still surface
+SPECIFIC plan conflicts to the human as one batched question — that is
+scoped conflict resolution, not a plan review.)
 
 - **REQUIRED SUB-SKILL:** Invoke minipowers:subagent-driven-development now
 - Announce: "Plan saved to `docs/plans/<filename>.md`. Executing with

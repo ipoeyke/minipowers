@@ -52,12 +52,14 @@ digraph process {
 
     "Kickoff: commit finalized spec+plan (single docs commit)" [shape=box];
     "Read plan, note context and global constraints, create todos" [shape=box];
+    "Pre-flight plan review (batch any conflicts into one question)" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent (./code-reviewer.md)" [shape=box];
     "Ask human about branch disposition (merge / PR / keep)" [shape=box style=filled fillcolor=lightgreen];
 
     "Kickoff: commit finalized spec+plan (single docs commit)" -> "Read plan, note context and global constraints, create todos";
-    "Read plan, note context and global constraints, create todos" -> "Dispatch implementer subagent (./implementer-prompt.md)";
+    "Read plan, note context and global constraints, create todos" -> "Pre-flight plan review (batch any conflicts into one question)";
+    "Pre-flight plan review (batch any conflicts into one question)" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
     "Answer questions, provide context" -> "Dispatch implementer subagent (./implementer-prompt.md)";
@@ -356,7 +358,7 @@ Done!
 - Parallel-safe (subagents don't interfere)
 - Subagent can ask questions (before AND during work)
 
-**vs. Executing Plans:**
+**vs. handing the plan to a separate execution session:**
 - Same session (no handoff)
 - Continuous progress (no waiting)
 - Review checkpoints automatic

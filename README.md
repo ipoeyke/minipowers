@@ -56,3 +56,8 @@ deleted outright. The full list and per-skill rationale are in
 The good ideas here are Jesse Vincent's
 ([obra/superpowers](https://github.com/obra/superpowers), MIT). This fork
 only takes things away.
+
+Three questioning habits in the brainstorming skill (look up facts instead of
+asking, attach a recommended answer to every question, resolve decisions in
+dependency order) were adapted from Matt Pocock's
+[grilling skill](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md) (MIT).
