@@ -69,7 +69,7 @@ What each task MUST pin down exactly:
 - **Binding constraints**: exact thresholds, formats, and invariants copied
   verbatim from the spec
 
-Include literal code only where it is genuinely load-bearing: a non-obvious
+Include literal code only where it is load-bearing: a non-obvious
 algorithm the implementer must not improvise (a hash-chain rule, a statistical
 formula, a tricky shell invocation), or an API contract other tasks compile
 against. When you do include code, mark it as binding. Everything else —
