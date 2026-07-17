@@ -4,6 +4,10 @@ A minimal fork of [obra/superpowers](https://github.com/obra/superpowers) for
 Claude Code: the six skills that still earn their context window with today's
 models, and nothing else. No hooks, no other-harness ports, no ceremony.
 
+Forked from upstream **v6.1.1** (commit
+[`d884ae0`](https://github.com/obra/superpowers/commit/d884ae04edebef577e82ff7c4e143debd0bbec99),
+2026-07). Upstream history is preserved in this repo up to that commit.
+
 Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 
 ## Skills
