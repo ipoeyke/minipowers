@@ -7,15 +7,13 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, exact interfaces, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-**Context:** If working in an isolated worktree, it should have been created via the `superpowers:using-git-worktrees` skill at execution time.
-
-**Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
+**Save plans to:** `docs/minipowers/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
 
 ## Scope Check
@@ -51,6 +49,31 @@ independently testable deliverable.
 - "Run the tests and make sure they pass" - step
 - "Commit" - step
 
+## Requirements, Not Transcription
+
+The implementer is a capable model with fresh context — the plan's job is to
+remove AMBIGUITY, not to pre-write their code. Plan-time code is written blind
+(nothing has been run yet); mandating full code in every step just ships your
+untested guesses as requirements, and implementers then waste time debugging
+the plan itself. In practice, plan-authored test fixtures with hardcoded seeds
+and expected values are the most common defect this causes.
+
+What each task MUST pin down exactly:
+- **Exact file paths** and which are created vs modified
+- **Exact interfaces**: function/class names, parameter and return types,
+  config keys and their default values, error types, journal/record shapes
+- **Test intent**: what each test proves, the specific behaviors and edge
+  cases it covers, and what a correct failure looks like in the red phase
+- **Binding constraints**: exact thresholds, formats, and invariants copied
+  verbatim from the spec
+
+Include literal code only where it is genuinely load-bearing: a non-obvious
+algorithm the implementer must not improvise (a hash-chain rule, a statistical
+formula, a tricky shell invocation), or an API contract other tasks compile
+against. When you do include code, mark it as binding. Everything else —
+test bodies, glue, fixtures — is described by intent and left to the
+implementer, who will run it.
+
 ## Plan Document Header
 
 **Every plan MUST start with this header:**
@@ -58,7 +81,7 @@ independently testable deliverable.
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use minipowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -92,52 +115,35 @@ include this section.]
   and return types. A task's implementer sees only their own task; this
   block is how they learn the names and types neighboring tasks use.]
 
-- [ ] **Step 1: Write the failing test**
+- [ ] **Step 1: Write failing tests** — [for each test: name, the behavior
+  it proves, inputs/edge cases it must cover, and the expected failure mode
+  in the red phase]
 
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
-```
+- [ ] **Step 2: Run tests to verify they fail for the right reason**
 
-- [ ] **Step 2: Run test to verify it fails**
+Run: `pytest tests/path/test.py -v`
+Expected: FAIL with [the specific reason — missing symbol, wrong value]
 
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: FAIL with "function not defined"
+- [ ] **Step 3: Implement** — [requirements + the Interfaces block above;
+  literal code only if load-bearing, marked as binding]
 
-- [ ] **Step 3: Write minimal implementation**
+- [ ] **Step 4: Run tests to verify they pass; full suite + lint stay green**
 
-```python
-def function(input):
-    return expected
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
+- [ ] **Step 5: Commit** — `git commit -m "feat: add specific feature"`
 ````
 
 ## No Placeholders
 
-Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
+Every step must contain the actual requirements an engineer needs. These are **plan failures** — never write them:
 - "TBD", "TODO", "implement later", "fill in details"
-- "Add appropriate error handling" / "add validation" / "handle edge cases"
-- "Write tests for the above" (without actual test code)
-- "Similar to Task N" (repeat the code — the engineer may be reading tasks out of order)
-- Steps that describe what to do without showing how (code blocks required for code steps)
-- References to types, functions, or methods not defined in any task
+- "Add appropriate error handling" / "add validation" / "handle edge cases" (name the errors and cases)
+- "Write tests for the above" (without naming each test's intent and coverage)
+- "Similar to Task N" (repeat the requirements — the engineer may be reading tasks out of order)
+- References to types, functions, or methods not defined in any task's Interfaces block
 
 ## Remember
 - Exact file paths always
-- Complete code in every step — if a step changes code, show the code
+- Exact interfaces and constraints; code only where load-bearing
 - Exact commands with expected output
 - DRY, YAGNI, TDD, frequent commits
 
@@ -155,20 +161,9 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving the plan:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Two execution options:**
+**"Plan complete and saved to `docs/minipowers/plans/<filename>.md`. Ready to execute with subagent-driven development (fresh subagent per task, review between tasks)?"**
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
-
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
-
-**Which approach?"**
-
-**If Subagent-Driven chosen:**
-- **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
+- **REQUIRED SUB-SKILL:** Use minipowers:subagent-driven-development
 - Fresh subagent per task + two-stage review
-
-**If Inline Execution chosen:**
-- **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
-- Batch execution with checkpoints for review
