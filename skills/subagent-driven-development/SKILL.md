@@ -50,11 +50,13 @@ digraph process {
         "Mark task complete in todo list and progress ledger" [shape=box];
     }
 
+    "Kickoff: commit finalized spec+plan (single docs commit)" [shape=box];
     "Read plan, note context and global constraints, create todos" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Dispatch final code reviewer subagent (./code-reviewer.md)" [shape=box];
     "Ask human about branch disposition (merge / PR / keep)" [shape=box style=filled fillcolor=lightgreen];
 
+    "Kickoff: commit finalized spec+plan (single docs commit)" -> "Read plan, note context and global constraints, create todos";
     "Read plan, note context and global constraints, create todos" -> "Dispatch implementer subagent (./implementer-prompt.md)";
     "Dispatch implementer subagent (./implementer-prompt.md)" -> "Implementer subagent asks questions?";
     "Implementer subagent asks questions?" -> "Answer questions, provide context" [label="yes"];
@@ -71,6 +73,20 @@ digraph process {
     "Dispatch final code reviewer subagent (./code-reviewer.md)" -> "Ask human about branch disposition (merge / PR / keep)";
 }
 ```
+
+## Kickoff Commit
+
+Execution start is the finalization boundary for the spec and the plan —
+neither has been committed before this point (brainstorming and writing-plans
+leave them as uncommitted files, by design, so drafts don't spam history).
+
+Before recording any base commit for Task 1: make ONE docs-only commit
+containing the spec and the plan (e.g. `docs: spec and plan for <feature>`).
+Order matters mechanically — the docs commit must land BEFORE Task 1's base
+SHA is recorded, or every task's review package will drag the full plan into
+the reviewer's context. If the plan is amended mid-execution (pre-flight
+findings, discovered conflicts), commit those amendments as they happen —
+that's a change to a finalized artifact, not draft noise.
 
 ## Pre-Flight Plan Review
 

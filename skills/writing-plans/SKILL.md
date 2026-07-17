@@ -15,6 +15,8 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
+- Do NOT commit the plan (or the spec). Both are committed in a single
+  docs commit when subagent-driven-development starts executing.
 
 ## Scope Check
 
@@ -161,9 +163,13 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan:
+After the self-review passes, proceed DIRECTLY to execution — do not ask the
+human to review the plan and do not ask which execution mode to use. The plan
+is a machine-facing artifact (routinely 1000+ lines); the human already gated
+the spec, and execution's pre-flight review plus per-task reviewers are the
+net for plan defects.
 
-**"Plan complete and saved to `docs/plans/<filename>.md`. Ready to execute with subagent-driven development (fresh subagent per task, review between tasks)?"**
+- **REQUIRED SUB-SKILL:** Invoke minipowers:subagent-driven-development now
+- Announce: "Plan saved to `docs/plans/<filename>.md`. Executing with
+  subagent-driven development."
 
-- **REQUIRED SUB-SKILL:** Use minipowers:subagent-driven-development
-- Fresh subagent per task + two-stage review
