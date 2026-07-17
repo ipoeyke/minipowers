@@ -13,7 +13,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-**Save plans to:** `docs/minipowers/plans/YYYY-MM-DD-<feature-name>.md`
+**Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
 
 ## Scope Check
@@ -163,7 +163,7 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 After saving the plan:
 
-**"Plan complete and saved to `docs/minipowers/plans/<filename>.md`. Ready to execute with subagent-driven development (fresh subagent per task, review between tasks)?"**
+**"Plan complete and saved to `docs/plans/<filename>.md`. Ready to execute with subagent-driven development (fresh subagent per task, review between tasks)?"**
 
 - **REQUIRED SUB-SKILL:** Use minipowers:subagent-driven-development
 - Fresh subagent per task + two-stage review
