@@ -112,12 +112,6 @@ brainstorming.
   implementer's brief - there is no plan document to fill the gap.
   Heavy-path specs don't need this section; the plan carries it. The
   section's presence carries no tier signal — the **Tier:** header does.
-- Write every decision made in conversation into the spec: the chosen
-  approach and each rejected alternative with its reason, user
-  preferences, definitions, and answers to clarifying questions. The next
-  stage reads only the file. On the heavy path the plan writer is a fresh
-  subagent with no access to this conversation, so a decision that lives
-  only in chat is lost.
 - Do NOT commit the spec. You will iterate on it; drafts are file edits, not
   commits. Commit timing depends on the tier: on the heavy path the spec is
   committed together with the plan when subagent-driven-development starts
@@ -133,7 +127,6 @@ After writing the spec document, look at it with fresh eyes:
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 5. **Rationale check:** Does each non-obvious value or constraint carry a one-clause reason in domain terms? Implementers may not cite the spec in code, so the reason is what ends up in the comment.
 6. **Evidence check (quantitative specs):** Does every numeric acceptance criterion carry evidence it is reachable, or a "to be probed at plan time" marker? Does every value tagged as sourced name a retrievable source (dataset, paper, or document)? If not, ask the user "where is the reference?" before presenting the spec for approval - do not wait for them to ask.
-7. **Decision check:** Does every decision from the conversation appear in the spec? Walk back through the questions asked and approaches rejected; add any that are missing.
 
 Fix any issues inline. No need to re-review — just fix and move on.
 
@@ -166,10 +159,8 @@ on scope - do not default to writing-plans.
    heavy work to light costs more than planning overhead saves.
 3. Update the spec's **Tier:** and **Escalation threshold:** header lines
    with the confirmed verdict.
-4. Route: light → invoke the executing-specs skill; heavy → dispatch the
-   plan writer with the writing-plans skill's `plan-writer-prompt.md`
-   template (a fresh Opus subagent that reads only the spec), then invoke
-   subagent-driven-development with the plan it returns.
+4. Route: light → invoke the executing-specs skill; heavy → invoke the
+   writing-plans skill to create a detailed implementation plan.
 
 Do NOT invoke any other implementation skill. The skill chosen by the
 triage - executing-specs or writing-plans - is the next step.

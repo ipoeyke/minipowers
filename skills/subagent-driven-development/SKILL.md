@@ -97,9 +97,6 @@ Before dispatching Task 1, scan the plan once for conflicts:
 - tasks that contradict each other or the plan's Global Constraints
 - anything the plan explicitly mandates that the review rubric treats as a
   defect (a test that asserts nothing, verbatim duplication of a logic block)
-- the assumptions the plan writer returned: confirm each one the spec
-  settles, and put the rest in the batched question. Write each answer
-  into the spec and the plan.
 
 Present everything you find to your human partner as one batched question —
 each finding beside the plan text that mandates it, asking which governs —
