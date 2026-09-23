@@ -33,6 +33,7 @@ Before defining tasks, map out which files will be created or modified and what 
 - You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
 - Files that change together should live together. Split by responsibility, not by technical layer.
 - In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
+- Shared test fixtures are an owned file. If two or more tasks build the same inputs (config builders, fixtures, RNG stubs), name a shared fixture file (e.g. `tests/<pkg>/conftest.py`), the task that creates it, and the later tasks that consume it. A fresh subagent cannot know a helper exists; without this, each task copy-pastes its own.
 
 This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
 
@@ -83,6 +84,17 @@ against. When you do include code, mark it as binding. Everything else —
 test bodies, glue, fixtures — is described by intent and left to the
 implementer, who will run it.
 
+## Feasibility Probe
+
+Any pass/fail criterion the code will enforce - a statistical check, a
+tolerance band, a minimum count, a correlation floor - must be shown
+reachable at default config before you pin it as a binding constraint.
+Run a scratch simulation outside the repo, state the expected
+false-alarm rate, and pin the threshold from that evidence. A threshold
+copied from the spec without evidence is a plan defect: a criterion that
+cannot pass surfaces mid-execution and costs several recalibration
+commits, where a probe before planning costs minutes.
+
 ## Plan Document Header
 
 **Every plan MUST start with this header:**
@@ -102,8 +114,11 @@ implementer, who will run it.
 
 [The spec's project-wide requirements — version floors, dependency limits,
 naming and copy rules, platform requirements — one line each, with exact
-values copied verbatim from the spec. Every task's requirements implicitly
-include this section.]
+values copied verbatim from the spec. Also list the architectural
+invariants: dependency direction ("nothing outside X imports X"),
+ownership ("only stage.py touches the store"), and state invariants ("a
+rating jump is a permanent shift"). Reviewers check only what this block
+lists. Every task's requirements implicitly include this section.]
 
 ---
 ```

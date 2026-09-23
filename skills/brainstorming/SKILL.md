@@ -126,6 +126,7 @@ After writing the spec document, look at it with fresh eyes:
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 5. **Rationale check:** Does each non-obvious value or constraint carry a one-clause reason in domain terms? Implementers may not cite the spec in code, so the reason is what ends up in the comment.
+6. **Evidence check (quantitative specs):** Does every numeric acceptance criterion carry evidence it is reachable, or a "to be probed at plan time" marker? Does every value tagged as sourced name a retrievable series or paper? If not, ask the user "where is the reference?" before presenting the spec for approval - do not wait for them to ask.
 
 Fix any issues inline. No need to re-review — just fix and move on.
 

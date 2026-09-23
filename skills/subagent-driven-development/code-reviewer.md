@@ -71,6 +71,8 @@ Subagent (general-purpose):
     - Does the implementation match the plan / requirements?
     - Are deviations justified improvements, or problematic departures?
     - Is all planned functionality present?
+    - For every invariant in the plan's Global Constraints, name the test
+      that proves it, or report it as untested.
 
     **Code quality:**
     - Clean separation of concerns?
@@ -78,6 +80,8 @@ Subagent (general-purpose):
     - Type safety where applicable?
     - DRY without premature abstraction?
     - Edge cases handled?
+    - A docstring longer than a summary line plus one short paragraph, or a
+      comment over two lines, is Minor.
 
     **Provenance:**
     - Does anything added cite the spec or plan - a doc path, a task or

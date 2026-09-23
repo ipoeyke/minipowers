@@ -200,15 +200,27 @@ final whole-branch review. When you fill a reviewer template:
   later dispatches — a real session's dispatch hit 42k chars of which 99%
   was pasted history. A fresh subagent needs its task, the interfaces it
   touches, and the global constraints. Nothing else.
-- Dispatch fix subagents for Critical and Important findings. Record Minor
-  findings in the progress ledger as you go, and point the final
-  whole-branch review at that list so it can triage which must be fixed
-  before merge. A roll-up nobody reads is a silent discard.
+- Critical and Important findings go to a fix subagent and a re-review.
+  A Minor finding goes straight to the implementer only when all three
+  hold: the implementer that made the change is still alive (SendMessage,
+  not a fresh dispatch), the fix is test-only, comment-only, or a rename,
+  and it needs no re-review. A live implementer with the files in context
+  applies it in one short turn. Record every other Minor finding in the
+  progress ledger as you go, and point the final whole-branch review at
+  that list so it can triage which must be fixed before merge. A roll-up
+  nobody reads is a silent discard.
 - A finding labeled plan-mandated — or any finding that conflicts with
   what the plan's text requires — is the human's decision, like any plan
   contradiction: present the finding and the plan text, ask which governs.
   Do not dismiss the finding because the plan mandates it, and do not
   dispatch a fix that contradicts the plan without asking.
+- When a finding shows the spec itself is wrong, decide it yourself if
+  the fix restores the spec's stated intent (a formula that adds drift the
+  spec says is absent, a half-life counted in the wrong unit). Ask the
+  human, as one batched question with options and a recommendation, when
+  the fix changes a published default value, a threshold, or the meaning
+  of an output. Either way, record it as a design correction (see Durable
+  Progress).
 - The final whole-branch review gets a package too: run
   `scripts/review-package MERGE_BASE HEAD` (MERGE_BASE = the commit the
   branch started from, e.g. `git merge-base main HEAD`) and include the
@@ -259,6 +271,10 @@ and is re-read on every later turn. Hand artifacts over as files:
   constraints that bind the task.
 - Fix dispatches append their fix report (with test results) to the same
   report file and return a short summary; re-reviews read the updated file.
+- **Commit trailer:** every implementer and fix dispatch states the exact
+  Co-Authored-By line its commits must carry, copied from your own session's
+  attribution. Subagents otherwise substitute their own model name and the
+  branch ends with mixed trailers.
 
 ## Durable Progress
 
@@ -274,6 +290,11 @@ a ledger file, not only in todos.
 - When a task's review comes back clean, append one line to the ledger in
   the same message as your other bookkeeping:
   `Task N: complete (commits <base7>..<head7>, review clean)`.
+- Every deviation from the spec decided during execution gets, when it is
+  decided, one ledger line under a "Design corrections" heading (what
+  changed, why, commit) and an edit to the local spec file, so spec and
+  code do not drift. The final report to the human lists these
+  corrections as a section of their own.
 - The ledger is your recovery map: the commits it names exist in git even
   when your context no longer remembers creating them. After compaction,
   trust the ledger and `git log` over your own recollection.
@@ -431,6 +452,12 @@ Done!
 **Workspace isolation:** if the work needs isolation from the current
 checkout, use the harness's native worktree support (worktree-isolated
 subagents or an equivalent tool) before executing the plan.
+
+**Statistical gates:** if the branch adds a self-check or any statistical
+gate, run it over many RNG roots (on the order of 100 roots times the
+configured seeds) before the final review and report the failure rate. A
+gate that fails 1-2% of roots at default config is a defect; per-task
+reviews on one or two seeds do not catch it.
 
 **After the final review:** verify the full suite one last time, then ask
 your human partner what to do with the branch (merge locally / push + PR /
