@@ -112,6 +112,11 @@ brainstorming.
   implementer's brief - there is no plan document to fill the gap.
   Heavy-path specs don't need this section; the plan carries it. The
   section's presence carries no tier signal — the **Tier:** header does.
+- Write every decision made in conversation into the spec: the chosen
+  approach and each rejected alternative with its reason, user
+  preferences, definitions, and answers to clarifying questions. The next
+  stage reads the file, and conversation memory does not survive
+  compaction, so a decision that lives only in chat is lost.
 - Do NOT commit the spec. You will iterate on it; drafts are file edits, not
   commits. Commit timing depends on the tier: on the heavy path the spec is
   committed together with the plan when subagent-driven-development starts
@@ -127,6 +132,7 @@ After writing the spec document, look at it with fresh eyes:
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
 5. **Rationale check:** Does each non-obvious value or constraint carry a one-clause reason in domain terms? Implementers may not cite the spec in code, so the reason is what ends up in the comment.
 6. **Evidence check (quantitative specs):** Does every numeric acceptance criterion carry evidence it is reachable, or a "to be probed at plan time" marker? Does every value tagged as sourced name a retrievable source (dataset, paper, or document)? If not, ask the user "where is the reference?" before presenting the spec for approval - do not wait for them to ask.
+7. **Decision check:** Does every decision from the conversation appear in the spec? Walk back through the questions asked and approaches rejected; add any that are missing.
 
 Fix any issues inline. No need to re-review — just fix and move on.
 
