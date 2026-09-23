@@ -141,6 +141,13 @@ Implementer subagents report one of four statuses. Handle each appropriately:
 3. If the task is too large, break it into smaller pieces
 4. If the plan itself is wrong, escalate to the human
 
+**No report (the subagent died mid-task):** inspect the working tree
+(`git status`, `git diff`) and the report file before re-dispatching. If
+the edits are complete and the covering tests pass, commit them and
+proceed to review. Otherwise resume the same agent (SendMessage) with the
+state it left: what is done, what remains, which tests fail. A fresh
+dispatch over half-finished edits redoes or collides with the work.
+
 **Never** ignore an escalation or force the same model to retry without changes. If the implementer said it's stuck, something needs to change.
 
 ## Handling Reviewer ⚠️ Items
