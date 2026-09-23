@@ -16,7 +16,7 @@ Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 | Skill | What it does |
 |---|---|
 | **brainstorming** | Turn an ambiguous idea into an approved design spec through one-question-at-a-time dialogue, before any code. Ends with a tier triage that routes small changes to executing-specs and large ones to writing-plans. |
-| **writing-plans** | Turn a spec into bite-sized tasks with exact file paths, interfaces, and test intent. Pinned requirements rather than pre-written code. Heavy tier only. |
+| **writing-plans** | Turn a spec into bite-sized tasks with exact file paths, interfaces, and test intent. Pinned requirements rather than pre-written code. Runs in a fresh Opus subagent that reads only the spec. Heavy tier only. |
 | **executing-specs** | Execute a small-scope spec directly, with no plan document: implementer subagents work from the spec itself, one whole-diff review, then everything squashes into a single commit. Escalates to the heavy tier if scope balloons mid-flight. |
 | **subagent-driven-development** | Execute a plan with a fresh implementer subagent per task, an adversarial reviewer per task, and a whole-branch review at the end. File-based handoffs (the `task-brief` and `review-package` scripts) keep the orchestrator's context small, and a progress ledger survives compaction. |
 | **test-driven-development** | Red-green-refactor, with the step that matters spelled out: watch the test fail, for the right reason. Includes a debugging stop rule (three failed fixes means the problem is architectural). |
@@ -34,7 +34,7 @@ The flow is two-tier, forked by a triage step at the end of brainstorming:
 
 Both tiers use TDD inside implementation and verification before every
 completion claim. Subagent model policy is fixed: implementers run on
-Sonnet, reviewers on Opus.
+Sonnet, reviewers and the plan writer on Opus.
 
 ## Install
 
