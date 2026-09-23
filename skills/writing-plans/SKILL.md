@@ -8,13 +8,18 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 This is the heavy-tier path, reached via brainstorming's tier triage; small,
 single-subsystem changes route to executing-specs instead.
 
+This skill runs in a fresh subagent dispatched with
+[plan-writer-prompt.md](plan-writer-prompt.md). The spec is your only
+input about intent: you have no access to the design conversation, and
+every decision made there is written in the spec. Where the spec is
+silent, choose the reading that fits its stated intent and record it as
+an assumption for the controller.
+
 ## Overview
 
 Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, exact interfaces, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
-
-**Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
 **Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
@@ -183,17 +188,13 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
-## Execution Handoff
+## Returning the Plan
 
-After the self-review passes, proceed DIRECTLY to execution — do not ask the
-human for a general plan review or approval. The plan is a machine-facing
-artifact (routinely 1000+ lines); the human already gated the spec, and
-execution's pre-flight review plus per-task reviewers are the net for plan
-defects. (Subagent-driven-development's pre-flight step may still surface
-SPECIFIC plan conflicts to the human as one batched question — that is
-scoped conflict resolution, not a plan review.)
-
-- **REQUIRED SUB-SKILL:** Invoke minipowers:subagent-driven-development now
-- Announce: "Plan saved to `docs/plans/<filename>.md`. Executing with
-  subagent-driven development."
+After the self-review passes, report back in the format the dispatch
+prompt names: the plan path, your assumptions, and your feasibility probe
+results. Do not invoke subagent-driven-development and do not ask for a
+plan review. The plan is a machine-facing artifact (routinely 1000+
+lines); the human already gated the spec. The controller starts
+execution, and its pre-flight review checks your assumptions and surfaces
+specific conflicts to the human as one batched question.
 
