@@ -215,8 +215,8 @@ final whole-branch review. When you fill a reviewer template:
   Do not dismiss the finding because the plan mandates it, and do not
   dispatch a fix that contradicts the plan without asking.
 - When a finding shows the spec itself is wrong, decide it yourself if
-  the fix restores the spec's stated intent (a formula that adds drift the
-  spec says is absent, a half-life counted in the wrong unit). Ask the
+  the fix restores the spec's stated intent (a formula that contradicts the
+  behavior the spec describes, a duration counted in the wrong unit). Ask the
   human, as one batched question with options and a recommendation, when
   the fix changes a published default value, a threshold, or the meaning
   of an output. Either way, record it as a design correction (see Durable
@@ -454,9 +454,9 @@ checkout, use the harness's native worktree support (worktree-isolated
 subagents or an equivalent tool) before executing the plan.
 
 **Statistical gates:** if the branch adds a self-check or any statistical
-gate, run it over many RNG roots (on the order of 100 roots times the
-configured seeds) before the final review and report the failure rate. A
-gate that fails 1-2% of roots at default config is a defect; per-task
+gate, run it over many random seeds (on the order of 100) before the
+final review and report the failure rate. A gate that fails 1-2% of seeds
+at default config is a defect; per-task
 reviews on one or two seeds do not catch it.
 
 **After the final review:** verify the full suite one last time, then ask

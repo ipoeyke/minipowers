@@ -60,7 +60,7 @@ Subagent (general-purpose):
 
     ## Statistical Tests
 
-    Never choose an RNG seed or root by searching for one that passes. A
+    Never choose a random seed by searching for one that passes. A
     statistical assertion must pass for the sampling distribution: derive
     the tolerance from it (e.g. 4 standard errors, or a Poisson band),
     assert against that, and note the expected false-alarm rate in the

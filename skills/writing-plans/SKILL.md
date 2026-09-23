@@ -116,8 +116,8 @@ commits, where a probe before planning costs minutes.
 naming and copy rules, platform requirements — one line each, with exact
 values copied verbatim from the spec. Also list the architectural
 invariants: dependency direction ("nothing outside X imports X"),
-ownership ("only stage.py touches the store"), and state invariants ("a
-rating jump is a permanent shift"). Reviewers check only what this block
+ownership ("only the repository layer writes to the database"), and state
+invariants ("an account balance never goes negative"). Reviewers check only what this block
 lists. Every task's requirements implicitly include this section.]
 
 ---
