@@ -90,6 +90,9 @@ Subagent (general-purpose):
     unchanged code or spans tasks), report it as a ⚠️ item instead of
     broadening your search.
 
+    For every invariant in the global constraints that this task touches,
+    name the test that proves it, or report it as a ⚠️ item.
+
     ## Part 2: Code Quality
 
     **Code quality:**
@@ -97,6 +100,8 @@ Subagent (general-purpose):
     - Proper error handling?
     - DRY without premature abstraction?
     - Edge cases handled?
+    - A docstring longer than a summary line plus one short paragraph, or a
+      comment over two lines, is Minor.
 
     **Tests:**
     - Do the new and changed tests verify real behavior, not mocks?

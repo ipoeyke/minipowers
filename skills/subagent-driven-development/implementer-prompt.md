@@ -58,6 +58,15 @@ Subagent (general-purpose):
     invocations on the files you touched while iterating, one whole-repo
     pass before the final commit.
 
+    ## Statistical Tests
+
+    Never choose a random seed by searching for one that passes. A
+    statistical assertion must pass for the sampling distribution: derive
+    the tolerance from it (e.g. 4 standard errors, or a Poisson band),
+    assert against that, and note the expected false-alarm rate in the
+    test. If no tolerance makes the test meaningful, report
+    DONE_WITH_CONCERNS instead of picking a seed.
+
     ## Reading Files
 
     Read each file you need once, in full. To revisit part of a file you
@@ -90,6 +99,14 @@ Subagent (general-purpose):
     messages. Where a comment is needed, state the reason in domain terms
     ("retry 5x: upstream rate-limits bursts"), not where the decision came
     from. If the brief gives a value without a reason, leave the comment out.
+
+    ## Docstrings and Comments
+
+    Before writing, read one existing module in the same package and match
+    its docstring shape. Default: a one-line summary, then at most one short
+    paragraph on a non-obvious why. Inline comments are 1-2 lines and state
+    a reason, never restate the code. Formulas and derivations belong in the
+    code, not in prose docstrings.
 
     ## When You're in Over Your Head
 
