@@ -117,6 +117,11 @@ brainstorming.
   preferences, definitions, and answers to clarifying questions. The next
   stage reads the file, and conversation memory does not survive
   compaction, so a decision that lives only in chat is lost.
+- Include a **Limitations** section: every deliberate simplification in
+  the design, what it costs, and why that cost is acceptable. This applies
+  to any design that trades fidelity for simplicity, not only numeric
+  specs. A simplification left unwritten reads to the next stage as an
+  oversight to fix.
 - Do NOT commit the spec. You will iterate on it; drafts are file edits, not
   commits. Commit timing depends on the tier: on the heavy path the spec is
   committed together with the plan when subagent-driven-development starts
@@ -133,6 +138,7 @@ After writing the spec document, look at it with fresh eyes:
 5. **Rationale check:** Does each non-obvious value or constraint carry a one-clause reason in domain terms? Implementers may not cite the spec in code, so the reason is what ends up in the comment.
 6. **Evidence check (quantitative specs):** Does every numeric acceptance criterion carry evidence it is reachable, or a "to be probed at plan time" marker? Does every value tagged as sourced name a retrievable source (dataset, paper, or document)? If not, ask the user "where is the reference?" before presenting the spec for approval - do not wait for them to ask.
 7. **Decision check:** Does every decision from the conversation appear in the spec? Walk back through the questions asked and approaches rejected; add any that are missing.
+8. **Limitations check:** Is every deliberate simplification listed in the Limitations section with its cost and why the cost is acceptable?
 
 Fix any issues inline. No need to re-review — just fix and move on.
 

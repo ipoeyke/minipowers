@@ -67,7 +67,9 @@ and expected values are the most common defect this causes.
 What each task MUST pin down exactly:
 - **Exact file paths** and which are created vs modified
 - **Exact interfaces**: function/class names, parameter and return types,
-  config keys and their default values, error types, journal/record shapes
+  config keys and their default values, error types, journal/record shapes.
+  Type every closed set of values (currencies, kinds, statuses) as an
+  enum, never a bare string or an id prefix
 - **Test intent**: what each test proves, the specific behaviors and edge
   cases it covers, and what a correct failure looks like in the red phase
 - **Binding constraints**: exact thresholds, formats, and invariants copied
