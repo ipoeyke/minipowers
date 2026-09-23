@@ -29,8 +29,7 @@ lines before anything else:
 
 - **Tier: light** — proceed.
 - **Tier: heavy** — STOP. State that brainstorming routed this spec to the
-  heavy path and hand off to writing-plans instead, dispatched as its
-  `plan-writer-prompt.md` describes.
+  heavy path and invoke writing-plans instead.
 - **No tier recorded** (older spec, or skill invoked directly) — do not
   assume light. Apply brainstorming's tier-triage criteria to the spec
   inline, state your assessment, and get the user's confirmation before

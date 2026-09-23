@@ -115,9 +115,8 @@ brainstorming.
 - Write every decision made in conversation into the spec: the chosen
   approach and each rejected alternative with its reason, user
   preferences, definitions, and answers to clarifying questions. The next
-  stage reads only the file. On the heavy path the plan writer is a fresh
-  subagent with no access to this conversation, so a decision that lives
-  only in chat is lost.
+  stage reads the file, and conversation memory does not survive
+  compaction, so a decision that lives only in chat is lost.
 - Do NOT commit the spec. You will iterate on it; drafts are file edits, not
   commits. Commit timing depends on the tier: on the heavy path the spec is
   committed together with the plan when subagent-driven-development starts
@@ -166,10 +165,8 @@ on scope - do not default to writing-plans.
    heavy work to light costs more than planning overhead saves.
 3. Update the spec's **Tier:** and **Escalation threshold:** header lines
    with the confirmed verdict.
-4. Route: light → invoke the executing-specs skill; heavy → dispatch the
-   plan writer with the writing-plans skill's `plan-writer-prompt.md`
-   template (a fresh Opus subagent that reads only the spec), then invoke
-   subagent-driven-development with the plan it returns.
+4. Route: light → invoke the executing-specs skill; heavy → invoke the
+   writing-plans skill to create a detailed implementation plan.
 
 Do NOT invoke any other implementation skill. The skill chosen by the
 triage - executing-specs or writing-plans - is the next step.
