@@ -33,6 +33,7 @@ Before defining tasks, map out which files will be created or modified and what 
 - You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
 - Files that change together should live together. Split by responsibility, not by technical layer.
 - In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
+- Living docs are an owned file. Each change in the spec's Living docs impact section goes into the task whose deliverable makes the old text wrong, never a trailing docs-only task. See minipowers:brainstorming's Living Docs section.
 - Shared test fixtures are an owned file. If two or more tasks build the same inputs (config builders, fixtures, RNG stubs), name a shared fixture file (e.g. `tests/<pkg>/conftest.py`), the task that creates it, and the later tasks that consume it. A fresh subagent cannot know a helper exists; without this, each task copy-pastes its own.
 
 This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
@@ -75,9 +76,10 @@ What each task MUST pin down exactly:
 - **Binding constraints**: exact thresholds, formats, and invariants copied
   verbatim from the spec
 - **Rationale for non-obvious constraints**: one clause of why, in domain
-  terms. Implementers may not cite the plan or spec in code, so a value
-  without a reason becomes either a bare magic number or a "per the plan"
-  comment.
+  terms, or the stable public source it comes from (a published paper, a
+  standard or RFC, a named public data series). Implementers may not cite
+  the plan or spec in code, so a value without a reason becomes either a
+  bare magic number or a "per the plan" comment.
 
 Include literal code only where it is load-bearing: a non-obvious
 algorithm the implementer must not improvise (a hash-chain rule, a statistical
@@ -182,6 +184,10 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 **2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+
+**4. Living docs:** Does every entry in the spec's Living docs impact section land in a task?
+
+**5. Tables:** No table cell contains a literal `|`, not even inside backticks: GitHub-flavoured markdown splits cells on it before parsing code spans. Write closed values as separate code spans (`` `gain`, `loss`, `flat` ``) and union types with "or" (`int or None`).
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 

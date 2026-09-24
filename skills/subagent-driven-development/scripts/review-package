@@ -38,6 +38,7 @@ provenance_leaks() {
       if (l ~ /docs\/(specs|plans)\// ||
           l ~ /(^|[^a-z])task[ _-]?[0-9]+/ ||
           l ~ /(^|[^a-z])(per|see|from|in|by|to) the (spec|plan|design doc|brainstorm)/ ||
+          l ~ /(^|[^a-z])as (specified|designed|planned)([^a-z]|$)/ ||
           l ~ /(^|[^a-z])(spec|plan)(.s)? (section|§)/ ||
           l ~ /implementation[ _-]notes|global[ _-]constraints/)
         printf "%s:%d: %s\n", file, line, substr($0, 2)

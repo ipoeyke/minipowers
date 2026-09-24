@@ -33,7 +33,9 @@ The flow is two-tier, forked by a triage step at the end of brainstorming:
   task decomposition, per-task review gates, a commit at every step.
 
 Both tiers use TDD inside implementation and verification before every
-completion claim. Subagent model policy is fixed: implementers run on
+completion claim. Specs and plans are point-in-time records that nothing
+else in the repo may cite; `ARCHITECTURE.md` at the repo root is the living
+description of the current system, updated by every change that alters it. Subagent model policy is fixed: implementers run on
 Sonnet, reviewers on Opus.
 
 ## Install
