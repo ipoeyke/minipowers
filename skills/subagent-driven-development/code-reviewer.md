@@ -84,13 +84,23 @@ Subagent (general-purpose):
       comment over two lines, is Minor.
 
     **Provenance:**
-    - Does anything added cite the spec or plan - a doc path, a task or
-      step number, a section name, "per the spec" - in comments,
-      docstrings, test names, identifiers, or strings? A review package
-      lists grep candidates under "Provenance leaks" when it found any;
-      judge each and look for paraphrased ones the grep cannot see. Each
-      real leak is Important: the code must explain itself in domain
+    - Does anything added, in any file, cite the spec or plan - a doc
+      path, a task or step number, a section name, "per the spec", "as
+      designed" - in code, comments, docstrings, test names, identifiers,
+      strings, docs such as README or ARCHITECTURE.md, or config? A review
+      package lists grep candidates under "Provenance leaks" when it found
+      any; judge each and look for paraphrased ones the grep cannot see.
+      Each real leak is Important: the repo must explain itself in domain
       terms, because the spec and plan are not part of the codebase.
+      Citing a stable public source (a published paper, a standard or RFC,
+      a named public data series) is not a leak.
+
+    **Living docs:**
+    - Does `ARCHITECTURE.md` (and any `docs/architecture/` file) still
+      match the code after this change? Check each entry in the spec's
+      Living docs impact section landed, and look for sections the change
+      made wrong that the spec missed. Drift is Important: the living docs
+      are how the next spec learns the current system.
 
     **Architecture:**
     - Sound design decisions?

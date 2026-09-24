@@ -116,13 +116,16 @@ Subagent (general-purpose):
       sizes — focus on what this change contributed.)
 
     **Provenance:**
-    - Does anything added cite the plan or spec — a doc path, a task or step
-      number, a section name, "per the plan" — in comments, docstrings, test
-      names, identifiers, strings, or commit subjects? The diff file lists
-      grep candidates under "Provenance leaks" when it found any; judge each
-      (a job queue's "task 3" is not a leak) and look for paraphrased ones
-      the grep cannot see. Each real leak is Important: the code must explain
-      itself in domain terms, because the plan is not part of the codebase.
+    - Does anything added, in any file, cite the plan or spec — a doc path,
+      a task or step number, a section name, "per the plan", "as designed" —
+      in code, comments, docstrings, test names, identifiers, strings, docs
+      such as README or ARCHITECTURE.md, config, or commit subjects? The diff
+      file lists grep candidates under "Provenance leaks" when it found any;
+      judge each (a job queue's "task 3" is not a leak) and look for
+      paraphrased ones the grep cannot see. Each real leak is Important: the
+      repo must explain itself in domain terms, because the plan is not part
+      of the codebase. Citing a stable public source (a published paper, a
+      standard or RFC, a named public data series) is not a leak.
 
     Your report should point at evidence: file:line references for every
     finding and for any check you would otherwise answer with a bare

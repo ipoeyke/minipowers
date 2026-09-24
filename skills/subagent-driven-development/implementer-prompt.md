@@ -92,13 +92,24 @@ Subagent (general-purpose):
 
     ## Code Stands Alone
 
-    The plan and spec are scaffolding, not part of the codebase. Nothing you
-    commit may point at them: no spec or plan paths, task or step numbers,
-    section names ("Global Constraints"), or "per the plan" - in comments,
-    docstrings, test names, identifiers, log or error strings, or commit
-    messages. Where a comment is needed, state the reason in domain terms
-    ("retry 5x: upstream rate-limits bursts"), not where the decision came
-    from. If the brief gives a value without a reason, leave the comment out.
+    The plan and spec are scaffolding, not part of the codebase. No file you
+    create or modify may point at them - code, tests, docstrings, comments,
+    identifiers, log or error strings, README, CLAUDE.md, config, fixtures,
+    living docs - and neither may your commit messages. That means no
+    `docs/specs/` or `docs/plans/` paths, no task or step numbers, no
+    section names ("Global Constraints"), and no "per the plan" or "as
+    designed".
+
+    A docstring or comment states the rule itself and, where non-obvious,
+    its reason in domain terms ("retry 5x: upstream rate-limits bursts"),
+    never where the decision came from. If the brief gives a value without
+    a reason, leave the comment out. One exception: a value may cite the
+    stable public source it comes from - a published paper, a standard or
+    RFC, a named public data series, official vendor docs.
+
+    If your brief lists changes to `ARCHITECTURE.md` (or
+    `docs/architecture/`), make them in this task. Those files describe the
+    system as it now is, with no dates or history.
 
     ## Docstrings and Comments
 
@@ -143,8 +154,8 @@ Subagent (general-purpose):
     - Did I avoid overbuilding (YAGNI)?
     - Did I only build what was requested?
     - Did I follow existing patterns in the codebase?
-    - Does the code stand alone — no mention of the plan, the spec, or task
-      numbers in code, tests, or commit messages?
+    - Does every file I touched stand alone — no mention of the plan, the
+      spec, or task numbers anywhere, including commit messages?
 
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?

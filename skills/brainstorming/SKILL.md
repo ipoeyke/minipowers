@@ -29,7 +29,7 @@ Create a task for each of these items and complete them in order (on the
 lightweight path, items 2-3 may collapse into the design itself — items 1
 and 4-8 always happen):
 
-1. **Explore project context** — check files, docs, recent commits
+1. **Explore project context** — read the living docs first (see below), then files and recent commits. Older specs and plans are history, not current truth
 2. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 3. **Propose 2-3 approaches** — with trade-offs and your recommendation
 4. **Present design** — in sections scaled to their complexity, get user approval after each section; apply the "Design for isolation and clarity" and "Working in existing codebases" guidance below
@@ -46,7 +46,7 @@ brainstorming.
 
 **Understanding the idea:**
 
-- Check out the current project state first (files, docs, recent commits)
+- Check out the current project state first (living docs, files, recent commits)
 - Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
 - If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → implementation cycle through the tier triage.
 - For appropriately-scoped projects, ask questions one at a time to refine the idea
@@ -84,6 +84,23 @@ brainstorming.
 - Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.
 - Don't propose unrelated refactoring. Stay focused on what serves the current goal.
 
+## Living Docs
+
+Specs and plans are point-in-time records. They overlap, go stale, and are
+never edited after execution, so none of them describes the system as it
+is now. The living docs do:
+
+- `ARCHITECTURE.md` at the repo root: components and their boundaries,
+  data flow, invariants, and key decisions with their reasons. No dates,
+  no change history, no spec or plan references.
+- When one area outgrows the root file, move it to
+  `docs/architecture/<area>.md` and link it from `ARCHITECTURE.md`.
+- If no `ARCHITECTURE.md` exists, the first spec creates it, covering only
+  the areas that spec touches.
+
+Every change that alters what the living docs describe updates them in the
+same work, so they stay current without a separate sweep.
+
 ## After the Design
 
 **Documentation:**
@@ -95,6 +112,7 @@ brainstorming.
   ```
   **Tier:** light|heavy (provisional until triage)
   **Escalation threshold:** N files
+  **Supersedes:** docs/specs/<older-spec>.md (what this changes) | none
   ```
 
   Write your provisional assessment when you first draft the spec; the
@@ -103,6 +121,14 @@ brainstorming.
   executing-specs' entry gate reads, so a session that dies before triage
   still leaves a recorded verdict. Set the escalation threshold to the
   Implementation notes' file count plus a small margin (2-3 files).
+  **Supersedes** names each older spec whose decisions this one changes, so
+  a reader of the old spec can find what replaced it. Find them by grepping
+  `docs/specs/` for the components and terms you change, not by reading
+  every old spec.
+- Include a **Living docs impact** section: which sections of
+  `ARCHITECTURE.md` (or `docs/architecture/` files) change and what they
+  will say, or "none" if the change alters nothing they describe. On the
+  light path, list the living-doc files in Implementation notes too.
 - If you expect to recommend the light tier at the triage step below, the
   spec MUST include an **Implementation notes** section: files to
   create/modify, key interfaces, and test intent — plus, for each area of
@@ -135,10 +161,12 @@ After writing the spec document, look at it with fresh eyes:
 2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
 3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
 4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
-5. **Rationale check:** Does each non-obvious value or constraint carry a one-clause reason in domain terms? Implementers may not cite the spec in code, so the reason is what ends up in the comment.
+5. **Rationale check:** Does each non-obvious value or constraint carry a one-clause reason in domain terms, or a stable public source (a published paper, a standard or RFC, a named public data series)? Implementers may not cite the spec in code, so the reason or public source is what ends up in the comment.
 6. **Evidence check (quantitative specs):** Does every numeric acceptance criterion carry evidence it is reachable, or a "to be probed at plan time" marker? Does every value tagged as sourced name a retrievable source (dataset, paper, or document)? If not, ask the user "where is the reference?" before presenting the spec for approval - do not wait for them to ask.
 7. **Decision check:** Does every decision from the conversation appear in the spec? Walk back through the questions asked and approaches rejected; add any that are missing.
 8. **Limitations check:** Is every deliberate simplification listed in the Limitations section with its cost and why the cost is acceptable?
+9. **Living docs check:** Does the Living docs impact section name every living-doc section this change makes wrong? Does the Supersedes line name every older spec whose decisions this one changes?
+10. **Table check:** No table cell contains a literal `|`, not even inside backticks: GitHub-flavoured markdown splits cells on it before parsing code spans. Write closed values as separate code spans (`` `gain`, `loss`, `flat` ``) and union types with "or" (`int or None`).
 
 Fix any issues inline. No need to re-review — just fix and move on.
 
