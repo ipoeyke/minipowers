@@ -93,6 +93,11 @@ skill directory: `../subagent-driven-development/scripts/review-package
 BASE HEAD` - it prints the file path it wrote. Hand the reviewer that path
 instead of pasting the diff into your own context.
 
+Before dispatching the reviewer, run the full suite and lint once at
+HEAD, redirecting output to `.minipowers/sdd/full-suite-<head7>.txt`, and
+pass that path as the reviewer's Test Evidence file. Reviewers read it
+instead of re-running the suite.
+
 Also pass a findings file path -
 `.minipowers/sdd/review-findings-BASE..HEAD.md` - and require the
 reviewer to append each finding as it confirms it (see
@@ -113,7 +118,9 @@ Pass the fixer the findings file path rather than pasting findings inline.
 ### 5. Verify
 
 Run the minipowers:verification-before-completion gate before squashing:
-full test suite green, evidence before any completion claim. Judge results
+full test suite green, evidence before any completion claim. If HEAD has
+not changed since the pre-review full run, that output is the evidence;
+otherwise run the suite again. Judge results
 against Setup's baseline snapshot: failures that existed at base are
 reported to the user, not blockers; anything newly red blocks.
 

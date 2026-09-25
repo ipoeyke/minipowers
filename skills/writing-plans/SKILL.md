@@ -155,10 +155,17 @@ Expected: FAIL with [the specific reason — missing symbol, wrong value]
 - [ ] **Step 3: Implement** — [requirements + the Interfaces block above;
   literal code only if load-bearing, marked as binding]
 
-- [ ] **Step 4: Run tests to verify they pass; full suite + lint stay green**
+- [ ] **Step 4: Run this task's tests and lint on touched files; all green**
 
 - [ ] **Step 5: Commit** — `git commit -m "feat: add specific feature"`
 ````
+
+Test commands are the project's documented ones (README, Makefile,
+CONTRIBUTING, CI config). If the project already has a parallel runner
+configured (pytest-xdist, jest workers), the full-suite command uses it;
+do not add dependencies for speed. Never write a full-suite run into a
+task step: the implementer gets one full run before its final commit, and
+the controller runs the suite once before the final review.
 
 ## No Placeholders
 

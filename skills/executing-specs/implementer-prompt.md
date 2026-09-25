@@ -197,8 +197,9 @@ Subagent (general-purpose):
 
     ## After Review Findings
 
-    If a reviewer finds issues and you fix them, re-run the tests that
-    cover the amended code and report the results in your reply - the
+    If a reviewer finds issues and you fix them, re-run only the tests that
+    cover the amended code - never the full suite - and report the results
+    in your reply - the
     reviewer will not re-run tests for you.
 
     ## Report Format

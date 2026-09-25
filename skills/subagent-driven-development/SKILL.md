@@ -228,6 +228,11 @@ final whole-branch review. When you fill a reviewer template:
   the fix changes a published default value, a threshold, or the meaning
   of an output. Either way, record it as a design correction (see Durable
   Progress).
+- Before the final whole-branch review, run the full suite and lint once
+  yourself at HEAD, redirecting output to
+  `.minipowers/sdd/full-suite-<head7>.txt`, and pass that path to the
+  final reviewer. It is the only full run between the last task and the
+  review: reviewers read it instead of re-running the suite.
 - The final whole-branch review gets a package too: run
   `scripts/review-package MERGE_BASE HEAD` (MERGE_BASE = the commit the
   branch started from, e.g. `git merge-base main HEAD`) and include the
@@ -466,6 +471,8 @@ final review and report the failure rate. A gate that fails 1-2% of seeds
 at default config is a defect; per-task
 reviews on one or two seeds do not catch it.
 
-**After the final review:** verify the full suite one last time, then ask
+**After the final review:** if final-review fixes changed code since the
+pre-review full run, verify the full suite one last time; otherwise that
+run is the evidence. Then ask
 your human partner what to do with the branch (merge locally / push + PR /
 leave as-is). One question; don't merge or push without an answer.
