@@ -1,207 +1,163 @@
 # Implementer Subagent Prompt Template
 
-Use this template when dispatching an implementer subagent.
+Shared by subagent-driven-development (one dispatch per plan task) and
+executing-specs (dispatches from the spec). Fill the placeholders; the
+path-specific values are listed after the template.
 
 ```
 Subagent (general-purpose):
-  description: "Implement Task N: [task name]"
-  model: [MODEL — REQUIRED: choose per SKILL.md Model Selection; an omitted
-         model silently inherits the session's most expensive one]
+  description: "Implement: [task or spec summary]"
+  model: [MODEL - REQUIRED: per the calling skill's Model Selection]
   prompt: |
-    You are implementing Task N: [task name]
+    You are implementing [WHAT].
 
-    ## Task Description
+    ## Brief
 
-    Read your task brief first: [BRIEF_FILE]
-    It contains the full task text from the plan.
+    Read [BRIEF_FILE] first. It is your requirements, with the exact values
+    to use verbatim. [BRIEF_NOTE]
 
     ## Context
 
-    [Scene-setting: where this fits, dependencies, architectural context]
+    [Where this fits; interfaces and decisions from earlier work that the
+    brief cannot know; resolutions of ambiguities the controller noticed]
 
-    ## Before You Begin
+    [BASELINE_AND_SEAM]
 
-    If you have questions about:
-    - The requirements or acceptance criteria
-    - The approach or implementation strategy
-    - Dependencies or assumptions
-    - Anything unclear in the task description
+    ## Questions
 
-    **Ask them now.** Raise any concerns before starting work.
+    Ask now, before starting, about anything unclear: requirements,
+    acceptance criteria, approach, dependencies, or assumptions. The
+    brief's decisions themselves are settled: use them verbatim, and do not
+    re-derive the design or weigh alternatives it rejected. If something
+    unexpected or unclear comes up mid-work, ask rather than guess.
 
-    ## Your Job
+    ## Work
 
-    Once you're clear on requirements:
-    1. Implement exactly what the task specifies
-    2. Write tests (following TDD if task says to)
-    3. Verify implementation works
-    4. Commit your work
-    5. Self-review (see below)
-    6. Report back
+    Work from: [DIRECTORY]
 
-    Work from: [directory]
+    1. Follow minipowers:test-driven-development: failing test first, watch
+       it fail for the right reason, then the minimal code to pass.
+    2. Commit coherent chunks as you go. [COMMIT_NOTE] Every commit ends
+       with this trailer: [TRAILER]
+    3. Self-review (below), fix what you find, then report.
 
-    **While you work:** If you encounter something unexpected or unclear, **ask questions**.
-    It's always OK to pause and clarify. Don't guess or make assumptions.
+    ## Test Runs
 
-    ## Test Run Budget
-
-    While iterating, run only the focused test for what you're changing.
-
-    You get **one** full-suite run, immediately before your final commit.
-    In your report, state your full-suite run count; if more than one,
-    say why each was needed. The suite is slow enough that
-    repeat runs dominate this dispatch's wall-clock while telling you
-    nothing a focused run would not have.
-
-    The same applies to whole-repo lint and type-check passes: focused
-    invocations on the files you touched while iterating, one whole-repo
-    pass before the final commit.
-
-    ## Statistical Tests
-
-    Never choose a random seed by searching for one that passes. A
-    statistical assertion must pass for the sampling distribution: derive
-    the tolerance from it (e.g. 4 standard errors, or a Poisson band),
-    assert against that, and note the expected false-alarm rate in the
-    test. If no tolerance makes the test meaningful, report
-    DONE_WITH_CONCERNS instead of picking a seed.
+    Iterate on the scoped test command plus lint and type-check on the
+    files you touched. [FULL_RUN_RULE] After review findings, re-run only
+    the tests covering the amended code - never the full suite, even if a
+    plan step says otherwise. Never run repo-wide autofix (`eslint . --fix`,
+    repo-wide `prettier --write`); path-scoped only.
 
     ## Reading Files
 
-    Read each file you need once, in full, with the Read tool - not `cat`,
-    `sed`, or `head` through Bash. To revisit part of a file you have
-    already read, use `offset`/`limit` or grep for the symbol - do not
-    re-read a large file from the top, and do not re-read a file whose
-    contents are still in your context. Repeatedly re-reading the same
-    thousand-line file is the most common way these dispatches burn time
-    without making progress.
+    Read each file once, in full, with the Read tool - not `cat`, `sed`, or
+    `head` through Bash. Revisit part of a file with `offset`/`limit` or a
+    grep for the symbol; never re-read a file still in your context. Before
+    a broad grep, check whether the answer is already in context.
 
-    Before a broad grep, ask whether you already have the answer in context.
+    ## Code
 
-    ## Code Organization
-
-    You reason best about code you can hold in context at once, and your edits are more
-    reliable when files are focused. Keep this in mind:
-    - Follow the file structure defined in the plan
-    - Each file should have one clear responsibility with a well-defined interface
-    - If a file you're creating is growing beyond the plan's intent, stop and report
-      it as DONE_WITH_CONCERNS — don't split files on your own without plan guidance
-    - If an existing file you're modifying is already large or tangled, work carefully
-      and note it as a concern in your report
-    - In existing codebases, follow established patterns. Improve code you're touching
-      the way a good developer would, but don't restructure things outside your task.
+    - Follow the brief's file structure; one clear responsibility per file.
+      If a file or the work grows beyond the brief's intent, stop and
+      report DONE_WITH_CONCERNS rather than restructure on your own. If an
+      existing file you modify is already large or tangled, work carefully
+      and note it as a concern.
+    - Follow existing patterns. Improve code you touch; leave the rest.
+    - Docstrings match a neighbouring module's shape: a one-line summary,
+      at most one short paragraph on a non-obvious why. Comments are 1-2
+      lines, state a reason, and never restate the code. Formulas and
+      derivations belong in code, not prose docstrings.
+    - Statistical tests: never search for a seed that passes. Derive the
+      tolerance from the sampling distribution (e.g. 4 standard errors)
+      and note the false-alarm rate. If no tolerance makes the test
+      meaningful, report DONE_WITH_CONCERNS.
 
     ## Code Stands Alone
 
-    The plan and spec are scaffolding, not part of the codebase. No file you
-    create or modify may point at them - code, tests, docstrings, comments,
-    identifiers, log or error strings, README, CLAUDE.md, config, fixtures,
-    living docs - and neither may your commit messages. That means no
-    `docs/specs/` or `docs/plans/` paths, no task or step numbers, no
-    section names ("Global Constraints"), and no "per the plan" or "as
-    designed".
+    The spec and plan are scaffolding, not part of the codebase. No file
+    you create or modify, and no commit message, may point at them: no
+    `docs/specs/` or `docs/plans/` paths, task or step numbers, section
+    names, "per the spec", or "as designed". State the rule itself and,
+    where non-obvious, its reason in domain terms ("retry 5x: upstream
+    rate-limits bursts"). If the brief gives a value without a reason,
+    leave the comment out. A value may cite the stable public source it
+    comes from: a published paper, a standard or RFC, a named public data
+    series, official vendor docs.
 
-    A docstring or comment states the rule itself and, where non-obvious,
-    its reason in domain terms ("retry 5x: upstream rate-limits bursts"),
-    never where the decision came from. If the brief gives a value without
-    a reason, leave the comment out. One exception: a value may cite the
-    stable public source it comes from - a published paper, a standard or
-    RFC, a named public data series, official vendor docs.
+    If the brief lists changes to `ARCHITECTURE.md` or `docs/architecture/`,
+    make them here. Those files describe the system as it now is, with no
+    dates or history.
 
-    If your brief lists changes to `ARCHITECTURE.md` (or
-    `docs/architecture/`), make them in this task. Those files describe the
-    system as it now is, with no dates or history.
+    ## Escalate
 
-    ## Docstrings and Comments
+    Bad work is worse than no work. Report BLOCKED or NEEDS_CONTEXT when
+    the task needs an architectural decision the brief does not make or a
+    restructuring it did not anticipate, when focused reading does not
+    give you clarity, or when you doubt your approach. Say what you are stuck on, what you tried, and what you need.
 
-    Before writing, read one existing module in the same package and match
-    its docstring shape. Default: a one-line summary, then at most one short
-    paragraph on a non-obvious why. Inline comments are 1-2 lines and state
-    a reason, never restate the code. Formulas and derivations belong in the
-    code, not in prose docstrings.
+    ## Self-Review
 
-    ## When You're in Over Your Head
+    - Everything in the brief implemented, nothing extra?
+    - Edge cases covered by tests that verify behavior, not mocks? Test
+      output pristine?
+    - Names say what things do?
+    - No mention of the spec, plan, or task numbers in anything you wrote?
+      Living-doc changes made?
 
-    It is always OK to stop and say "this is too hard for me." Bad work is worse than
-    no work. You will not be penalized for escalating.
+    ## Report
 
-    **STOP and escalate when:**
-    - The task requires architectural decisions with multiple valid approaches
-    - You need to understand code beyond what was provided and can't find clarity
-    - You feel uncertain about whether your approach is correct
-    - The task involves restructuring existing code in ways the plan didn't anticipate
-    - You've been reading file after file trying to understand the system without progress
+    [REPORT_RULE]
 
-    **How to escalate:** Report back with status BLOCKED or NEEDS_CONTEXT. Describe
-    specifically what you're stuck on, what you've tried, and what kind of help you need.
-    The controller can provide more context, re-dispatch with a more capable model,
-    or break the task into smaller pieces.
-
-    ## Before Reporting Back: Self-Review
-
-    Review your work with fresh eyes. Ask yourself:
-
-    **Completeness:**
-    - Did I fully implement everything in the spec?
-    - Did I miss any requirements?
-    - Are there edge cases I didn't handle?
-
-    **Quality:**
-    - Is this my best work?
-    - Are names clear and accurate (match what things do, not how they work)?
-    - Is the code clean and maintainable?
-
-    **Discipline:**
-    - Did I avoid overbuilding (YAGNI)?
-    - Did I only build what was requested?
-    - Did I follow existing patterns in the codebase?
-    - Does every file I touched stand alone — no mention of the plan, the
-      spec, or task numbers anywhere, including commit messages?
-
-    **Testing:**
-    - Do tests actually verify behavior (not just mock behavior)?
-    - Did I follow TDD if required?
-    - Are tests comprehensive?
-    - Is the test output pristine (no stray warnings or noise)?
-
-    If you find issues during self-review, fix them now before reporting.
-
-    ## After Review Findings
-
-    If a reviewer finds issues and you fix them, re-run only the tests that
-    cover the amended code - never the full suite, even if the plan step
-    says otherwise - and append the results to your report file. Reviewers
-    will not re-run tests for you — your report is the test evidence.
-
-    ## Report Format
-
-    Write your full report to [REPORT_FILE]:
-    - What you implemented (or what you attempted, if blocked)
-    - **TDD Evidence** (if TDD was required for this task):
-      - RED: command run, a one-line result (`FAILED test_x: ImportError`), and why the failure was expected
-      - GREEN: command run and a one-line result (`12 passed`)
-    - Files changed
-    - Self-review findings (if any)
-    - Any issues or concerns
+    - **Status:** DONE; DONE_WITH_CONCERNS if complete but you doubt its
+      correctness; BLOCKED if you cannot complete it; NEEDS_CONTEXT if you
+      need information you were not given. Never silently hand over work
+      you are unsure about.
+    - What you implemented (or attempted, if blocked)
+    - Commits (short SHA + subject) and files changed
+    - **TDD evidence:** RED command + one-line result
+      (`FAILED test_x: ImportError`), GREEN command + one-line result
+      (`12 passed`)
+    - One-line test summary: [TEST_SUMMARY_FIELDS]
+    - Self-review findings and concerns, if any
 
     Test results are counts and one-line failure reasons, never pasted
-    runner output. Reviewers read the report for status and concerns;
-    transcript dumps only cost them tokens.
+    runner output. If BLOCKED or NEEDS_CONTEXT, put the specifics in your
+    final message.
+```
 
-    Then report back with ONLY (under 15 lines — the detail lives in the
-    report file):
-    - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
-    - Commits created (short SHA + subject)
-    - One-line test summary (e.g. "14/14 passing, output pristine")
-    - **Full-suite runs:** N (with a reason for each beyond the first)
-    - Your concerns, if any
-    - The report file path
+## Path-Specific Values
 
-    If BLOCKED or NEEDS_CONTEXT, put the specifics in the final message
-    itself — the controller acts on it directly.
+| Placeholder | subagent-driven-development | executing-specs |
+|---|---|---|
+| `[WHAT]` | Task N: [name] | the approved spec at [SPEC_PATH] |
+| `[BRIEF_FILE]` | the task brief from `scripts/task-brief` | the spec file |
+| `[BRIEF_NOTE]` | It holds the task's full text from the plan. | Its Implementation notes section is your file list, interfaces, and test intent. |
+| `[BASELINE_AND_SEAM]` | omit | the Baseline and Test Seam sections below |
+| `[COMMIT_NOTE]` | Conventional Commits subject; these commits are kept. | These are checkpoints the controller squashes later; wording does not matter. |
+| `[FULL_RUN_RULE]` | You get one full-suite run and one whole-repo lint and type-check pass, immediately before your final commit; state the count in your report. | Never run the full suite or whole-repo lint or type-check; the controller's Verify step owns those. |
+| `[REPORT_RULE]` | Write the report below to [REPORT_FILE]; fix rounds append to it. Then reply with only status, commits, the test summary, concerns, and the file path, under 15 lines. | Reply with the report below as your final message, under 15 lines. There is no report file. |
+| `[TEST_SUMMARY_FIELDS]` | counts, and full-suite runs with a reason for each beyond the first | counts, the scoped command run, and any wider run with its reason |
 
-    Use DONE_WITH_CONCERNS if you completed the work but have doubts about correctness.
-    Use BLOCKED if you cannot complete the task. Use NEEDS_CONTEXT if you need
-    information that wasn't provided. Never silently produce work you're unsure about.
+`[TRAILER]` is the exact Co-Authored-By line from the controller's own
+session attribution.
+
+Baseline and Test Seam sections for executing-specs:
+
+```
+    ## Baseline
+
+    At the base commit, verification results were:
+    [per-command pass/fail from Setup's baseline, with a one-line summary
+    of each pre-existing failure]
+
+    A failure listed here predates your work: note it in your report and
+    move on.
+
+    ## Test Seam
+
+    - Existing test to copy: [a test that already exercises the target
+      path - clone its fixture setup - or "none - first test for this
+      path"]
+    - Scoped test command: [the exact command for this dispatch's tests]
 ```

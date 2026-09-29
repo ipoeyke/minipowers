@@ -5,214 +5,173 @@ description: Use before creative work that is new or ambiguous - creating featur
 
 # Brainstorming Ideas Into Designs
 
-Help turn ideas into fully formed designs and specs through natural collaborative dialogue.
-
-Start by understanding the current project context, then ask questions one at a time to refine the idea. Once you understand what you're building, present the design and get user approval.
+Turn an idea into an approved design and spec through collaborative
+dialogue.
 
 <HARD-GATE>
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it.
 </HARD-GATE>
 
-**Scale the process to the ambiguity, not the other way around.** A new
-system or an underspecified request gets the full flow below. A small, fully
-specified change gets a two-sentence design and a single approval question.
-What you may never skip is presenting SOME design and getting approval before
-implementing — unexamined assumptions are where wasted work comes from.
-Even on the lightweight path, still write the spec file (a few sentences is
-fine) and get the user's approval of it: the next skill - executing-specs or
-writing-plans - needs it as input. What the lightweight path compresses is
-the questioning and the alternatives, not the artifact.
+**Scale the process to the ambiguity.** A new system or an underspecified
+request gets the full flow. A small, fully specified change gets a
+two-sentence design and one approval question. Never skip presenting SOME
+design and getting approval, and always write the spec file (a few
+sentences is fine): the next skill reads it. The light path compresses the
+questioning and alternatives, not the artifact.
 
 ## Checklist
 
-Create a task for each of these items and complete them in order (on the
-lightweight path, items 2-3 may collapse into the design itself — items 1
-and 4-8 always happen):
+Create a task for each item and complete them in order. On the light path,
+items 2-3 may collapse into the design; the rest always happen.
 
-1. **Explore project context** — read the living docs first (see below), then files and recent commits. Older specs and plans are history, not current truth
-2. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
-3. **Propose 2-3 approaches** — with trade-offs and your recommendation
-4. **Present design** — in sections scaled to their complexity, batching straightforward ones, get user approval after each round; apply the "Design for isolation and clarity" and "Working in existing codebases" guidance below
-5. **Write design doc** — save to `docs/specs/YYYY-MM-DD-<topic>-design.md` (do NOT commit — see below)
-6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
-7. **User reviews written spec** — ask user to review the spec file before proceeding
-8. **Tier triage** — assess light vs. heavy scope, confirm the recommendation with the user, record the verdict in the spec's header lines, and route to executing-specs (light) or writing-plans (heavy)
+1. **Explore context** - living docs first, then files and recent commits
+2. **Ask clarifying questions** - one at a time
+3. **Propose 2-3 approaches** - trade-offs and your recommendation
+4. **Present the design** - get approval per round
+5. **Write the spec** - `docs/specs/YYYY-MM-DD-<topic>-design.md`, not committed
+6. **Self-review the spec**
+7. **User reviews the written spec**
+8. **Tier triage** - route to executing-specs (light) or writing-plans (heavy)
 
-**The terminal state is the tier triage, routing to executing-specs or
-writing-plans.** Do NOT invoke any other implementation skill after
-brainstorming.
-
-## The Process
-
-**Understanding the idea:**
-
-- Check out the current project state first (living docs, files, recent commits)
-- Before asking detailed questions, assess scope: if the request describes multiple independent subsystems (e.g., "build a platform with chat, file storage, billing, and analytics"), flag this immediately. Don't spend questions refining details of a project that needs to be decomposed first.
-- If the project is too large for a single spec, help the user decompose into sub-projects: what are the independent pieces, how do they relate, what order should they be built? Then brainstorm the first sub-project through the normal design flow. Each sub-project gets its own spec → implementation cycle through the tier triage.
-- For appropriately-scoped projects, ask questions one at a time to refine the idea
-- If a fact is discoverable in the environment (files, git history, docs, running a command), look it up instead of asking. Questions are reserved for decisions and preferences that are the user's to make.
-- With every question, include your recommended answer and why - the user can then confirm with a word or push back
-- Ask questions in dependency order: settle upstream decisions before the downstream ones that hinge on them, so answers don't get invalidated
-- Prefer multiple choice questions when possible, but open-ended is fine too
-- Only one question per message - if a topic needs more exploration, break it into multiple questions
-- Focus on understanding: purpose, constraints, success criteria
-
-**Exploring approaches:**
-
-- Propose 2-3 different approaches with trade-offs
-- Present options conversationally with your recommendation and reasoning
-- Lead with your recommended option and explain why
-
-**Presenting the design:**
-
-- Once you believe you understand what you're building, present the design
-- Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
-- Present straightforward sections together in one brief round; give a section its own round only when it holds a decision the user must make
-- Ask after each round whether it looks right so far. If the user approves several rounds in a row without changes, the rounds are not surfacing decisions: batch the remaining sections
-- Cover: architecture, components, data flow, error handling, testing
-- Be ready to go back and clarify if something doesn't make sense
-
-**Design for isolation and clarity:**
-
-- Break the system into smaller units that each have one clear purpose, communicate through well-defined interfaces, and can be understood and tested independently
-- For each unit, you should be able to answer: what does it do, how do you use it, and what does it depend on?
-- Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.
-- Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.
-
-**Working in existing codebases:**
-
-- Explore the current structure before proposing changes. Follow existing patterns.
-- Where existing code has problems that affect the work (e.g., a file that's grown too large, unclear boundaries, tangled responsibilities), include targeted improvements as part of the design - the way a good developer improves code they're working in.
-- Don't propose unrelated refactoring. Stay focused on what serves the current goal.
+The tier triage is the terminal state. Invoke no other implementation skill.
 
 ## Living Docs
 
-Specs and plans are point-in-time records. They overlap, go stale, and are
-never edited after execution, so none of them describes the system as it
-is now. The living docs do:
+Specs and plans are point-in-time records: they overlap, go stale, and are
+never edited after execution. The living docs describe the system as it is
+now:
 
-- `ARCHITECTURE.md` at the repo root: components and their boundaries,
-  data flow, invariants, and key decisions with their reasons. No dates,
-  no change history, no spec or plan references.
-- When one area outgrows the root file, move it to
-  `docs/architecture/<area>.md` and link it from `ARCHITECTURE.md`.
+- `ARCHITECTURE.md` at the repo root: components and boundaries, data
+  flow, invariants, and key decisions with their reasons. No dates, no
+  history, no spec or plan references.
+- An area that outgrows the root file moves to
+  `docs/architecture/<area>.md`, linked from `ARCHITECTURE.md`.
 - If no `ARCHITECTURE.md` exists, the first spec creates it, covering only
-  the areas that spec touches.
+  the areas it touches.
 
-Every change that alters what the living docs describe updates them in the
-same work, so they stay current without a separate sweep.
+Every change that alters what they describe updates them in the same work.
 
-## After the Design
+## Understanding the Idea
 
-**Documentation:**
+- Read the living docs, then files and recent commits. Older specs are
+  history, not current truth.
+- If the request spans multiple independent subsystems, say so before
+  detailed questions and help decompose it into sub-projects, each with
+  its own spec and implementation cycle. Brainstorm the first one.
+- Aim at purpose, constraints, and success criteria.
+- Look up anything the environment can answer (files, git, docs, running
+  a command). Ask only about decisions and preferences that are the
+  user's.
+- One question per message, multiple choice where possible, each with your
+  recommended answer and why, so confirming takes one word.
+- Ask in dependency order: settle upstream decisions before those that
+  hinge on them.
 
-- Write the validated design (spec) to `docs/specs/YYYY-MM-DD-<topic>-design.md`
-  - (User preferences for spec location override this default)
-- Start the spec with header lines recording the tier verdict:
+## Approaches and Design
 
-  ```
-  **Tier:** light|heavy (provisional until triage)
-  **Escalation threshold:** N files
-  **Supersedes:** docs/specs/<older-spec>.md (what this changes) | none
-  ```
+- Propose 2-3 approaches with trade-offs, leading with your recommendation.
+  YAGNI: remove features the goal does not need.
+- Present the design once you understand what you're building, covering
+  architecture, components, data flow, error handling, and testing. Scale
+  each section to its complexity (a few sentences to 200-300 words).
+- Present straightforward sections together in one brief round; give a
+  section its own round only when it holds a decision for the user. If the
+  user approves several rounds in a row without changes, batch the rest.
+- Design units with one clear purpose and well-defined interfaces, each
+  understandable and testable without reading its internals. A file
+  growing large is a sign it does too much.
+- In existing codebases, follow established patterns. Include targeted
+  improvements where existing problems affect the work; propose no
+  unrelated refactoring.
 
-  Write your provisional assessment when you first draft the spec; the
-  Tier Triage step confirms or corrects it and removes the "provisional"
-  marker. These header lines — not the conversation — are what
-  executing-specs' entry gate reads, so a session that dies before triage
-  still leaves a recorded verdict. Set the escalation threshold to the
-  Implementation notes' file count plus a small margin (2-3 files).
-  **Supersedes** names each older spec whose decisions this one changes, so
-  a reader of the old spec can find what replaced it. Find them by grepping
-  `docs/specs/` for the components and terms you change, not by reading
-  every old spec.
-- Include a **Living docs impact** section: which sections of
-  `ARCHITECTURE.md` (or `docs/architecture/` files) change and what they
-  will say, or "none" if the change alters nothing they describe. On the
-  light path, list the living-doc files in Implementation notes too.
-- If you expect to recommend the light tier at the triage step below, the
-  spec MUST include an **Implementation notes** section: files to
-  create/modify, key interfaces, and test intent — plus, for each area of
-  work, one existing test to copy (a test function that already exercises
-  the target path, or "none — first test for this path") and the exact
-  scoped test command for it. On the light path the spec is the
-  implementer's brief - there is no plan document to fill the gap.
-  Heavy-path specs don't need this section; the plan carries it. The
-  section's presence carries no tier signal — the **Tier:** header does.
-- Write every decision made in conversation into the spec: the chosen
-  approach and each rejected alternative with its reason, user
-  preferences, definitions, and answers to clarifying questions. The next
-  stage reads the file, and conversation memory does not survive
-  compaction, so a decision that lives only in chat is lost.
-- Include a **Limitations** section: every deliberate simplification in
-  the design, what it costs, and why that cost is acceptable. This applies
-  to any design that trades fidelity for simplicity, not only numeric
-  specs. A simplification left unwritten reads to the next stage as an
-  oversight to fix.
-- Do NOT commit the spec. You will iterate on it; drafts are file edits, not
-  commits. Commit timing depends on the tier: on the heavy path the spec is
-  committed together with the plan when subagent-driven-development starts
-  executing; on the light path it is committed as part of the single final
-  commit when executing-specs finishes.
+## Writing the Spec
 
-**Spec Self-Review:**
-After writing the spec document, look at it with fresh eyes:
+Write to `docs/specs/YYYY-MM-DD-<topic>-design.md` unless the user prefers
+another location. Do not commit it: drafts are file edits. Heavy-path
+specs are committed with the plan when subagent-driven-development starts;
+light-path specs land in executing-specs' single final commit.
 
-1. **Placeholder scan:** Any "TBD", "TODO", incomplete sections, or vague requirements? Fix them.
-2. **Internal consistency:** Do any sections contradict each other? Does the architecture match the feature descriptions?
-3. **Scope check:** Is this focused enough for a single implementation plan, or does it need decomposition?
-4. **Ambiguity check:** Could any requirement be interpreted two different ways? If so, pick one and make it explicit.
-5. **Rationale check:** Does each non-obvious value or constraint carry a one-clause reason in domain terms, or a stable public source (a published paper, a standard or RFC, a named public data series)? Implementers may not cite the spec in code, so the reason or public source is what ends up in the comment.
-6. **Evidence check (quantitative specs):** Does every numeric acceptance criterion carry evidence it is reachable, or a "to be probed at plan time" marker? Does every value tagged as sourced name a retrievable source (dataset, paper, or document)? If not, ask the user "where is the reference?" before presenting the spec for approval - do not wait for them to ask.
-7. **Decision check:** Does every decision from the conversation appear in the spec? Walk back through the questions asked and approaches rejected; add any that are missing.
-8. **Limitations check:** Is every deliberate simplification listed in the Limitations section with its cost and why the cost is acceptable?
-9. **Living docs check:** Does the Living docs impact section name every living-doc section this change makes wrong? Does the Supersedes line name every older spec whose decisions this one changes?
-10. **Table check:** No table cell contains a literal `|`, not even inside backticks: GitHub-flavoured markdown splits cells on it before parsing code spans. Write closed values as separate code spans (`` `gain`, `loss`, `flat` ``) and union types with "or" (`int or None`).
+Start with these header lines:
 
-Fix any issues inline. No need to re-review — just fix and move on.
+```
+**Tier:** light or heavy (provisional until triage)
+**Escalation threshold:** N files
+**Supersedes:** docs/specs/<older-spec>.md (what this changes), or none
+```
 
-**User Review Gate:**
-The user approved the design in conversation; this second gate is for the
-written artifact — the act of writing it down introduces drift, and the file
-(not the chat) is what the next skill consumes. Ask the user to review it:
+- **Tier** is your provisional assessment; triage confirms it. The header,
+  not the conversation, is what executing-specs' entry gate reads.
+- **Escalation threshold** is the Implementation notes' file count plus 2-3.
+- **Supersedes** names each older spec whose decisions this one changes.
+  Find them by grepping `docs/specs/` for the components and terms you
+  change.
+
+The spec must contain:
+
+- **Every decision from the conversation**: the chosen approach, each
+  rejected alternative with its reason, preferences, definitions, and
+  answers. Conversation memory does not survive compaction.
+- **A reason for each non-obvious value or constraint**, in one domain-terms
+  clause or as a stable public source (a published paper, a standard or
+  RFC, a named public data series). Implementers may not cite the spec in
+  code, so this is what ends up in the comment.
+- **Limitations**: every deliberate simplification, its cost, and why the
+  cost is acceptable. An unwritten simplification reads as an oversight.
+- **Living docs impact**: which sections of the living docs change and what
+  they will say, or "none".
+- **Implementation notes** (light tier only): files to create or modify,
+  key interfaces, test intent, living-doc files, and per area of work one
+  existing test to copy (or "none - first test for this path") plus the
+  exact scoped test command. On the light path the spec is the
+  implementer's whole brief.
+
+Markdown tables: no cell may contain a literal `|`, not even inside
+backticks - GitHub-flavoured markdown splits cells on it first. Write
+closed values as separate code spans (`` `gain`, `loss`, `flat` ``) and
+unions with "or" (`int or None`).
+
+## Spec Self-Review
+
+Check with fresh eyes and fix inline:
+
+1. **Placeholders:** no "TBD", "TODO", or vague requirements.
+2. **Consistency:** no contradicting sections; architecture matches features.
+3. **Scope:** focused enough for one plan, or needs decomposition.
+4. **Ambiguity:** no requirement readable two ways.
+5. **Rationale:** every non-obvious value has a reason or public source.
+6. **Evidence (quantitative specs):** every numeric acceptance criterion
+   has evidence it is reachable or a "to be probed at plan time" marker;
+   every sourced value names a retrievable source. If not, ask the user
+   "where is the reference?" before presenting the spec.
+7. **Decisions:** walk back through the questions and rejected approaches;
+   every one appears.
+8. **Limitations:** every simplification listed with cost and justification.
+9. **Living docs and Supersedes:** every section this change makes wrong is
+   named, and every older spec it overrides.
+10. **Tables:** no literal `|` in any cell.
+
+## User Review Gate
+
+Writing the design down introduces drift, and the file is what the next
+skill consumes. Ask:
 
 > "Spec written to `<path>`. Please review it and let me know if you want to make any changes before we proceed."
 
-Wait for the user's response. If they request changes, make them and re-run the spec review loop. Only proceed once the user approves.
+Apply requested changes and re-run the self-review. Proceed only on
+approval.
 
-**Tier Triage:**
+## Tier Triage
 
-Once the user has approved the written spec, route to the next skill based
-on scope - do not default to writing-plans.
-
-1. Assess tier from concrete signals:
-   - **Light:** single subsystem; roughly 1-5 files touched; no schema or
-     API migrations; no new cross-component interfaces to design; work fits
-     about 1-3 implementer dispatches.
-   - **Heavy:** multiple subsystems; many files; new interfaces between
-     components; migrations; anything needing task-by-task interface
-     pinning.
-   - **Any unresolved decision forces heavy:** a "TBD", an "implementation
-     must confirm", or an interface left open makes the spec ineligible
-     for light. Resolve it in the spec or route heavy.
-2. State your recommendation with a one-line rationale and ask one
-   confirmation question. Borderline cases default to heavy: misrouting
-   heavy work to light costs more than planning overhead saves.
-3. Update the spec's **Tier:** and **Escalation threshold:** header lines
-   with the confirmed verdict.
-4. Route: light → invoke the executing-specs skill; heavy → invoke the
-   writing-plans skill to create a detailed implementation plan.
-
-Do NOT invoke any other implementation skill. The skill chosen by the
-triage - executing-specs or writing-plans - is the next step.
-
-## Key Principles
-
-- **One question at a time** - Don't overwhelm with multiple questions
-- **Recommend with every question** - Attach your recommended answer so confirming takes one word
-- **Look up facts, ask decisions** - Never ask the user something the environment can answer
-- **Multiple choice preferred** - Easier to answer than open-ended when possible
-- **YAGNI ruthlessly** - Remove unnecessary features from all designs
-- **Explore alternatives** - Propose 2-3 approaches for open design decisions
-- **Incremental validation** - Present design, get approval before moving on
-- **Be flexible** - Go back and clarify when something doesn't make sense
+1. Assess from concrete signals:
+   - **Light:** one subsystem, roughly 1-5 files, no schema or API
+     migrations, no new cross-component interfaces, about 1-3 implementer
+     dispatches.
+   - **Heavy:** multiple subsystems, many files, new interfaces,
+     migrations, or anything needing task-by-task interface pinning.
+   - **Any unresolved decision** ("TBD", "implementation must confirm", an
+     open interface) forces heavy. Resolve it in the spec or route heavy.
+2. State your recommendation in one line and ask one confirmation
+   question. Borderline cases go heavy.
+3. Update the **Tier** and **Escalation threshold** header lines and remove
+   the "provisional" marker.
+4. Light: invoke executing-specs. Heavy: invoke writing-plans.

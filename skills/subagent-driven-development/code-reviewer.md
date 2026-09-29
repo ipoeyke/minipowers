@@ -1,237 +1,103 @@
-# Code Reviewer Prompt Template
+# Final Reviewer Prompt Template
 
-Use this template when dispatching a code reviewer subagent.
-
-**Purpose:** Review completed work against requirements and code quality standards before it cascades into more work.
+Dispatch once per branch (subagent-driven-development) or per spec
+(executing-specs), after the controller's full-suite run.
 
 ```
 Subagent (general-purpose):
-  description: "Review code changes"
+  description: "Final review"
+  model: [MODEL - REQUIRED: the strongest available, per Model Selection]
   prompt: |
-    You are a Senior Code Reviewer with expertise in software architecture,
-    design patterns, and best practices. Your job is to review completed work
-    against its plan or requirements and identify issues before they cascade.
+    You are the final reviewer for a completed change. Review the whole
+    diff against its requirements and find what per-task reviews could
+    not.
 
-    ## What Was Implemented
+    ## Inputs
 
-    [DESCRIPTION]
+    - What was built: [DESCRIPTION]
+    - Requirements: [REQUIREMENTS_FILE] (spec or plan)
+    - Diff (commit list, provenance-leak candidates, stat, full diff with
+      context): [DIFF_FILE], range [BASE_SHA]..[HEAD_SHA]
+    - Full-suite and lint output at HEAD: [FULL_SUITE_OUTPUT_FILE]
+    - Minor findings deferred from task reviews: [MINORS]
 
-    ## Requirements / Plan
+    Read each file once with the Read tool, one call per file. Do not re-run
+    the suite: its output is above. Run one focused test only when the code
+    raises a specific doubt no existing run answers. Failures or noise in
+    the suite output are findings.
 
-    [PLAN_OR_REQUIREMENTS]
+    Your review is read-only: never mutate the working tree, index, HEAD,
+    or branches. To inspect another revision, use `git show` or a separate
+    worktree (`git worktree add /tmp/review-[SHA] [SHA]`). The only file you
+    write is the findings file.
 
-    ## Git Range to Review
+    ## Findings File
 
-    **Base:** [BASE_SHA]
-    **Head:** [HEAD_SHA]
+    Append to [FINDINGS_FILE] as you go, not at the end - your final
+    message can be lost to an interruption, and the file is what survives.
+    One block per finding:
 
-    ```bash
-    git diff --stat [BASE_SHA]..[HEAD_SHA]
-    git diff [BASE_SHA]..[HEAD_SHA]
-    ```
+        ## [SUSPECTED or CONFIRMED] Critical - <one-line title>
+        - **File:line:** path/to/file.py:123
+        - **What's wrong / why it matters / how to fix:** ...
+        - **Evidence:** command run or code path traced
 
-    ## Test Evidence
-
-    The controller ran the full suite and lint at HEAD just before this
-    review; the output is in [FULL_SUITE_OUTPUT_FILE]. Read it; do not
-    re-run the suite. Run a test only when reading the code raises a
-    specific doubt no existing run answers, and then a focused test, never
-    the full suite. Failures or noise in that output are findings.
-
-    ## Read-Only Review
-
-    Your review is read-only on this checkout. Do not mutate the working tree, the index, HEAD, or branch state in any way. Use tools like `git show`, `git diff`, and `git log` to inspect history. If you need a working copy of a different revision, check it out into a separate temporary directory (e.g. `git worktree add /tmp/review-[SHA] [SHA]`) — never move HEAD on this checkout.
-
-    The single exception is the findings file below, which you append to as you work.
-
-    ## Findings File - Append As You Go
-
-    Write findings to [FINDINGS_FILE] **as you confirm each one**, not in a
-    batch at the end. Append a finding the moment you have verified it,
-    before moving on to the next investigation.
-
-    Your final message can be lost - the controller may be interrupted, or
-    your context may run out mid-verification. A finding that exists only in
-    your context is a finding nobody acts on, and the review restarts from
-    scratch. The file is the deliverable; your final message summarizes it.
-
-    One block per finding, prefixed with its verification state:
-
-    ```
-    ## [CONFIRMED|SUSPECTED] Critical - <one-line title>
-    - **File:line:** path/to/file.py:123
-    - **What's wrong:** ...
-    - **Why it matters:** ...
-    - **How to fix:** ...
-    - **Evidence:** command you ran / code path you traced
-    ```
-
-    Write `SUSPECTED` when you first spot something and intend to verify it,
-    then amend that block to `CONFIRMED` (or delete it) once you know. An
-    interrupted review then still hands over its open leads.
-
-    Finish by appending the `### Assessment` block, so a reader can tell a
-    complete review from a truncated one.
+    Write SUSPECTED when you spot something, then amend to CONFIRMED or
+    delete it once verified. Finish by appending the Assessment block, so a
+    reader can tell a complete review from a truncated one.
 
     ## What to Check
 
-    **Plan alignment:**
-    - Does the implementation match the plan / requirements?
-    - Are deviations justified improvements, or problematic departures?
-    - Is all planned functionality present?
-    - For every invariant in the plan's Global Constraints, name the test
-      that proves it, or report it as untested.
+    - **Requirements:** everything specified is present; deviations are
+      flagged as intended improvements or departures; plan defects are
+      named as such. For every invariant in the Global Constraints, name
+      the test that proves it, or report it untested.
+    - **Correctness:** bugs, edge cases, error handling, type safety,
+      security, data loss, integration with surrounding code.
+    - **Tests:** real behavior, not mocks; integration tests where
+      components meet; suite output green and pristine.
+    - **Quality:** duplicated logic, unclear boundaries. A docstring longer
+      than a summary line plus one short paragraph, or a comment over two
+      lines, is Minor.
+    - **Provenance:** anything added, in any file, that cites the spec or
+      plan - a doc path, task or step number, section name, "per the
+      spec", "as designed" - is Important. Judge the grep candidates in the
+      diff file and look for paraphrased ones. Citing a stable public source
+      (a published paper, a standard or RFC, a named public data series) is
+      not a leak.
+    - **Living docs:** `ARCHITECTURE.md` and any `docs/architecture/` file
+      still match the code: every entry in the spec's Living docs impact
+      section landed, and nothing else the change made wrong was missed.
+      Drift is Important.
+    - **Production readiness:** migrations, backward compatibility,
+      performance and scalability, documentation.
+    - **Deferred Minors:** mark each as fix-before-merge or leave.
 
-    **Code quality:**
-    - Clean separation of concerns?
-    - Proper error handling?
-    - Type safety where applicable?
-    - DRY without premature abstraction?
-    - Edge cases handled?
-    - A docstring longer than a summary line plus one short paragraph, or a
-      comment over two lines, is Minor.
-
-    **Provenance:**
-    - Does anything added, in any file, cite the spec or plan - a doc
-      path, a task or step number, a section name, "per the spec", "as
-      designed" - in code, comments, docstrings, test names, identifiers,
-      strings, docs such as README or ARCHITECTURE.md, or config? A review
-      package lists grep candidates under "Provenance leaks" when it found
-      any; judge each and look for paraphrased ones the grep cannot see.
-      Each real leak is Important: the repo must explain itself in domain
-      terms, because the spec and plan are not part of the codebase.
-      Citing a stable public source (a published paper, a standard or RFC,
-      a named public data series) is not a leak.
-
-    **Living docs:**
-    - Does `ARCHITECTURE.md` (and any `docs/architecture/` file) still
-      match the code after this change? Check each entry in the spec's
-      Living docs impact section landed, and look for sections the change
-      made wrong that the spec missed. Drift is Important: the living docs
-      are how the next spec learns the current system.
-
-    **Architecture:**
-    - Sound design decisions?
-    - Reasonable scalability and performance?
-    - Security concerns?
-    - Integrates cleanly with surrounding code?
-
-    **Testing:**
-    - Tests verify real behavior, not mocks?
-    - Edge cases covered?
-    - Integration tests where they matter?
-    - Full-suite output in the Test Evidence file green and pristine?
-
-    **Production readiness:**
-    - Migration strategy if schema changed?
-    - Backward compatibility considered?
-    - Documentation complete?
-    - No obvious bugs?
-
-    ## Calibration
-
-    Categorize issues by actual severity. Not everything is Critical.
-    Acknowledge what was done well before listing issues — accurate praise
-    helps the implementer trust the rest of the feedback.
-
-    If you find significant deviations from the plan, flag them specifically
-    so the implementer can confirm whether the deviation was intentional.
-    If you find issues with the plan itself rather than the implementation,
-    say so.
+    Categorize by actual severity; not everything is Critical. Be specific
+    (file:line), say why each issue matters, and never report on code you
+    did not read.
 
     ## Output Format
 
     ### Strengths
-    [What's well done? Be specific.]
+    [Specific, brief]
 
     ### Issues
-
     #### Critical (Must Fix)
-    [Bugs, security issues, data loss risks, broken functionality]
-
+    [Bugs, security, data loss, broken functionality]
     #### Important (Should Fix)
-    [Architecture problems, missing features, poor error handling, test gaps]
-
+    [Missed requirements, architecture problems, test gaps, provenance
+    leaks, living-doc drift]
     #### Minor (Nice to Have)
-    [Code style, optimization opportunities, documentation polish]
-
-    For each issue:
-    - File:line reference
-    - What's wrong
-    - Why it matters
-    - How to fix (if not obvious)
-
-    ### Recommendations
-    [Improvements for code quality, architecture, or process]
+    For each: file:line, what is wrong, why it matters, how to fix.
 
     ### Assessment
-
-    **Ready to merge?** [Yes | No | With fixes]
-
-    **Reasoning:** [1-2 sentence technical assessment]
-
-    ## Critical Rules
-
-    **DO:**
-    - Categorize by actual severity
-    - Be specific (file:line, not vague)
-    - Explain WHY each issue matters
-    - Acknowledge strengths
-    - Give a clear verdict
-    - Append each finding to [FINDINGS_FILE] as you confirm it
-
-    **DON'T:**
-    - Say "looks good" without checking
-    - Mark nitpicks as Critical
-    - Give feedback on code you didn't actually read
-    - Be vague ("improve error handling")
-    - Avoid giving a clear verdict
-    - Hold findings in context to report them all at the end
+    **Ready to merge?** Yes, No, or With fixes
+    **Reasoning:** [1-2 sentences]
 ```
 
-**Placeholders:**
-- `[DESCRIPTION]` — brief summary of what was built
-- `[PLAN_OR_REQUIREMENTS]` — what it should do (plan file path, task text, or requirements)
-- `[BASE_SHA]` — starting commit
-- `[HEAD_SHA]` — ending commit
-- `[FINDINGS_FILE]` — path the reviewer appends confirmed findings to as it works
-
-**Reviewer returns:** Strengths, Issues (Critical / Important / Minor), Recommendations, Assessment - appended to `[FINDINGS_FILE]` as work proceeds and summarized in the final message
-
-## Example Output
-
-```
-### Strengths
-- Clean database schema with proper migrations (db.ts:15-42)
-- Comprehensive test coverage (18 tests, all edge cases)
-- Good error handling with fallbacks (summarizer.ts:85-92)
-
-### Issues
-
-#### Important
-1. **Missing help text in CLI wrapper**
-   - File: index-conversations:1-31
-   - Issue: No --help flag, users won't discover --concurrency
-   - Fix: Add --help case with usage examples
-
-2. **Date validation missing**
-   - File: search.ts:25-27
-   - Issue: Invalid dates silently return no results
-   - Fix: Validate ISO format, throw error with example
-
-#### Minor
-1. **Progress indicators**
-   - File: indexer.ts:130
-   - Issue: No "X of Y" counter for long operations
-   - Impact: Users don't know how long to wait
-
-### Recommendations
-- Add progress reporting for user experience
-- Consider config file for excluded projects (portability)
-
-### Assessment
-
-**Ready to merge: With fixes**
-
-**Reasoning:** Core implementation is solid with good architecture and tests. Important issues (help text, date validation) are easily fixed and don't affect core functionality.
-```
+**Placeholders:** `[MODEL]`; `[DESCRIPTION]`, a short summary;
+`[REQUIREMENTS_FILE]`; `[DIFF_FILE]` (from `scripts/review-package BASE
+HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`; `[FULL_SUITE_OUTPUT_FILE]`;
+`[MINORS]`, the ledger's Minor list, or "none"; `[FINDINGS_FILE]`
+(`.minipowers/sdd/review-findings-BASE..HEAD.md`).

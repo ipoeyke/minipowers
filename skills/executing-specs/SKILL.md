@@ -8,205 +8,117 @@ description: Use when executing an approved small-scope spec directly, without a
 Execute an approved spec directly: implementer subagent(s), one whole-diff
 review, a fix loop, verification, then a single squashed commit.
 
-This is the light-tier terminal skill, reached via brainstorming's tier
-triage - for small, single-subsystem changes where a plan document and
-per-task review gates would be pure overhead. It is not a shortcut you pick
-on your own; brainstorming decides the tier from concrete signals and
-confirms with the user before routing here.
+This is the light-tier path, reached via brainstorming's tier triage for
+small, single-subsystem changes. The spec, including its Implementation
+notes, is the whole brief: no plan, no task briefs, no per-task reviews, no
+ledger, no kickoff docs commit.
 
-**Core principle:** the spec, including its Implementation notes section,
-is the whole brief. There is no plan document, no task briefs, no per-task
-review gates, no progress ledger. One implementer thread (sequential
-dispatches if the spec needs more than one), one final review, one commit.
+Shared files live in the subagent-driven-development skill directory
+(`../subagent-driven-development/` from this skill's directory), referenced
+below as `SDD/`: `SDD/implementer-prompt.md`,
+`SDD/code-reviewer.md`, and `SDD/scripts/`.
 
-## The Process
+## 0. Entry Gate
 
-### 0. Entry Gate
+Read the spec's header lines first:
 
-This skill is reachable directly as a slash command, so the tier decision
-is enforced here, not by the route that led here. Read the spec's header
-lines before anything else:
+- **Tier: light** - proceed.
+- **Tier: heavy** - stop and invoke writing-plans instead.
+- **No tier recorded** - apply brainstorming's tier-triage criteria, state
+  your assessment, and get the user's confirmation. Any unresolved
+  decision ("TBD", "implementation must confirm", an open interface) makes
+  it heavy.
 
-- **Tier: light** — proceed.
-- **Tier: heavy** — STOP. State that brainstorming routed this spec to the
-  heavy path and invoke writing-plans instead.
-- **No tier recorded** (older spec, or skill invoked directly) — do not
-  assume light. Apply brainstorming's tier-triage criteria to the spec
-  inline, state your assessment, and get the user's confirmation before
-  proceeding. If the spec contains any unresolved decision ("TBD",
-  "implementation must confirm", an open interface), it is heavy — route
-  to writing-plans.
+## 1. Setup
 
-### 1. Setup
+1. Require a clean tree (`git status --porcelain` empty); otherwise ask the
+   user to commit or stash. A dirty base folds undispatched work into the
+   squash.
+2. Never start on main/master without explicit user consent.
+3. Record the base SHA (`git rev-parse HEAD`).
+4. Clear earlier runs' artifacts: `SDD/scripts/sdd-workspace --reset`.
+5. Baseline: run each verification command the spec or project defines
+   (tests, lint, type-check) once and record pass/fail with a one-line
+   summary of each failure. Pass it into every implementer and fix
+   dispatch: it tells them which failures predate them, and proves the
+   toolchain resolves before any dispatch.
 
-Require a clean working tree: `git status --porcelain` must be empty. If
-there are uncommitted changes, stop and ask the user to commit or stash
-them first. A base SHA recorded over a dirty tree makes the final Squash
-step fold in work nobody dispatched.
+## 2. Implement
 
-Record the base SHA only once the tree is clean: `git rev-parse HEAD`.
-Then clear earlier runs' artifacts with
-`../subagent-driven-development/scripts/sdd-workspace --reset`, so stale
-diffs and findings files do not surface in the reviewer's greps.
-Same branch rule as subagent-driven-development: never start
-implementation on main/master without explicit user consent.
+Dispatch implementers sequentially with `SDD/implementer-prompt.md`, using
+its executing-specs values: the spec path as the brief, plus the baseline
+and test seam, and `[TRAILER]` as the exact Co-Authored-By line from
+your own session's attribution. When the Implementation notes need more than one dispatch,
+summarize each earlier dispatch's outcome in the next one's context.
+Handle statuses as in subagent-driven-development's Handling Implementer
+Status.
 
-Then take a baseline verification snapshot: run each verification command
-the spec or project defines (test suite, lint, type-check) once at base
-and record pass/fail with a one-line summary of any failure. Pass this
-baseline into every implementer and fix dispatch — a failure that exists
-at base is not the dispatch's fault, and implementers have burned whole
-sessions proving that the hard way. The snapshot also proves the
-toolchain resolves (dependencies installed, runners on PATH) before any
-dispatch is in flight; fix environment problems now, not mid-dispatch.
+After each dispatch, run the escalation check (below).
 
-### 2. Implement
+## 3. Review
 
-Dispatch implementer subagent(s) sequentially, using
-[implementer-prompt.md](implementer-prompt.md) as the template. The spec
-file - including its Implementation notes section - is the brief; hand the
-subagent its path directly.
+1. Run the full suite and lint once at HEAD, output to
+   `.minipowers/sdd/full-suite-<head7>.txt`.
+2. Run `SDD/scripts/review-package BASE HEAD`.
+3. Dispatch one reviewer with `SDD/code-reviewer.md` on the strongest
+   available model (Fable if offered, else Opus): a one-line description,
+   the spec as requirements, the package path, the full-suite output path,
+   "none" for deferred Minors, and a findings file
+   (`.minipowers/sdd/review-findings-BASE..HEAD.md`).
 
-Each implementer follows minipowers:test-driven-development for the code it
-writes.
+If the review ends without a report, read the findings file first and
+re-dispatch only for what it does not cover, handing the file over to be
+amended.
 
-Checkpoint commits are allowed and encouraged during execution: they give
-rollback points if a later step goes wrong, and let the review diff use a
-commit range instead of an uncommitted working-tree diff. They are not the
-final commit - the whole dispatch gets squashed into one commit at the end
-(see Squash below).
+## 4. Fix Loop
 
-If the spec's Implementation notes describe work that needs more than one
-dispatch, dispatch them sequentially and summarize each prior dispatch's
-outcome in the context of the next.
+For Critical or Important findings, dispatch one fix subagent (Sonnet)
+with the findings file path, then regenerate the package and re-review.
+Repeat until none are open.
 
-Handle non-DONE statuses as in subagent-driven-development's Handling
-Implementer Status section: read and address concerns, provide missing
-context and re-dispatch, or escalate.
+## 5. Verify
 
-### 3. Review
+Run minipowers:verification-before-completion. If HEAD is unchanged since
+the pre-review full run, that output is the evidence; otherwise run the
+suite again. Failures present in the baseline are reported, not blockers;
+anything newly red blocks.
 
-One final reviewer subagent over the whole diff (the base SHA from Setup
-`..` HEAD), checking spec compliance and code quality with the same rubric
-as subagent-driven-development's final whole-branch review
-([code-reviewer.md](../subagent-driven-development/code-reviewer.md)).
-
-Generate the diff with SDD's review-package script, referenced from the SDD
-skill directory: `../subagent-driven-development/scripts/review-package
-BASE HEAD` - it prints the file path it wrote. Hand the reviewer that path
-instead of pasting the diff into your own context.
-
-Before dispatching the reviewer, run the full suite and lint once at
-HEAD, redirecting output to `.minipowers/sdd/full-suite-<head7>.txt`, and
-pass that path as the reviewer's Test Evidence file. Reviewers read it
-instead of re-running the suite.
-
-Also pass a findings file path -
-`.minipowers/sdd/review-findings-BASE..HEAD.md` - and require the
-reviewer to append each finding as it confirms it (see
-code-reviewer.md's Findings File section). Long reviews get interrupted
-or exhaust context; the file survives when the reviewer does not. If a
-dispatch ends without a report, read the file first, then re-dispatch
-only for what it does not cover, handing the file over to be amended.
-
-### 4. Fix Loop
-
-If the reviewer finds Critical or Important issues, dispatch one fix
-subagent with the complete findings list - not one fixer per finding - then
-regenerate the review package for the same range and re-review. Repeat
-until the reviewer reports no open Critical/Important issues.
-
-Pass the fixer the findings file path rather than pasting findings inline.
-
-### 5. Verify
-
-Run the minipowers:verification-before-completion gate before squashing:
-full test suite green, evidence before any completion claim. If HEAD has
-not changed since the pre-review full run, that output is the evidence;
-otherwise run the suite again. Judge results
-against Setup's baseline snapshot: failures that existed at base are
-reported to the user, not blockers; anything newly red blocks.
-
-### 6. Squash
-
-Collapse the whole dispatch into one commit:
+## 6. Squash
 
 ```
-git reset --soft <base SHA from Setup>
+git reset --soft <base SHA>
 git commit -m "<type>: <description>"
 ```
 
-The spec file is not committed separately - stage it alongside the code
-changes so it lands in this same commit (see brainstorming's Tier Triage
-and Documentation guidance). Conventional Commits subject line, no body.
+Stage the spec in this same commit. Conventional Commits subject, no body.
 
-### 7. Wrap-up
+## 7. Wrap-up
 
-If work happened on a branch, ask the user about branch disposition (merge
-locally / push + PR / leave as-is) - the same question
-subagent-driven-development asks at the end. If work happened directly on
-the base branch by explicit user consent from Setup, there's nothing
-further to ask.
-
-## Explicitly Absent
-
-By design, none of the following exist on this path:
-
-- Progress ledger
-- Kickoff docs commit (the spec isn't committed separately at all - see Squash)
-- Task-brief files
-- Per-task report files
-- Per-task review gates
+On a branch, ask the user once: merge locally, push + PR, or leave as-is.
 
 ## Model Selection
 
-Same policy as subagent-driven-development: implementers and fix subagents
-run on Sonnet. The single whole-diff reviewer is a final reviewer, so it
-runs on the strongest available model - Fable if the Agent tool offers it,
-else Opus. Always specify the model explicitly
-when dispatching a subagent - an omitted model silently inherits your
-session's model, often the most expensive one available. If a Sonnet
-implementer reports BLOCKED for reasoning depth, re-dispatch that task on
-Opus.
+Implementers and fix subagents run on Sonnet; if one reports BLOCKED on
+reasoning depth, re-dispatch it on Opus. The reviewer runs on the
+strongest available model. Always set the model explicitly.
 
-## Escalation Valve
+## Escalation Check
 
-After each dispatch, run the counted check:
+After each dispatch, run `git diff --name-only <base SHA>..HEAD | wc -l`.
+Stop if the count exceeds the spec's **Escalation threshold**, a dispatch
+ran past ~30 minutes or reported ballooning scope, or an interface
+ambiguity emerged that the spec did not anticipate.
 
-```
-git diff --name-only <base SHA>..HEAD | wc -l
-```
-
-Compare against the spec's **Escalation threshold** header. STOP if any of
-these hold:
-
-- files changed exceed the threshold
-- a single dispatch ran past ~30 minutes or reported ballooning scope
-- interface ambiguity between components emerged that the spec didn't
-  anticipate
-
-Do not push through or improvise a plan mid-execution.
-
-Report to the user what changed since the spec was written, and offer to
-route the remaining work through writing-plans and
-subagent-driven-development instead. Checkpoint commits from the Implement
-step make this safe: the work already done is committed and recoverable.
-Do NOT run the Squash step before escalating - squashing collapses the very
-checkpoints that make the handoff clean.
+Do not improvise a plan. Report what changed since the spec was written and
+offer to route the remaining work through writing-plans and
+subagent-driven-development. Do not squash first - the checkpoint commits
+are what make the handoff clean.
 
 ## Never
 
-- Start implementation on main/master without explicit user consent
-- Proceed past the Entry Gate with a heavy-tier or unconfirmed spec
-- Record a base SHA over a dirty working tree
-- Run (or let a dispatch run) repo-wide format/lint autofix targets —
-  path-scoped only (`npx prettier --write <files>`, `npx eslint --fix
-  <files>`); repo-wide autofix silently rewrites files nobody touched
-- Dispatch implementer subagents in parallel
-- Skip the post-dispatch counted escalation check
-- Dispatch a reviewer without a findings file path
-- Re-dispatch a reviewer from scratch after an interrupted review without
-  first reading the file
-- Squash before the reviewer reports no open Critical/Important issues
-- Squash before resolving (or escalating) a scope-ballooned dispatch
-- Skip the verification gate before squashing
+- Proceed past the Entry Gate with a heavy or unconfirmed spec
+- Dispatch implementers in parallel
+- Run, or let any dispatch run, repo-wide format or lint autofix -
+  path-scoped only
+- Squash with open Critical or Important findings, an unresolved escalation,
+  or before the verification gate

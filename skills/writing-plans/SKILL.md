@@ -5,124 +5,117 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 # Writing Plans
 
-This is the heavy-tier path, reached via brainstorming's tier triage; small,
-single-subsystem changes route to executing-specs instead.
+The heavy-tier path, reached via brainstorming's tier triage.
 
-## Overview
-
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, exact interfaces, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
-
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
+Write a plan for an implementer who is a skilled developer with fresh
+context, who knows nothing about this codebase or domain and is weak at
+test design. The plan's job is to remove ambiguity: files, interfaces,
+test intent, and constraints, as bite-sized tasks. DRY, YAGNI, TDD.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-**Save plans to:** `docs/plans/YYYY-MM-DD-<feature-name>.md`
-- (User preferences for plan location override this default)
-- Do NOT commit the plan (or the spec). Both are committed in a single
-  docs commit when subagent-driven-development starts executing.
+Save to `docs/plans/YYYY-MM-DD-<feature-name>.md` unless the user prefers
+another location. Do not commit it or the spec: subagent-driven-development
+commits both at kickoff.
 
-## Scope Check
-
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the spec covers multiple independent subsystems, suggest one plan per
+subsystem, each producing working, testable software.
 
 ## File Structure
 
-Before defining tasks, map out which files will be created or modified and what each one is responsible for. This is where decomposition decisions get locked in.
+Before defining tasks, map which files are created or modified and what
+each is responsible for. This locks in the decomposition.
 
-- Design units with clear boundaries and well-defined interfaces. Each file should have one clear responsibility.
-- You reason best about code you can hold in context at once, and your edits are more reliable when files are focused. Prefer smaller, focused files over large ones that do too much.
-- Files that change together should live together. Split by responsibility, not by technical layer.
-- In existing codebases, follow established patterns. If the codebase uses large files, don't unilaterally restructure - but if a file you're modifying has grown unwieldy, including a split in the plan is reasonable.
-- Living docs are an owned file. Each change in the spec's Living docs impact section goes into the task whose deliverable makes the old text wrong, never a trailing docs-only task. See minipowers:brainstorming's Living Docs section.
-- Shared test fixtures are an owned file. If two or more tasks build the same inputs (config builders, fixtures, RNG stubs), name a shared fixture file (e.g. `tests/<pkg>/conftest.py`), the task that creates it, and the later tasks that consume it. A fresh subagent cannot know a helper exists; without this, each task copy-pastes its own.
+- One clear responsibility per file, with well-defined interfaces. Prefer
+  small, focused files; files that change together live together; split
+  by responsibility, not technical layer.
+- In existing codebases, follow established patterns. Split a file you
+  modify only if it has grown unwieldy.
+- Living docs are an owned file: each change in the spec's Living docs
+  impact section goes into the task whose deliverable makes the old text
+  wrong, never a trailing docs-only task.
+- Shared test fixtures are an owned file: when two or more tasks build the
+  same inputs, name the fixture file (e.g. `tests/<pkg>/conftest.py`), the
+  task that creates it, and the tasks that consume it. A fresh subagent
+  cannot know a helper exists.
 
-This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
+## Tasks
 
-## Task Right-Sizing
+A task is the smallest unit with its own test cycle that a reviewer could
+reject while approving its neighbor. Fold setup, configuration, and docs
+into the task whose deliverable needs them. Each task ends with an
+independently testable deliverable, in steps of one action each.
 
-A task is the smallest unit that carries its own test cycle and is worth a
-fresh reviewer's gate. When drawing task boundaries: fold setup,
-configuration, scaffolding, and documentation steps into the task whose
-deliverable needs them; split only where a reviewer could meaningfully
-reject one task while approving its neighbor. Each task ends with an
-independently testable deliverable.
+Each task MUST pin down exactly:
 
-## Bite-Sized Task Granularity
+- **File paths**, created vs modified.
+- **Interfaces**: names, parameter and return types, config keys and
+  defaults, error types, record shapes. Type every closed set of values
+  (currencies, kinds, statuses) as an enum, never a bare string or id
+  prefix.
+- **Test intent**: what each test proves, the edge cases it covers, and
+  the expected red-phase failure.
+- **Binding constraints**: thresholds, formats, and invariants copied
+  verbatim from the spec.
+- **A reason for each non-obvious constraint**: one domain-terms clause,
+  or the stable public source it comes from (a published paper, a standard
+  or RFC, a named public data series). Implementers may not cite the plan
+  in code, so a value without a reason becomes a magic number or a "per
+  the plan" comment.
 
-**Each step is one action (2-5 minutes):**
-- "Write the failing test" - step
-- "Run it to make sure it fails" - step
-- "Implement the minimal code to make the test pass" - step
-- "Run the tests and make sure they pass" - step
-- "Commit" - step
+Plan-time code is written blind and ships untested guesses as
+requirements; hardcoded seeds and expected values in plan-authored
+fixtures are the most common defect. Include literal code only where it is
+load-bearing - a non-obvious algorithm, a statistical formula, a tricky
+shell invocation, an API contract other tasks compile against - and mark
+it binding. Describe everything else by intent.
 
-## Requirements, Not Transcription
-
-The implementer is a capable model with fresh context — the plan's job is to
-remove AMBIGUITY, not to pre-write their code. Plan-time code is written blind
-(nothing has been run yet); mandating full code in every step just ships your
-untested guesses as requirements, and implementers then waste time debugging
-the plan itself. In practice, plan-authored test fixtures with hardcoded seeds
-and expected values are the most common defect this causes.
-
-What each task MUST pin down exactly:
-- **Exact file paths** and which are created vs modified
-- **Exact interfaces**: function/class names, parameter and return types,
-  config keys and their default values, error types, journal/record shapes.
-  Type every closed set of values (currencies, kinds, statuses) as an
-  enum, never a bare string or an id prefix
-- **Test intent**: what each test proves, the specific behaviors and edge
-  cases it covers, and what a correct failure looks like in the red phase
-- **Binding constraints**: exact thresholds, formats, and invariants copied
-  verbatim from the spec
-- **Rationale for non-obvious constraints**: one clause of why, in domain
-  terms, or the stable public source it comes from (a published paper, a
-  standard or RFC, a named public data series). Implementers may not cite
-  the plan or spec in code, so a value without a reason becomes either a
-  bare magic number or a "per the plan" comment.
-
-Include literal code only where it is load-bearing: a non-obvious
-algorithm the implementer must not improvise (a hash-chain rule, a statistical
-formula, a tricky shell invocation), or an API contract other tasks compile
-against. When you do include code, mark it as binding. Everything else —
-test bodies, glue, fixtures — is described by intent and left to the
-implementer, who will run it.
+Never write "TBD", "TODO", "implement later", "fill in details", "add
+appropriate error handling", "add validation", "handle edge cases" (name
+them), "write tests for the above", "similar to Task N"
+(repeat the requirements), or a reference to a type or function no task's
+Interfaces block defines.
 
 ## Feasibility Probe
 
-Any pass/fail criterion the code will enforce - a statistical check, a
-tolerance band, a minimum count, a correlation floor - must be shown
-reachable at default config before you pin it as a binding constraint.
-Run a scratch simulation outside the repo, state the expected
-false-alarm rate, and pin the threshold from that evidence. A threshold
-copied from the spec without evidence is a plan defect: a criterion that
-cannot pass surfaces mid-execution and costs several recalibration
-commits, where a probe before planning costs minutes.
+Any pass/fail criterion the code will enforce (a statistical check, a
+tolerance band, a minimum count, a correlation floor) must be shown
+reachable at default config before you pin it. Run a scratch simulation
+outside the repo, state the expected false-alarm rate, and pin the
+threshold from that evidence. A criterion that cannot pass otherwise
+surfaces mid-execution as several recalibration commits.
 
-## Plan Document Header
+## Test Commands
 
-**Every plan MUST start with this header:**
+Use the project's documented test commands (README, Makefile,
+CONTRIBUTING, CI config), including an already-configured parallel runner
+such as pytest-xdist; add no dependencies for speed. Never write a
+full-suite run into a task step: the implementer gets one full run before
+its final commit, and the controller runs the suite before the final
+review.
+
+## Plan Header
 
 ```markdown
 # [Feature Name] Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use minipowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** [One sentence describing what this builds]
+**Goal:** [One sentence]
 
-**Architecture:** [2-3 sentences about approach]
+**Architecture:** [2-3 sentences]
 
-**Tech Stack:** [Key technologies/libraries]
+**Tech Stack:** [Key technologies]
 
 ## Global Constraints
 
-[The spec's project-wide requirements — version floors, dependency limits,
-naming and copy rules, platform requirements — one line each, with exact
-values copied verbatim from the spec. Also list the architectural
-invariants: dependency direction ("nothing outside X imports X"),
-ownership ("only the repository layer writes to the database"), and state
-invariants ("an account balance never goes negative"). Reviewers check only what this block
-lists. Every task's requirements implicitly include this section.]
+[Project-wide requirements from the spec, one line each with exact values:
+version floors, dependency limits, naming rules, platform requirements.
+Also the architectural invariants: dependency direction ("nothing outside
+X imports X"), ownership ("only the repository layer writes to the
+database"), and state invariants ("a balance never goes negative").
+Reviewers check only what this block lists; every task implicitly
+includes it.]
 
 ---
 ```
@@ -138,77 +131,42 @@ lists. Every task's requirements implicitly include this section.]
 - Test: `tests/exact/path/to/test.py`
 
 **Interfaces:**
-- Consumes: [what this task uses from earlier tasks — exact signatures]
-- Produces: [what later tasks rely on — exact function names, parameter
-  and return types. A task's implementer sees only their own task; this
-  block is how they learn the names and types neighboring tasks use.]
+- Consumes: [exact signatures from earlier tasks]
+- Produces: [exact names and types later tasks rely on - an implementer
+  sees only their own task]
 
-- [ ] **Step 1: Write failing tests** — [for each test: name, the behavior
-  it proves, inputs/edge cases it must cover, and the expected failure mode
-  in the red phase]
-
-- [ ] **Step 2: Run tests to verify they fail for the right reason**
-
-Run: `pytest tests/path/test.py -v`
-Expected: FAIL with [the specific reason — missing symbol, wrong value]
-
-- [ ] **Step 3: Implement** — [requirements + the Interfaces block above;
-  literal code only if load-bearing, marked as binding]
-
+- [ ] **Step 1: Write failing tests** - [per test: name, behavior proved,
+  edge cases, expected red-phase failure]
+- [ ] **Step 2: Run them; they fail for the right reason**
+  Run: `pytest tests/path/test.py -v`
+  Expected: FAIL with [missing symbol, wrong value]
+- [ ] **Step 3: Implement** - [requirements + Interfaces; literal code only
+  if load-bearing, marked binding]
 - [ ] **Step 4: Run this task's tests and lint on touched files; all green**
-
-- [ ] **Step 5: Commit** — `git commit -m "feat: add specific feature"`
+- [ ] **Step 5: Commit** - `git commit -m "feat: add specific feature"`
 ````
 
-Test commands are the project's documented ones (README, Makefile,
-CONTRIBUTING, CI config). If the project already has a parallel runner
-configured (pytest-xdist, jest workers), the full-suite command uses it;
-do not add dependencies for speed. Never write a full-suite run into a
-task step: the implementer gets one full run before its final commit, and
-the controller runs the suite once before the final review.
-
-## No Placeholders
-
-Every step must contain the actual requirements an engineer needs. These are **plan failures** — never write them:
-- "TBD", "TODO", "implement later", "fill in details"
-- "Add appropriate error handling" / "add validation" / "handle edge cases" (name the errors and cases)
-- "Write tests for the above" (without naming each test's intent and coverage)
-- "Similar to Task N" (repeat the requirements — the engineer may be reading tasks out of order)
-- References to types, functions, or methods not defined in any task's Interfaces block
-
-## Remember
-- Exact file paths always
-- Exact interfaces and constraints; code only where load-bearing
-- Exact commands with expected output
-- DRY, YAGNI, TDD, frequent commits
+Markdown tables: no cell may contain a literal `|`, not even inside
+backticks. Write closed values as separate code spans
+(`` `gain`, `loss`, `flat` ``) and unions with "or" (`int or None`).
 
 ## Self-Review
 
-After writing the complete plan, look at the spec with fresh eyes and check the plan against it. This is a checklist you run yourself — not a subagent dispatch.
+Check the plan against the spec yourself and fix inline:
 
-**1. Spec coverage:** Skim each section/requirement in the spec. Can you point to a task that implements it? List any gaps.
-
-**2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
-
-**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
-
-**4. Living docs:** Does every entry in the spec's Living docs impact section land in a task?
-
-**5. Tables:** No table cell contains a literal `|`, not even inside backticks: GitHub-flavoured markdown splits cells on it before parsing code spans. Write closed values as separate code spans (`` `gain`, `loss`, `flat` ``) and union types with "or" (`int or None`).
-
-If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
+1. **Coverage:** every spec requirement maps to a task; add missing ones.
+2. **Placeholders:** none of the forbidden patterns above.
+3. **Type consistency:** names and signatures match across tasks
+   (`clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug).
+4. **Living docs:** every Living docs impact entry lands in a task.
+5. **Tables:** no literal `|` in any cell.
 
 ## Execution Handoff
 
-After the self-review passes, proceed DIRECTLY to execution — do not ask the
-human for a general plan review or approval. The plan is a machine-facing
-artifact (routinely 1000+ lines); the human already gated the spec, and
-execution's pre-flight review plus per-task reviewers are the net for plan
-defects. (Subagent-driven-development's pre-flight step may still surface
-SPECIFIC plan conflicts to the human as one batched question — that is
-scoped conflict resolution, not a plan review.)
+After the self-review, proceed directly - do not ask the human to review
+the plan. They gated the spec; pre-flight and per-task reviews catch plan
+defects.
 
-- **REQUIRED SUB-SKILL:** Invoke minipowers:subagent-driven-development now
-- Announce: "Plan saved to `docs/plans/<filename>.md`. Executing with
-  subagent-driven development."
-
+Announce "Plan saved to `docs/plans/<filename>.md`. Executing with
+subagent-driven development." and invoke
+minipowers:subagent-driven-development.
