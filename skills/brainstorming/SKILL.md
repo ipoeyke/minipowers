@@ -32,7 +32,7 @@ and 4-8 always happen):
 1. **Explore project context** — read the living docs first (see below), then files and recent commits. Older specs and plans are history, not current truth
 2. **Ask clarifying questions** — one at a time, understand purpose/constraints/success criteria
 3. **Propose 2-3 approaches** — with trade-offs and your recommendation
-4. **Present design** — in sections scaled to their complexity, get user approval after each section; apply the "Design for isolation and clarity" and "Working in existing codebases" guidance below
+4. **Present design** — in sections scaled to their complexity, batching straightforward ones, get user approval after each round; apply the "Design for isolation and clarity" and "Working in existing codebases" guidance below
 5. **Write design doc** — save to `docs/specs/YYYY-MM-DD-<topic>-design.md` (do NOT commit — see below)
 6. **Spec self-review** — quick inline check for placeholders, contradictions, ambiguity, scope (see below)
 7. **User reviews written spec** — ask user to review the spec file before proceeding
@@ -67,7 +67,8 @@ brainstorming.
 
 - Once you believe you understand what you're building, present the design
 - Scale each section to its complexity: a few sentences if straightforward, up to 200-300 words if nuanced
-- Ask after each section whether it looks right so far
+- Present straightforward sections together in one brief round; give a section its own round only when it holds a decision the user must make
+- Ask after each round whether it looks right so far. If the user approves several rounds in a row without changes, the rounds are not surfacing decisions: batch the remaining sections
 - Cover: architecture, components, data flow, error handling, testing
 - Be ready to go back and clarify if something doesn't make sense
 

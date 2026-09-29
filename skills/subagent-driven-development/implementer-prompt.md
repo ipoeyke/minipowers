@@ -69,9 +69,11 @@ Subagent (general-purpose):
 
     ## Reading Files
 
-    Read each file you need once, in full. To revisit part of a file you
-    have already read, use `offset`/`limit` or grep for the symbol - do not
-    re-read a large file from the top. Repeatedly re-reading the same
+    Read each file you need once, in full, with the Read tool - not `cat`,
+    `sed`, or `head` through Bash. To revisit part of a file you have
+    already read, use `offset`/`limit` or grep for the symbol - do not
+    re-read a large file from the top, and do not re-read a file whose
+    contents are still in your context. Repeatedly re-reading the same
     thousand-line file is the most common way these dispatches burn time
     without making progress.
 

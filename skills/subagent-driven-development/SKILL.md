@@ -208,14 +208,11 @@ final whole-branch review. When you fill a reviewer template:
   was pasted history. A fresh subagent needs its task, the interfaces it
   touches, and the global constraints. Nothing else.
 - Critical and Important findings go to a fix subagent and a re-review.
-  A Minor finding goes straight to the implementer only when all three
-  hold: the implementer that made the change is still alive (SendMessage,
-  not a fresh dispatch), the fix is test-only, comment-only, or a rename,
-  and it needs no re-review. A live implementer with the files in context
-  applies it in one short turn. Record every other Minor finding in the
-  progress ledger as you go, and point the final whole-branch review at
-  that list so it can triage which must be fixed before merge. A roll-up
-  nobody reads is a silent discard.
+  Minor findings never trigger a per-task round-trip: a message to the
+  implementer, a wait, and a re-review cost more than the fix. Record each
+  one in the progress ledger as you go, and point the final whole-branch
+  review at that list so it can triage which must be fixed in the final
+  fix wave. A roll-up nobody reads is a silent discard.
 - A finding labeled plan-mandated — or any finding that conflicts with
   what the plan's text requires — is the human's decision, like any plan
   contradiction: present the finding and the plan text, ask which governs.
