@@ -37,4 +37,14 @@ if [ ! -s "$out" ]; then
   exit 3
 fi
 
+# Restate the rules implementers most often drift from, next to the task text.
+cat >> "$out" <<'EOF2'
+
+---
+Reminders: read each file once with the Read tool, not cat/sed via Bash.
+Iterate on scoped tests; fix rounds re-run only the covering tests. Nothing
+you write, including commit messages, may mention the plan, spec, or task
+numbers.
+EOF2
+
 echo "wrote ${out}: $(wc -l < "$out" | tr -d ' ') lines"

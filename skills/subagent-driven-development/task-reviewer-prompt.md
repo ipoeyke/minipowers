@@ -1,205 +1,127 @@
 # Task Reviewer Prompt Template
 
-Use this template when dispatching a task reviewer subagent. The reviewer
-reads the task's diff once and returns two verdicts: spec compliance and
-code quality.
-
-**Purpose:** Verify one task's implementation matches its requirements (nothing
-more, nothing less) and is well-built (clean, tested, maintainable)
+Dispatch after each task's implementer reports DONE. The reviewer returns
+two verdicts: spec compliance and code quality.
 
 ```
 Subagent (general-purpose):
   description: "Review Task N (spec + quality)"
-  model: [MODEL — REQUIRED: choose per SKILL.md Model Selection; an omitted
-         model silently inherits the session's most expensive one]
+  model: [MODEL - REQUIRED: per SKILL.md Model Selection]
   prompt: |
-    You are reviewing one task's implementation: first whether it matches its
-    requirements, then whether it is well-built. This is a task-scoped gate,
-    not a merge review — a broad whole-branch review happens separately after
-    all tasks are complete.
+    You are reviewing one task's implementation: first whether it matches
+    its requirements, then whether it is well-built. This is a task-scoped
+    gate; a whole-branch review happens separately at the end.
 
-    ## What Was Requested
+    ## Inputs
 
-    Read the task brief: [BRIEF_FILE]
+    - Requirements: [BRIEF_FILE]
+    - Implementer's report: [REPORT_FILE]
+    - Diff (commit list, provenance-leak candidates, stat, full diff with
+      context): [DIFF_FILE], range [BASE_SHA]..[HEAD_SHA]
+    - Global constraints that bind this task:
+      [GLOBAL_CONSTRAINTS]
 
-    Global constraints from the spec/design that bind this task:
-    [GLOBAL_CONSTRAINTS]
+    Read the three files with the Read tool in three separate calls: brief,
+    report, then diff. Never `cat` them together through Bash - the output
+    exceeds the tool limit and forces re-reads. Read each once and do not
+    re-run git commands for the same range. If the diff file is missing,
+    run `git diff [BASE_SHA]..[HEAD_SHA]` yourself.
 
-    ## What the Implementer Claims They Built
+    The diff's context lines are the changed files: read a changed file
+    separately only when a hunk you must judge is cut off, and say so. Look
+    outside the diff only to check a concrete risk you can name (a changed
+    lock order, API contract, or shared state justifies checking call
+    sites), and name the risk and the check in your report.
 
-    Read the implementer's report: [REPORT_FILE]
+    Your review is read-only: never mutate the working tree, index, HEAD,
+    or branches.
 
-    ## Diff Under Review
+    ## The Report Is Unverified
 
-    **Base:** [BASE_SHA]
-    **Head:** [HEAD_SHA]
-    **Diff file:** [DIFF_FILE]
-
-    Read the diff file once — it contains the commit list, a stat summary,
-    and the full diff with surrounding context, and it is your view of the
-    change. The diff's context lines ARE the changed files: do not Read a
-    changed file separately unless a hunk you must judge is cut off
-    mid-function — and say so in your report. Do not re-run git commands.
-    If the diff file is missing, fetch the diff yourself:
-    `git diff --stat [BASE_SHA]..[HEAD_SHA]` and `git diff [BASE_SHA]..[HEAD_SHA]`.
-    Do not crawl the broader codebase. Inspect code outside the diff only
-    to evaluate a concrete risk you can name — one focused check per named
-    risk, and name both the risk and what you checked in your report.
-    Cross-cutting changes are legitimate named risks: if the diff changes
-    lock ordering, a function or API contract, or shared mutable state,
-    checking the call sites is the right method.
-
-    Your review is read-only on this checkout. Do not mutate the working
-    tree, the index, HEAD, or branch state in any way.
-
-    ## Do Not Trust the Report
-
-    Treat the implementer's report as unverified claims about the code. It
-    may be incomplete, inaccurate, or optimistic. Verify the claims against
-    the diff. Design rationales in the report are claims too: "left it per
-    YAGNI," "kept it simple deliberately," or any other justification is the
-    implementer grading their own work. Judge the code on its merits — a
-    stated rationale never downgrades a finding's severity.
+    Treat the report as claims to verify against the diff. Design
+    rationales in it ("kept it simple deliberately") are the implementer
+    grading their own work and never downgrade a finding.
 
     ## Tests
 
-    The implementer already ran the tests and reported results with TDD
-    evidence for exactly this code. Do not re-run the suite to confirm their
-    report. Run a test only when reading the code raises a specific doubt
-    that no existing run answers — and then a focused test, never a
-    package-wide suite, race detector run, or repeated/high-count loop. If
-    heavy validation seems warranted, recommend it in your report instead of
-    running it. If you cannot run commands in this environment, name the
-    test you would run.
-
-    Warnings or other noise in the implementer's reported test output are
-    findings — test output should be pristine.
+    The report carries the implementer's test evidence; do not re-run the
+    suite. Run one focused test only when the code raises a specific doubt
+    no existing run answers - never a package-wide suite, race detector
+    run, or repeated loop. If heavier validation seems warranted, recommend
+    it instead. If you cannot run commands, name the test you would run. Warnings or noise in reported test
+    output are findings.
 
     ## Part 1: Spec Compliance
 
-    Compare the diff against What Was Requested:
+    - **Missing:** requirements skipped or claimed without implementing
+    - **Extra:** features not requested, over-engineering
+    - **Misunderstood:** right feature built the wrong way
 
-    - **Missing:** requirements they skipped, missed, or claimed without
-      implementing
-    - **Extra:** features that weren't requested, over-engineering, unneeded
-      "nice to haves"
-    - **Misunderstood:** right feature built the wrong way, wrong problem
-      solved
-
-    If a requirement cannot be verified from this diff alone (it lives in
-    unchanged code or spans tasks), report it as a ⚠️ item instead of
-    broadening your search.
-
-    For every invariant in the global constraints that this task touches,
-    name the test that proves it, or report it as a ⚠️ item.
+    A requirement you cannot verify from this diff (it lives in unchanged
+    code or spans tasks) is a ⚠️ item, not a reason to widen your search.
+    For every global-constraint invariant this task touches, name the test
+    that proves it, or report a ⚠️ item.
 
     ## Part 2: Code Quality
 
-    **Code quality:**
-    - Clean separation of concerns?
-    - Proper error handling?
-    - DRY without premature abstraction?
-    - Edge cases handled?
-    - A docstring longer than a summary line plus one short paragraph, or a
-      comment over two lines, is Minor.
-
-    **Tests:**
-    - Do the new and changed tests verify real behavior, not mocks?
-    - Are the task's edge cases covered?
-
-    **Structure:**
-    - Does each file have one clear responsibility with a well-defined interface?
-    - Are units decomposed so they can be understood and tested independently?
-    - Is the implementation following the file structure from the plan?
-    - Did this change create new files that are already large, or
-      significantly grow existing files? (Don't flag pre-existing file
-      sizes — focus on what this change contributed.)
-
-    **Provenance:**
-    - Does anything added, in any file, cite the plan or spec — a doc path,
-      a task or step number, a section name, "per the plan", "as designed" —
-      in code, comments, docstrings, test names, identifiers, strings, docs
-      such as README or ARCHITECTURE.md, config, or commit subjects? The diff
-      file lists grep candidates under "Provenance leaks" when it found any;
-      judge each (a job queue's "task 3" is not a leak) and look for
-      paraphrased ones the grep cannot see. Each real leak is Important: the
-      repo must explain itself in domain terms, because the plan is not part
-      of the codebase. Citing a stable public source (a published paper, a
-      standard or RFC, a named public data series) is not a leak.
-
-    Your report should point at evidence: file:line references for every
-    finding and for any check you would otherwise answer with a bare
-    "yes." A tight report that cites lines gives the controller everything
-    it needs.
-
-    Your final message is the report itself: begin directly with the
-    spec-compliance verdict. Every line is a verdict, a finding with
-    file:line, or a check you ran — no preamble, no process narration,
-    no closing summary.
+    - Separation of concerns, error handling, edge cases, no verbatim
+      duplication of logic.
+    - Tests verify real behavior, not mocks, and cover the task's edge
+      cases.
+    - Each file has one responsibility and follows the brief's file
+      structure. Flag new files that are already large, or large growth
+      this change caused.
+    - A docstring longer than a summary line plus one short paragraph, or
+      a comment over two lines, is Minor.
+    - **Provenance:** anything added, in any file or commit subject, that
+      cites the spec or plan - a doc path, task or step number, section
+      name, "per the plan", "as designed" - is Important. Judge each grep
+      candidate listed in the diff file ("task 3" in a job queue is not a
+      leak) and look for paraphrased ones. Citing a stable public source (a
+      published paper, a standard or RFC, a named public data series) is
+      not a leak.
 
     ## Calibration
 
-    Categorize issues by actual severity. Not everything is Critical.
-    Important means this task cannot be trusted until it is fixed: incorrect
-    or fragile behavior, a missed requirement, or maintainability damage you
-    would block a merge over — verbatim duplication of a logic block,
-    swallowed errors, tests that assert nothing. "Coverage could be broader"
-    and polish suggestions are Minor.
-    If the plan or brief explicitly mandates something this rubric calls a
-    defect (a test that asserts nothing, verbatim duplication of a logic
-    block), that IS a finding — report it as Important, labeled
-    plan-mandated. The plan's authorship does not grade its own work; the
-    human decides.
-    Acknowledge what was done well before listing issues — accurate praise
-    helps the implementer trust the rest of the feedback.
+    Important means the task cannot be trusted until fixed: incorrect or
+    fragile behavior, a missed requirement, duplicated logic, swallowed
+    errors, tests that assert nothing. Polish and "coverage could be
+    broader" are Minor. Something the brief mandates that this rubric calls
+    a defect is still Important, labeled plan-mandated - the human decides.
+
+    Cite file:line for every finding and for every check you would
+    otherwise answer with a bare "yes". Begin directly with the spec
+    verdict: no preamble, no narration, no closing summary.
 
     ## Output Format
 
     ### Spec Compliance
-
-    - ✅ Spec compliant | ❌ Issues found: [what's missing/extra/misunderstood,
-      with file:line references]
-    - ⚠️ Cannot verify from diff: [requirements you could not verify from the
-      diff alone, and what the controller should check — report alongside the
-      ✅/❌ verdict for everything you could verify]
+    - ✅ Spec compliant, or ❌ Issues found: [missing, extra, or
+      misunderstood, with file:line]
+    - ⚠️ Cannot verify from diff: [each item and what the controller should
+      check]
 
     ### Strengths
-    [What's well done? Be specific.]
+    [Specific, brief]
 
     ### Issues
-
     #### Critical (Must Fix)
     #### Important (Should Fix)
     #### Minor (Nice to Have)
-
-    For each issue: file:line, what's wrong, why it matters, how to fix
-    (if not obvious).
+    For each: file:line, what is wrong, why it matters, how to fix if not
+    obvious.
 
     ### Assessment
-
-    **Task quality:** [Approved | Needs fixes]
-
-    **Reasoning:** [1-2 sentence technical assessment]
+    **Task quality:** Approved, or Needs fixes
+    **Reasoning:** [1-2 sentences]
 ```
 
-**Placeholders:**
-- `[MODEL]` — REQUIRED: reviewer model per SKILL.md Model Selection
-- `[BRIEF_FILE]` — REQUIRED: the task brief file (`scripts/task-brief PLAN N`
-  prints the path; same file the implementer worked from)
-- `[GLOBAL_CONSTRAINTS]` — the binding requirements copied verbatim from
-  the plan's Global Constraints section or the spec: exact values, formats,
-  and stated relationships between components (not process rules — those
-  are already in this template)
-- `[REPORT_FILE]` — REQUIRED: the file the implementer wrote its detailed
-  report to
-- `[BASE_SHA]` — commit before this task
-- `[HEAD_SHA]` — current commit
-- `[DIFF_FILE]` — REQUIRED: the path the controller wrote the review
-  package to (`scripts/review-package BASE HEAD` prints the unique path it
-  wrote; the package never enters the controller's context)
+**Placeholders:** `[MODEL]`; `[BRIEF_FILE]` (from `scripts/task-brief`,
+the same file the implementer read); `[REPORT_FILE]`; `[DIFF_FILE]` (from
+`scripts/review-package BASE HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`;
+`[GLOBAL_CONSTRAINTS]` copied verbatim from the plan's Global Constraints
+or the spec - exact values, formats, and stated relationships, not process
+rules.
 
-**Reviewer returns:** Spec Compliance verdict (✅/❌/⚠️), Strengths, Issues
-(Critical/Important/Minor), Task quality verdict
-
-A fix dispatch can address spec gaps and quality findings together;
-re-review after fixes covers both verdicts.
+A fix dispatch can address spec gaps and quality findings together; the
+re-review covers both verdicts.
