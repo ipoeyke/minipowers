@@ -35,6 +35,11 @@ Subagent (general-purpose):
     **Head:** [HEAD_SHA]
     **Diff file:** [DIFF_FILE]
 
+    Read your three inputs with the Read tool in three separate calls:
+    the brief, then the report, then the diff. Never `cat` them together
+    through Bash - the combined output exceeds the tool output limit and
+    forces re-reads.
+
     Read the diff file once — it contains the commit list, a stat summary,
     and the full diff with surrounding context, and it is your view of the
     change. The diff's context lines ARE the changed files: do not Read a

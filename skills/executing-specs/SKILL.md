@@ -45,6 +45,9 @@ them first. A base SHA recorded over a dirty tree makes the final Squash
 step fold in work nobody dispatched.
 
 Record the base SHA only once the tree is clean: `git rev-parse HEAD`.
+Then clear earlier runs' artifacts with
+`../subagent-driven-development/scripts/sdd-workspace --reset`, so stale
+diffs and findings files do not surface in the reviewer's greps.
 Same branch rule as subagent-driven-development: never start
 implementation on main/master without explicit user consent.
 

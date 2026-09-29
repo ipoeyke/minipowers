@@ -178,13 +178,16 @@ Subagent (general-purpose):
 
     Write your full report to [REPORT_FILE]:
     - What you implemented (or what you attempted, if blocked)
-    - What you tested and test results
     - **TDD Evidence** (if TDD was required for this task):
-      - RED: command run, relevant failing output before implementation, and why the failure was expected
-      - GREEN: command run and relevant passing output after implementation
+      - RED: command run, a one-line result (`FAILED test_x: ImportError`), and why the failure was expected
+      - GREEN: command run and a one-line result (`12 passed`)
     - Files changed
     - Self-review findings (if any)
     - Any issues or concerns
+
+    Test results are counts and one-line failure reasons, never pasted
+    runner output. Reviewers read the report for status and concerns;
+    transcript dumps only cost them tokens.
 
     Then report back with ONLY (under 15 lines — the detail lives in the
     report file):

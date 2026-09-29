@@ -82,6 +82,10 @@ Execution start is the finalization boundary for the spec and the plan —
 neither has been committed before this point (brainstorming and writing-plans
 leave them as uncommitted files, by design, so drafts don't spam history).
 
+First clear earlier runs' artifacts: `scripts/sdd-workspace --reset`.
+Stale briefs, diffs, and reports from past runs otherwise surface in
+reviewers' greps. Only at kickoff - never when resuming from the ledger.
+
 Before recording any base commit for Task 1: make ONE docs-only commit
 containing the spec and the plan (e.g. `docs: spec and plan for <feature>`).
 Order matters mechanically — the docs commit must land BEFORE Task 1's base

@@ -211,8 +211,9 @@ Subagent (general-purpose):
     - **Status:** DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT
     - What you implemented (or attempted, if blocked)
     - Commits created (short SHA + subject)
-    - **TDD Evidence:** RED command + failing output, GREEN command +
-      passing output
+    - **TDD Evidence:** RED command + one-line result (`FAILED test_x:
+      ImportError`), GREEN command + one-line result (`12 passed`) -
+      never pasted runner output
     - One-line test summary (e.g. "14/14 passing, output pristine")
     - **Verification scope:** scoped test command run + result; any run
       wider than your touched files, with a reason

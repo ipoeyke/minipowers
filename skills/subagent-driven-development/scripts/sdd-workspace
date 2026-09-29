@@ -12,11 +12,17 @@
 # Single source of truth for the workspace location, so task-brief and
 # review-package cannot drift to different directories.
 #
-# Usage: sdd-workspace
+# --reset deletes every earlier run's artifacts. Use it only when starting a
+# new plan or spec, never on resume: progress.md is the recovery ledger.
+#
+# Usage: sdd-workspace [--reset]
 set -euo pipefail
 
 root=$(git rev-parse --show-toplevel)
 dir="$root/.minipowers/sdd"
+if [ "${1:-}" = "--reset" ]; then
+  rm -rf "$dir"
+fi
 mkdir -p "$dir"
 printf '*\n' > "$dir/.gitignore"
 cd "$dir" && pwd
