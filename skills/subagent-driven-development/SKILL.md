@@ -106,14 +106,18 @@ conflicts that only emerge from implementation.
 
 ## Model Selection
 
-Fixed policy - two roles, two models:
+Fixed policy - three roles:
 
 - **Implementers and fix subagents: Sonnet** (the current mid-tier model),
   regardless of task size. A well-specified plan makes implementation
   mechanical enough for the mid-tier, and cheaper models take 2-3x the
   turns on multi-step work - costing more overall.
-- **Reviewers: Opus** (the current strong-tier model), for every review
-  dispatch - task reviews, re-reviews, and the final whole-branch review.
+- **Task reviewers: Opus** (the current strong-tier model), for every
+  task review and re-review.
+- **Final whole-branch reviewer: the strongest available model** - Fable
+  if the Agent tool offers it, else Opus - for the final review and its
+  re-reviews. It is one dispatch that sees the whole branch and catches
+  what per-task reviews cannot, so it earns the top tier.
 
 The only sanctioned deviation: a Sonnet implementer reports BLOCKED for
 reasoning depth - re-dispatch that one task on Opus.
@@ -123,7 +127,7 @@ omitted model inherits your session's model - often the most expensive -
 which silently defeats this policy.
 
 If the model lineup changes, map by tier: implementers get the mid-tier
-model, reviewers get the strong tier.
+model, task reviewers the strong tier, the final reviewer the strongest.
 
 ## Handling Implementer Status
 

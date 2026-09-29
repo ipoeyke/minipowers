@@ -35,8 +35,10 @@ The flow is two-tier, forked by a triage step at the end of brainstorming:
 Both tiers use TDD inside implementation and verification before every
 completion claim. Specs and plans are point-in-time records that nothing
 else in the repo may cite; `ARCHITECTURE.md` at the repo root is the living
-description of the current system, updated by every change that alters it. Subagent model policy is fixed: implementers run on
-Sonnet, reviewers on Opus.
+description of the current system, updated by every change that alters it.
+Subagent model policy is fixed: implementers run on Sonnet, task reviewers
+on Opus, and the final reviewer on the strongest available model (Fable,
+else Opus).
 
 ## Install
 

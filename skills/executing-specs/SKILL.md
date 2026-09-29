@@ -158,7 +158,9 @@ By design, none of the following exist on this path:
 ## Model Selection
 
 Same policy as subagent-driven-development: implementers and fix subagents
-run on Sonnet, reviewers run on Opus. Always specify the model explicitly
+run on Sonnet. The single whole-diff reviewer is a final reviewer, so it
+runs on the strongest available model - Fable if the Agent tool offers it,
+else Opus. Always specify the model explicitly
 when dispatching a subagent - an omitted model silently inherits your
 session's model, often the most expensive one available. If a Sonnet
 implementer reports BLOCKED for reasoning depth, re-dispatch that task on
