@@ -1,7 +1,7 @@
 # Final Reviewer Prompt Template
 
-Dispatch once per branch (subagent-driven-development) or per spec
-(executing-specs), after the controller's full-suite run.
+Dispatch once per branch after the controller's full-suite run, and again,
+as a fresh subagent, after every fix round.
 
 ```
 Subagent (general-purpose):
@@ -15,16 +15,20 @@ Subagent (general-purpose):
     ## Inputs
 
     - What was built: [DESCRIPTION]
-    - Requirements: [REQUIREMENTS_FILE] (spec or plan)
+    - Requirements: [SPEC_FILE] and [PLAN_FILE]
     - Diff (commit list, provenance-leak candidates, stat, full diff with
       context): [DIFF_FILE], range [BASE_SHA]..[HEAD_SHA]
     - Full-suite and lint output at HEAD: [FULL_SUITE_OUTPUT_FILE]
+    - Baseline failures that predate the branch: [BASELINE]
+    - Changed files: [CHANGED_FILES]
     - Minor findings deferred from task reviews: [MINORS]
+
+    [FIX_ROUND_BLOCK]
 
     Read each file once with the Read tool, one call per file. Do not re-run
     the suite: its output is above. Run one focused test only when the code
     raises a specific doubt no existing run answers. Failures or noise in
-    the suite output are findings.
+    the suite output are findings unless the baseline lists them.
 
     Your review is read-only: never mutate the working tree, index, HEAD,
     or branches. To inspect another revision, use `git show` or a separate
@@ -39,21 +43,49 @@ Subagent (general-purpose):
 
         ## [SUSPECTED or CONFIRMED] Critical - <one-line title>
         - **File:line:** path/to/file.py:123
+        - **Also at:** every other file:line in the diff where the same
+          invariant is violated or must hold, or "none"
+        - **Action:** fix, or ask-user
         - **What's wrong / why it matters / how to fix:** ...
         - **Evidence:** command run or code path traced
 
     Write SUSPECTED when you spot something, then amend to CONFIRMED or
-    delete it once verified. Finish by appending the Assessment block, so a
-    reader can tell a complete review from a truncated one.
+    delete it once verified. Report a defect class once: one anchor, every
+    sibling site in the same finding, so one fix round closes the class
+    instead of the next review reporting the sibling the fix left behind.
+
+    **Action** is ask-user when the smallest honest remedy would extend the
+    change (new state, schema, retry or persistence machinery, a
+    subsystem), contradicts the requirements' intent, or removes a
+    component the requirements never asked for: the remedy, not the
+    defect, needs authorization. Say so in the finding. Routine
+    correctness, reliability, and security fixes are "fix" even when they
+    re-add a little deleted logic.
+
+    Finish by appending the Assessment block with its **Reviewed** list, so
+    a reader can tell a complete review from a truncated one.
 
     ## What to Check
 
     - **Requirements:** everything specified is present; deviations are
       flagged as intended improvements or departures; plan defects are
       named as such. For every invariant in the Global Constraints, name
-      the test that proves it, or report it untested.
+      the test that proves it, or report it untested. Conformance is
+      necessary, not sufficient: it never replaces checking that the code
+      is correct.
     - **Correctness:** bugs, edge cases, error handling, type safety,
-      security, data loss, integration with surrounding code.
+      security, data loss, integration with surrounding code. For every
+      new or changed piece of logic, construct at least one concrete input
+      or state and trace it, looking for a case that returns a wrong value
+      without erroring. For a claimed bug fix, reconstruct the failing
+      sequence and check that no sibling path still reaches it.
+    - **Simplification:** list every component the change introduced - a
+      branch, fallback, alias, mode, flag, option, second definition of a
+      concept the code already defines, parallel copy of a rule - and
+      judge each against the requirements. One the requirements do not
+      need is Important, action ask-user, remedy removal: never hardening,
+      validating, or documenting it. A defect inside such a component
+      names removal as its fix.
     - **Tests:** real behavior, not mocks; integration tests where
       components meet; suite output green and pristine.
     - **Quality:** duplicated logic, unclear boundaries. A docstring longer
@@ -73,7 +105,13 @@ Subagent (general-purpose):
       performance and scalability, documentation.
     - **Deferred Minors:** mark each as fix-before-merge or leave.
 
-    Categorize by actual severity; not everything is Critical. Be specific
+    Categorize by actual severity; not everything is Critical. Report a
+    finding only from a concrete sequence that occurs under the change's
+    intended usage; a rare but real sequence qualifies, a hypothetical
+    path no caller takes does not. Code shape, duplication, or
+    architectural preference alone is not evidence of a systemic flaw; do
+    not demand speculative redesign or promote optional improvements into
+    blockers. No generic advice ("add more tests"). Be specific
     (file:line), say why each issue matters, and never report on code you
     did not read.
 
@@ -92,12 +130,45 @@ Subagent (general-purpose):
     For each: file:line, what is wrong, why it matters, how to fix.
 
     ### Assessment
+    **Reviewed:** every changed file you examined and hold a current
+    verdict on, one per line. This is a coverage record, not a summary: a
+    changed file you omit is treated as unreviewed, never as clean, and
+    the controller sends it back.
     **Ready to merge?** Yes, No, or With fixes
     **Reasoning:** [1-2 sentences]
 ```
 
+Fix Round block, for every re-review (omit on the first review):
+
+```
+    ## Fix Round [N]
+
+    Every commit in [FIX_RANGE] was written by a fixer subagent in response
+    to the previous round's findings, not by the change's author; its
+    report is [FIX_REPORT_FILE]. Review it
+    under exactly the same adversarial standard as the rest of the diff: it
+    is unreviewed new code, not a settled resolution of those findings.
+    Prior findings and the fixer's report are claims, not evidence. A test
+    added or changed in the same round as the code it exercises is part of
+    that round's claim, not independent proof: judge whether it could still
+    pass with the code wrong.
+
+    For each prior finding (in [FINDINGS_FILE]), state resolved or still
+    open. For a defect in fix-round code, or at a sibling site of an
+    invariant a fix addressed, say which round and whether the fix
+    introduced the defect, left the sibling behind, or moved the defect,
+    and list every remaining sibling site. If fix-round code grew past what
+    its finding required, file one ask-user finding recommending that round
+    be reverted to the minimal fix instead of further repairs on it.
+```
+
 **Placeholders:** `[MODEL]`; `[DESCRIPTION]`, a short summary;
-`[REQUIREMENTS_FILE]`; `[DIFF_FILE]` (from `scripts/review-package BASE
+`[SPEC_FILE]` and `[PLAN_FILE]`; `[BASELINE]` from Kickoff; `[DIFF_FILE]` (from `scripts/review-package BASE
 HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`; `[FULL_SUITE_OUTPUT_FILE]`;
+`[CHANGED_FILES]`, the output of `git diff --name-only BASE..HEAD`;
 `[MINORS]`, the ledger's Minor list, or "none"; `[FINDINGS_FILE]`
-(`.minipowers/sdd/review-findings-BASE..HEAD.md`).
+(`.minipowers/sdd/review-findings-BASE..HEAD.md`); `[FIX_ROUND_BLOCK]`,
+the Fix Round block with `[N]`, `[FIX_RANGE]` (the fix-round commits,
+`PREV_HEAD..HEAD`) and `[FIX_REPORT_FILE]`
+(`.minipowers/sdd/fix-report-round-N.md`) filled, or omitted on the first
+review.

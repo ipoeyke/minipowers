@@ -5,7 +5,8 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 # Writing Plans
 
-The heavy-tier path, reached via brainstorming's tier triage.
+Every approved spec comes here from brainstorming. The plan is written the
+same way at every size; its task count then decides the execution tier.
 
 Write a plan for an implementer who is a skilled developer with fresh
 context, who knows nothing about this codebase or domain and is weak at
@@ -90,9 +91,9 @@ surfaces mid-execution as several recalibration commits.
 Use the project's documented test commands (README, Makefile,
 CONTRIBUTING, CI config), including an already-configured parallel runner
 such as pytest-xdist; add no dependencies for speed. Never write a
-full-suite run into a task step: the implementer gets one full run before
-its final commit, and the controller runs the suite before the final
-review.
+full-suite run into a task step: a heavy-tier implementer gets one full
+run before its final commit, a light-tier one none, and the controller
+runs the suite before the final review.
 
 ## Plan Header
 
@@ -100,6 +101,8 @@ review.
 # [Feature Name] Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use minipowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Tier:** light or heavy (set by Tier Triage)
 
 **Goal:** [One sentence]
 
@@ -161,12 +164,26 @@ Check the plan against the spec yourself and fix inline:
 4. **Living docs:** every Living docs impact entry lands in a task.
 5. **Tables:** no literal `|` in any cell.
 
+## Tier Triage
+
+The plan is the evidence; the spec's size was a guess. Set the **Tier**
+header from it:
+
+- **Light:** at most 3 tasks and about 10 files in the File
+  Structure. One implementer executes the whole plan, there are no per-task
+  reviews, and everything squashes into one commit.
+- **Heavy:** anything larger. One implementer and one review per task, a
+  commit per task.
+
+Borderline goes heavy. State the tier and its reason in one line; do not
+ask for confirmation - the user gated the spec, and subagent-driven-
+development escalates a light plan whose scope balloons.
+
 ## Execution Handoff
 
-After the self-review, proceed directly - do not ask the human to review
-the plan. They gated the spec; pre-flight and per-task reviews catch plan
-defects.
+After the self-review and triage, proceed directly - do not ask the human
+to review the plan. Pre-flight and per-task reviews catch plan defects.
 
-Announce "Plan saved to `docs/plans/<filename>.md`. Executing with
-subagent-driven development." and invoke
+Announce "Plan saved to `docs/plans/<filename>.md` (<tier> tier).
+Executing with subagent-driven development." and invoke
 minipowers:subagent-driven-development.

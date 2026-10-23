@@ -1,8 +1,8 @@
 # Implementer Subagent Prompt Template
 
-Shared by subagent-driven-development (one dispatch per plan task) and
-executing-specs (dispatches from the spec). Fill the placeholders; the
-path-specific values are listed after the template.
+One dispatch per plan task (heavy tier) or one for the whole plan (light
+tier). Fill the placeholders; the tier-specific values are listed after
+the template.
 
 ```
 Subagent (general-purpose):
@@ -21,7 +21,14 @@ Subagent (general-purpose):
     [Where this fits; interfaces and decisions from earlier work that the
     brief cannot know; resolutions of ambiguities the controller noticed]
 
-    [BASELINE_AND_SEAM]
+    ## Baseline
+
+    At the base commit, verification results were:
+    [per-command pass/fail from Kickoff's baseline, with a one-line summary
+    of each pre-existing failure]
+
+    A failure listed here predates your work: note it in your report and
+    move on.
 
     ## Questions
 
@@ -126,38 +133,18 @@ Subagent (general-purpose):
     final message.
 ```
 
-## Path-Specific Values
+## Tier-Specific Values
 
-| Placeholder | subagent-driven-development | executing-specs |
+| Placeholder | Heavy (one task) | Light (whole plan) |
 |---|---|---|
-| `[WHAT]` | Task N: [name] | the approved spec at [SPEC_PATH] |
-| `[BRIEF_FILE]` | the task brief from `scripts/task-brief` | the spec file |
-| `[BRIEF_NOTE]` | It holds the task's full text from the plan. | Its Implementation notes section is your file list, interfaces, and test intent. |
-| `[BASELINE_AND_SEAM]` | omit | the Baseline and Test Seam sections below |
-| `[COMMIT_NOTE]` | Conventional Commits subject; these commits are kept. | These are checkpoints the controller squashes later; wording does not matter. |
-| `[FULL_RUN_RULE]` | You get one full-suite run and one whole-repo lint and type-check pass, immediately before your final commit; state the count in your report. | Never run the full suite or whole-repo lint or type-check; the controller's Verify step owns those. |
-| `[REPORT_RULE]` | Write the report below to [REPORT_FILE]; fix rounds append to it. Then reply with only status, commits, the test summary, concerns, and the file path, under 15 lines. | Reply with the report below as your final message, under 15 lines. There is no report file. |
-| `[TEST_SUMMARY_FIELDS]` | counts, and full-suite runs with a reason for each beyond the first | counts, the scoped command run, and any wider run with its reason |
+| `[WHAT]` | Task N: [name] | the plan at [PLAN_PATH], every task in order |
+| `[BRIEF_FILE]` | the task brief from `scripts/task-brief` | the plan file |
+| `[BRIEF_NOTE]` | It holds the task's full text from the plan. | Work the tasks in order; each task's steps and tests apply as written. |
+| `[COMMIT_NOTE]` | Conventional Commits subject; these commits are kept. | Commit after each task as its steps say; the controller squashes them later. |
+| `[FULL_RUN_RULE]` | You get one full-suite run and one whole-repo lint and type-check pass, immediately before your final commit; state the count in your report. | Never run the full suite or whole-repo lint or type-check; the controller's Final Review owns those. |
+| `[REPORT_RULE]` | Write the report below to [REPORT_FILE]; fix rounds append to it. Then reply with only status, commits, the test summary, concerns, and the file path, under 15 lines. | Same, with one commit line per task. |
+| `[TEST_SUMMARY_FIELDS]` | counts, and full-suite runs with a reason for each beyond the first | counts per task, and any run wider than a task's scoped command with its reason |
 
-`[TRAILER]` is the exact Co-Authored-By line from the controller's own
-session attribution.
-
-Baseline and Test Seam sections for executing-specs:
-
-```
-    ## Baseline
-
-    At the base commit, verification results were:
-    [per-command pass/fail from Setup's baseline, with a one-line summary
-    of each pre-existing failure]
-
-    A failure listed here predates your work: note it in your report and
-    move on.
-
-    ## Test Seam
-
-    - Existing test to copy: [a test that already exercises the target
-      path - clone its fixture setup - or "none - first test for this
-      path"]
-    - Scoped test command: [the exact command for this dispatch's tests]
-```
+Common placeholders: `[MODEL]`; `[PLAN_PATH]`; `[DIRECTORY]`, the working
+tree; `[REPORT_FILE]`; `[TRAILER]`, the exact Co-Authored-By line from the
+controller's own session attribution.

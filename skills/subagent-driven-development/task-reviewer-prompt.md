@@ -20,6 +20,9 @@ Subagent (general-purpose):
       context): [DIFF_FILE], range [BASE_SHA]..[HEAD_SHA]
     - Global constraints that bind this task:
       [GLOBAL_CONSTRAINTS]
+    - Review file to write: [REVIEW_FILE]
+
+    [FIX_ROUND_BLOCK]
 
     Read the three files with the Read tool in three separate calls: brief,
     report, then diff. Never `cat` them together through Bash - the output
@@ -89,9 +92,22 @@ Subagent (general-purpose):
     broader" are Minor. Something the brief mandates that this rubric calls
     a defect is still Important, labeled plan-mandated - the human decides.
 
+    Report a defect class once: anchor it at one file:line and list, in
+    the same finding, every other place in the diff where the same
+    invariant is violated or must hold, so one fix round closes the class.
+    Tag a finding **ask-user** when its smallest honest remedy would extend
+    the change (new state, schema, retry or persistence machinery, a
+    subsystem) or contradicts the brief's intent: the remedy, not the
+    defect, needs authorization. Report only what you can trace to a
+    concrete sequence under the change's intended usage; a hypothetical
+    path no caller takes is not a finding, and code shape or duplication
+    alone is not evidence of a systemic flaw.
+
     Cite file:line for every finding and for every check you would
-    otherwise answer with a bare "yes". Begin directly with the spec
-    verdict: no preamble, no narration, no closing summary.
+    otherwise answer with a bare "yes". Write the full review below to
+    [REVIEW_FILE], then reply with only the two verdicts and the path.
+    Begin directly with the spec verdict: no preamble, no narration, no
+    closing summary.
 
     ## Output Format
 
@@ -109,11 +125,27 @@ Subagent (general-purpose):
     #### Important (Should Fix)
     #### Minor (Nice to Have)
     For each: file:line, what is wrong, why it matters, how to fix if not
-    obvious.
+    obvious; prefix the title with **ask-user** where that applies.
 
     ### Assessment
     **Task quality:** Approved, or Needs fixes
     **Reasoning:** [1-2 sentences]
+```
+
+Fix Round block, for every re-review (omit on the first review):
+
+```
+    ## Fix Round [N]
+
+    Commits [FIX_RANGE] were written by a fixer subagent in response to the
+    previous review in [REVIEW_FILE_PREV]; its report is in the report
+    file. Review them under the same adversarial standard as the task's
+    own code: unreviewed new code, not a settled resolution. Prior findings
+    and the fixer's report are claims, not evidence; a test changed in the
+    same round as the code it exercises is part of the claim. State
+    resolved or still open for each prior finding, and for a defect in
+    fix-round code say whether the fix introduced it, left a sibling, or
+    moved it.
 ```
 
 **Placeholders:** `[MODEL]`; `[BRIEF_FILE]` (from `scripts/task-brief`,
@@ -121,7 +153,10 @@ the same file the implementer read); `[REPORT_FILE]`; `[DIFF_FILE]` (from
 `scripts/review-package BASE HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`;
 `[GLOBAL_CONSTRAINTS]` copied verbatim from the plan's Global Constraints
 or the spec - exact values, formats, and stated relationships, not process
-rules.
+rules; `[REVIEW_FILE]` (`.minipowers/sdd/task-N-review.md`, with
+`-round-N` appended on re-reviews); `[FIX_ROUND_BLOCK]` with `[N]`,
+`[FIX_RANGE]` (`PREV_HEAD..HEAD`) and `[REVIEW_FILE_PREV]` filled, or
+omitted on the first review.
 
 A fix dispatch can address spec gaps and quality findings together; the
 re-review covers both verdicts.

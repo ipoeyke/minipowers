@@ -5,9 +5,15 @@ description: Use when executing implementation plans with independent tasks in t
 
 # Subagent-Driven Development
 
-Execute a plan by dispatching a fresh implementer subagent per task, a task
-review (spec compliance + code quality) after each, and one broad
-whole-branch review at the end.
+Execute a plan with fresh implementer subagents, adversarial review, and a
+fix loop whose reviewer never judges its own prescription.
+
+The plan's **Tier** header picks the mode:
+
+- **Heavy:** one implementer per task, a task review after each, a commit
+  per task, then one whole-branch review.
+- **Light:** one implementer for the whole plan, no task reviews, one
+  whole-branch review, then everything squashes into a single commit.
 
 Subagents never inherit your session's context: you construct exactly what
 each one needs. That keeps them focused and preserves your context for
@@ -15,8 +21,8 @@ coordination.
 
 **Continuous execution:** do not pause between tasks to check in. Stop only
 for a BLOCKED status you cannot resolve, ambiguity that prevents progress,
-or completion. Between tool calls, narrate at most one short line - the
-ledger and tool results carry the record.
+a finding tagged ask-user, or completion. Between tool calls, narrate at
+most one short line - the ledger and tool results carry the record.
 
 ## The Process
 
@@ -25,40 +31,42 @@ digraph process {
     rankdir=TB;
 
     subgraph cluster_per_task {
-        label="Per Task";
-        "Run task-brief, dispatch implementer (./implementer-prompt.md)" [shape=box];
+        label="Per Task (heavy) / once for the plan (light)";
+        "Dispatch implementer (./implementer-prompt.md)" [shape=box];
         "Implementer asks questions?" [shape=diamond];
         "Answer questions, provide context" [shape=box];
         "Implementer implements, tests, commits, self-reviews" [shape=box];
-        "Run review-package, dispatch task reviewer (./task-reviewer-prompt.md)" [shape=box];
+        "Heavy: review-package, dispatch task reviewer (./task-reviewer-prompt.md)" [shape=box];
         "Spec ✅ and quality approved?" [shape=diamond];
-        "Dispatch fix subagent for Critical/Important findings" [shape=box];
+        "Dispatch fixer (./fixer-prompt.md) for Critical/Important" [shape=box];
         "Mark task complete in todos and ledger" [shape=box];
     }
 
-    "Kickoff: reset workspace, commit spec+plan" [shape=box];
+    "Kickoff: reset workspace, baseline, heavy commits spec+plan" [shape=box];
     "Read plan, note global constraints, create todos" [shape=box];
     "Pre-flight plan review" [shape=box];
     "More tasks remain?" [shape=diamond];
-    "Full suite run, dispatch final reviewer (./code-reviewer.md)" [shape=box];
+    "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" [shape=box];
+    "Light: squash to one commit" [shape=box];
     "Ask human about branch disposition" [shape=box style=filled fillcolor=lightgreen];
 
-    "Kickoff: reset workspace, commit spec+plan" -> "Read plan, note global constraints, create todos";
+    "Kickoff: reset workspace, baseline, heavy commits spec+plan" -> "Read plan, note global constraints, create todos";
     "Read plan, note global constraints, create todos" -> "Pre-flight plan review";
-    "Pre-flight plan review" -> "Run task-brief, dispatch implementer (./implementer-prompt.md)";
-    "Run task-brief, dispatch implementer (./implementer-prompt.md)" -> "Implementer asks questions?";
+    "Pre-flight plan review" -> "Dispatch implementer (./implementer-prompt.md)";
+    "Dispatch implementer (./implementer-prompt.md)" -> "Implementer asks questions?";
     "Implementer asks questions?" -> "Answer questions, provide context" [label="yes"];
-    "Answer questions, provide context" -> "Run task-brief, dispatch implementer (./implementer-prompt.md)";
+    "Answer questions, provide context" -> "Dispatch implementer (./implementer-prompt.md)";
     "Implementer asks questions?" -> "Implementer implements, tests, commits, self-reviews" [label="no"];
-    "Implementer implements, tests, commits, self-reviews" -> "Run review-package, dispatch task reviewer (./task-reviewer-prompt.md)";
-    "Run review-package, dispatch task reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
-    "Spec ✅ and quality approved?" -> "Dispatch fix subagent for Critical/Important findings" [label="no"];
-    "Dispatch fix subagent for Critical/Important findings" -> "Run review-package, dispatch task reviewer (./task-reviewer-prompt.md)" [label="re-review"];
+    "Implementer implements, tests, commits, self-reviews" -> "Heavy: review-package, dispatch task reviewer (./task-reviewer-prompt.md)";
+    "Heavy: review-package, dispatch task reviewer (./task-reviewer-prompt.md)" -> "Spec ✅ and quality approved?";
+    "Spec ✅ and quality approved?" -> "Dispatch fixer (./fixer-prompt.md) for Critical/Important" [label="no"];
+    "Dispatch fixer (./fixer-prompt.md) for Critical/Important" -> "Heavy: review-package, dispatch task reviewer (./task-reviewer-prompt.md)" [label="re-review"];
     "Spec ✅ and quality approved?" -> "Mark task complete in todos and ledger" [label="yes"];
     "Mark task complete in todos and ledger" -> "More tasks remain?";
-    "More tasks remain?" -> "Run task-brief, dispatch implementer (./implementer-prompt.md)" [label="yes"];
-    "More tasks remain?" -> "Full suite run, dispatch final reviewer (./code-reviewer.md)" [label="no"];
-    "Full suite run, dispatch final reviewer (./code-reviewer.md)" -> "Ask human about branch disposition";
+    "More tasks remain?" -> "Dispatch implementer (./implementer-prompt.md)" [label="yes (heavy)"];
+    "More tasks remain?" -> "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" [label="no"];
+    "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" -> "Light: squash to one commit";
+    "Light: squash to one commit" -> "Ask human about branch disposition";
 }
 ```
 
@@ -67,16 +75,22 @@ digraph process {
 Execution start is when the spec and plan are finalized; brainstorming and
 writing-plans leave them uncommitted so drafts don't spam history.
 
-1. Check for a ledger (see Durable Progress). If one lists completed tasks,
-   this is a resume: skip steps 2-3 and continue at the first incomplete
-   task.
-2. Clear earlier runs' artifacts: `scripts/sdd-workspace --reset`. Stale
+1. Check for a ledger (see Durable Progress). If one lists completed work,
+   this is a resume: skip steps 2-5 and continue where it stops.
+2. Require a clean tree (`git status --porcelain` shows nothing but the
+   uncommitted spec and plan); otherwise ask the user to commit or stash.
+   Never start on main/master without explicit user consent.
+3. Clear earlier runs' artifacts: `scripts/sdd-workspace --reset`. Stale
    briefs, diffs, and reports otherwise surface in reviewers' greps.
-3. Make ONE docs-only commit with the spec and plan (e.g. `docs: spec and
-   plan for <feature>`) BEFORE recording Task 1's base SHA, or every review
-   package drags the plan in. Commit later plan amendments as they happen.
-
-Never start on main/master without explicit user consent.
+4. **Heavy:** make ONE docs-only commit with the spec and plan (e.g. `docs:
+   spec and plan for <feature>`) BEFORE recording Task 1's base SHA, or
+   every review package drags the plan in. Commit later plan amendments as
+   they happen. **Light:** do not commit them; they land in the squash.
+5. Record the base SHA (`git rev-parse HEAD`) and run a **baseline**: each
+   verification command the project defines (tests, lint, type-check)
+   once, recording pass/fail with a one-line summary of each failure. It
+   proves the toolchain resolves and tells every later dispatch which
+   failures predate it.
 
 ## Pre-Flight Plan Review
 
@@ -89,9 +103,9 @@ without comment.
 
 ## Model Selection
 
-- **Implementers and fix subagents: Sonnet** (mid tier). A well-specified
-  plan makes implementation mechanical enough for it, and cheaper models
-  take 2-3x the turns.
+- **Implementers and fixers: Sonnet** (mid tier). A well-specified plan
+  makes implementation mechanical enough for it, and cheaper models take
+  2-3x the turns.
 - **Task reviewers and re-reviewers: Opus** (strong tier).
 - **Final whole-branch reviewer and its re-reviews: the strongest available
   model** - Fable if the Agent tool offers it, else Opus. It is the one
@@ -104,17 +118,20 @@ changes, map by tier.
 
 ## Dispatching an Implementer
 
-Run `scripts/task-brief PLAN_FILE N`; it writes the task's text to a file
-and prints the path. Fill [implementer-prompt.md](implementer-prompt.md)
-with:
+**Heavy:** run `scripts/task-brief PLAN_FILE N`; it writes the task's text
+to a file and prints the path. **Light:** the plan file itself is the
+brief - the implementer works every task in order, committing after each.
+
+Fill [implementer-prompt.md](implementer-prompt.md) with:
 
 - one line on where the task fits;
 - the brief path - the single source of requirements, so exact values
   (numbers, strings, signatures, test cases) appear only there;
-- interfaces and decisions from earlier tasks that the brief cannot know,
-  and your resolution of any ambiguity you noticed;
+- the baseline, and (heavy) interfaces and decisions from earlier tasks
+  that the brief cannot know, plus your resolution of any ambiguity you
+  noticed;
 - the report path, named after the brief (`task-N-brief.md` ->
-  `task-N-report.md`);
+  `task-N-report.md`; light: `plan-report.md`);
 - the exact Co-Authored-By line from your own session's attribution, or
   subagents substitute their own model name.
 
@@ -123,9 +140,10 @@ accumulated summaries of earlier tasks.
 
 ## Handling Implementer Status
 
-- **DONE:** run `scripts/review-package BASE HEAD` (BASE = the SHA you
-  recorded before dispatching, never `HEAD~1`, which drops all but the
-  last commit) and dispatch the task reviewer with the printed path.
+- **DONE:** heavy: run `scripts/review-package BASE HEAD` (BASE = the SHA
+  you recorded before dispatching, never `HEAD~1`, which drops all but the
+  last commit) and dispatch the task reviewer with the printed path. Light:
+  run the escalation check, then go to Final Review.
 - **DONE_WITH_CONCERNS:** read the concerns. Resolve correctness or scope
   doubts before review; note observations and proceed.
 - **NEEDS_CONTEXT:** provide it and re-dispatch.
@@ -139,12 +157,25 @@ accumulated summaries of earlier tasks.
   (SendMessage) with what is done, what remains, and which tests fail - a
   fresh dispatch collides with the half-finished work.
 
+### Light Escalation
+
+After the light implementer reports, run `git diff --name-only
+<base>..HEAD | wc -l`. Switch to heavy when the count exceeds the plan's
+File Structure by more than 3, or when a non-DONE status reports
+ballooning scope or an interface ambiguity the plan did not anticipate.
+Commit the spec and plan now (`docs: ...`), run one task review over the
+commits so far with the plan as the brief and `plan-report.md` as the
+report, then dispatch any unfinished tasks one at a time. Nothing is
+squashed. Record the switch in the ledger.
+
 ## Task Review
 
 Fill [task-reviewer-prompt.md](task-reviewer-prompt.md) with the brief
-path, the report path, the review-package path, and the global constraints
-that bind the task, copied verbatim (exact values, formats, stated
-relationships between components). The template carries the process rules.
+path, the report path, the review-package path, the review file it writes
+(`task-N-review.md`, the fixer's findings input), and the global
+constraints that bind the task, copied verbatim (exact values, formats,
+stated relationships between components). The template carries the
+process rules.
 
 - Do not ask the reviewer to re-run tests the implementer ran, and add no
   open-ended directives ("check all uses") without a task-specific reason.
@@ -161,47 +192,87 @@ clarified before fixing anything - findings are often related, and partial
 understanding produces wrong fixes. Treat an implementer's rebuttal the
 same way.
 
-- **Critical and Important:** one fix subagent with the complete list, then
-  a re-review. The dispatch carries the same Co-Authored-By line as the
-  implementer's and names the covering test files; the fixer
-  re-runs only those and appends command and output to the report file.
-  Re-dispatch the reviewer only once that evidence is present.
+- **Critical and Important:** one fixer with
+  [fixer-prompt.md](fixer-prompt.md) and the complete list, then a
+  re-review by a fresh reviewer. Re-dispatch the reviewer only once the
+  fixer's verification evidence is in the report file.
+- **ask-user:** the reviewer tags a finding ask-user when its smallest
+  honest remedy would extend the change (new state, schema, retry or
+  persistence machinery, a subsystem), when it contradicts the spec's
+  intent, or when a component the spec does not require should be removed.
+  Never hand these to a fixer unruled. Batch them into one question for
+  the human with your recommendation per item; a finding ruled "fix"
+  becomes a plain finding for the next fixer, the rest are dropped or
+  amend the spec. Record each ruling in the ledger. Plan-mandated defects
+  and conflicts with the plan's text are ask-user too.
+- **The spec itself is wrong:** decide it yourself if the fix restores the
+  spec's stated intent. Ask the human (one batched question with a
+  recommendation) when it changes a published default, a threshold, or an
+  output's meaning. Either way, record a design correction.
 - **Minor:** never a per-task round-trip. Record each in the ledger; the
   final reviewer triages the list for the final fix wave.
 - **⚠️ Cannot verify from diff:** resolve each yourself before marking the
   task complete - you hold the cross-task context. A real gap is a failed
   spec review.
-- **Plan-mandated, or conflicting with the plan's text:** the human
-  decides. Present the finding beside the plan text.
-- **The spec itself is wrong:** decide it yourself if the fix restores the
-  spec's stated intent. Ask the human (one batched question with a
-  recommendation) when it changes a published default, a threshold, or an
-  output's meaning. Either way, record a design correction.
 
-Never move to the next task while Critical or Important findings are open.
+### Re-review Rounds
+
+A re-review is a fresh dispatch of the same reviewer template; it never
+resumes the reviewer that prescribed the fixes, or it would certify its own
+prescription. Fill the template's Fix Round block with the round number,
+the fix-round commit range, and the fixer's report.
+
+A prior finding is **resolved** only when the re-review says so and reports
+nothing else in that file. Silence or a reworded finding in the same file
+leaves it open. In the final review, a **Reviewed** list that misses a
+changed file is an incomplete review: re-dispatch for exactly the missing
+files and merge, never treat the gap as clean.
+
+Stop and ask the human when a re-review finds that fix-round code grew past
+what the finding required (the reviewer recommends reverting the round to a
+minimal fix) or when three fix rounds have not converged. Never move to
+the next task while Critical or Important findings are open.
 
 ## Final Review
 
-1. If the branch adds a statistical gate or self-check, run it over ~100
+1. Invoke `/simplify` through the Skill tool if the harness offers it,
+   scoped to the branch's code changes, and commit what it changed
+   (`git add -u`, `refactor: simplify <area>`). This is the one sanctioned
+   controller edit: its output lands before the review so the reviewer
+   judges it.
+2. If the branch adds a statistical gate or self-check, run it over ~100
    seeds and report the failure rate; 1-2% failures at default config is a
    defect.
-2. Run the full suite and lint once at HEAD, output to
-   `.minipowers/sdd/full-suite-<head7>.txt`.
-3. Run `scripts/review-package MERGE_BASE HEAD` (e.g. `git merge-base main
-   HEAD`).
-4. Dispatch exactly one final reviewer with
-   [code-reviewer.md](code-reviewer.md): the package path, the full-suite
-   output path, the ledger's Minor list, and a findings file
-   (`.minipowers/sdd/review-findings-BASE..HEAD.md`).
-5. Findings go to ONE fix subagent with the complete list, then a
-   re-review.
-6. If fixes changed code since step 2, run the full suite once more.
-7. Ask the human once: merge locally, push + PR, or leave as-is. Never
-   merge or push without an answer.
+3. Run the full suite and lint once at HEAD, output to
+   `.minipowers/sdd/full-suite-<head7>.txt`. Failures also present in the
+   baseline are reported, not blockers; anything newly red blocks.
+4. Run `scripts/review-package BASE HEAD` with the base SHA recorded at
+   Kickoff (after the docs commit on heavy, so the plan stays out of the
+   package).
+5. Dispatch exactly one final reviewer with
+   [code-reviewer.md](code-reviewer.md): the package path, the spec and
+   plan, the baseline, the full-suite output path, `git diff --name-only
+   BASE..HEAD` as the changed-file list, the ledger's Minor list, and a
+   findings file (`.minipowers/sdd/review-findings-BASE..HEAD.md`).
+6. Findings follow Handling Findings and Re-review Rounds: one fixer with
+   the complete list, reporting to `.minipowers/sdd/fix-report-round-N.md`,
+   then a fresh re-review that receives that report.
+7. If fixes changed code since step 3, run the full suite once more.
+8. Run minipowers:verification-before-completion.
+9. **Light:** squash, with the spec and plan in the same commit:
+   ```
+   git reset --soft <base SHA>
+   git add docs/specs/<spec>.md docs/plans/<plan>.md
+   git commit -m "<type>: <description>" -m "<Co-Authored-By trailer>"
+   ```
+   Conventional Commits subject, no body beyond the trailer. Never squash
+   with open Critical or Important findings or an unanswered ask-user.
+10. Ask the human once: merge locally, push + PR, or leave as-is. Never
+    merge or push without an answer.
 
-If the final review ends without a report, read its findings file first
-and re-dispatch only for what it does not cover, handing the file over to
-be amended.
+If a review ends without a report, read its findings file first and
+re-dispatch only for what it does not cover, handing the file over to be
+amended.
 
 ## Durable Progress
 
@@ -209,21 +280,28 @@ Conversation memory does not survive compaction; the costliest observed
 failure is re-dispatching completed tasks. Keep a ledger at
 `.minipowers/sdd/progress.md`:
 
-- At start, read it. Tasks marked complete are done - never re-dispatch
-  them.
+- At start, read it. Work marked complete is done - never re-dispatch it.
 - When a task's review comes back clean, append
-  `Task N: complete (commits <base7>..<head7>, review clean)`.
+  `Task N: complete (commits <base7>..<head7>, review clean)`. Light:
+  `Implementation: complete (<base7>..<head7>)`, then one line per review
+  round.
 - Record Minor findings under a "Minors" heading as they arrive.
-- Record each deviation from the spec under "Design corrections" (what
-  changed, why, commit) and edit the local spec file to match. The final
-  report to the human lists these.
+- Record ask-user rulings under "Decisions", and each deviation from the
+  spec under "Design corrections" (what changed, why, commit); edit the
+  local spec file to match. The final report to the human lists these.
 - After compaction, trust the ledger and `git log` over recollection. If
   `git clean -fdx` destroyed the ledger, recover from `git log`.
 
 ## Never
 
-- Skip task review, or accept a review missing either verdict
+- Skip task review on the heavy tier, or accept a review missing either
+  verdict
 - Dispatch implementers in parallel - they share one checkout
-- Make a subagent read the whole plan - hand it its task brief
-- Fix a subagent's work yourself - dispatch a fix subagent
-- Let implementer self-review replace the task review
+- Make a heavy-tier subagent read the whole plan - hand it its task brief
+- Fix a subagent's work yourself - dispatch a fixer; `/simplify` in Final
+  Review is the one exception
+- Let implementer self-review replace review
+- Resume a reviewer across a code change
+- Hand an ask-user finding to a fixer
+- Run, or let any dispatch run, repo-wide format or lint autofix -
+  path-scoped only

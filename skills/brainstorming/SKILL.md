@@ -16,12 +16,12 @@ Do NOT invoke any implementation skill, write any code, scaffold any project, or
 request gets the full flow. A small, fully specified change gets a
 two-sentence design and one approval question. Never skip presenting SOME
 design and getting approval, and always write the spec file (a few
-sentences is fine): the next skill reads it. The light path compresses the
+sentences is fine): the next skill reads it. The short path compresses the
 questioning and alternatives, not the artifact.
 
 ## Checklist
 
-Create a task for each item and complete them in order. On the light path,
+Create a task for each item and complete them in order. On the short path,
 items 2-3 may collapse into the design; the rest always happen.
 
 1. **Explore context** - living docs first, then files and recent commits
@@ -31,9 +31,10 @@ items 2-3 may collapse into the design; the rest always happen.
 5. **Write the spec** - `docs/specs/YYYY-MM-DD-<topic>-design.md`, not committed
 6. **Self-review the spec**
 7. **User reviews the written spec**
-8. **Tier triage** - route to executing-specs (light) or writing-plans (heavy)
+8. **Hand off** - invoke writing-plans
 
-The tier triage is the terminal state. Invoke no other implementation skill.
+Invoking writing-plans is the terminal state. Invoke no other implementation
+skill: writing-plans sizes the work and picks the execution tier.
 
 ## Living Docs
 
@@ -87,24 +88,17 @@ Every change that alters what they describe updates them in the same work.
 ## Writing the Spec
 
 Write to `docs/specs/YYYY-MM-DD-<topic>-design.md` unless the user prefers
-another location. Do not commit it: drafts are file edits. Heavy-path
-specs are committed with the plan when subagent-driven-development starts;
-light-path specs land in executing-specs' single final commit.
+another location. Do not commit it: drafts are file edits.
+Subagent-driven-development commits it with the plan.
 
-Start with these header lines:
+Start with this header line:
 
 ```
-**Tier:** light or heavy (provisional until triage)
-**Escalation threshold:** N files
 **Supersedes:** docs/specs/<older-spec>.md (what this changes), or none
 ```
 
-- **Tier** is your provisional assessment; triage confirms it. The header,
-  not the conversation, is what executing-specs' entry gate reads.
-- **Escalation threshold** is the Implementation notes' file count plus 2-3.
-- **Supersedes** names each older spec whose decisions this one changes.
-  Find them by grepping `docs/specs/` for the components and terms you
-  change.
+It names each older spec whose decisions this one changes. Find them by
+grepping `docs/specs/` for the components and terms you change.
 
 The spec must contain:
 
@@ -119,11 +113,8 @@ The spec must contain:
   cost is acceptable. An unwritten simplification reads as an oversight.
 - **Living docs impact**: which sections of the living docs change and what
   they will say, or "none".
-- **Implementation notes** (light tier only): files to create or modify,
-  key interfaces, test intent, living-doc files, and per area of work one
-  existing test to copy (or "none - first test for this path") plus the
-  exact scoped test command. On the light path the spec is the
-  implementer's whole brief.
+- **No unresolved decision**: no "TBD", "implementation must confirm", or
+  open interface. The plan pins what the spec leaves open only by guessing.
 
 Markdown tables: no cell may contain a literal `|`, not even inside
 backticks - GitHub-flavoured markdown splits cells on it first. Write
@@ -158,20 +149,7 @@ skill consumes. Ask:
 > "Spec written to `<path>`. Please review it and let me know if you want to make any changes before we proceed."
 
 Apply requested changes and re-run the self-review. Proceed only on
-approval.
-
-## Tier Triage
-
-1. Assess from concrete signals:
-   - **Light:** one subsystem, roughly 1-5 files, no schema or API
-     migrations, no new cross-component interfaces, about 1-3 implementer
-     dispatches.
-   - **Heavy:** multiple subsystems, many files, new interfaces,
-     migrations, or anything needing task-by-task interface pinning.
-   - **Any unresolved decision** ("TBD", "implementation must confirm", an
-     open interface) forces heavy. Resolve it in the spec or route heavy.
-2. State your recommendation in one line and ask one confirmation
-   question. Borderline cases go heavy.
-3. Update the **Tier** and **Escalation threshold** header lines and remove
-   the "provisional" marker.
-4. Light: invoke executing-specs. Heavy: invoke writing-plans.
+approval, then invoke writing-plans. Every size of change goes through
+it: the plan's task count, not a guess at spec time, decides whether
+execution runs light (one implementer for the whole plan) or heavy (one
+per task).
