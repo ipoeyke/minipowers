@@ -7,7 +7,8 @@ description: Use when executing implementation plans with independent tasks in t
 
 Execute a committed plan with fresh implementer subagents, adversarial
 review, and a fix loop whose reviewer never judges its own prescription.
-The change ends as a pull request; approval belongs to a code owner.
+The change ends as a draft pull request; marking it ready and approving
+it belong to the human.
 
 The plan's **Tier** header picks the mode:
 
@@ -49,7 +50,7 @@ digraph process {
     "More tasks remain?" [shape=diamond];
     "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" [shape=box];
     "Light: squash to one commit" [shape=box];
-    "Push branch, open PR" [shape=box style=filled fillcolor=lightgreen];
+    "Push branch, open draft PR" [shape=box style=filled fillcolor=lightgreen];
 
     "Kickoff: reset workspace, baseline" -> "Read plan, note global constraints, create todos";
     "Read plan, note global constraints, create todos" -> "Pre-flight plan review";
@@ -67,7 +68,7 @@ digraph process {
     "More tasks remain?" -> "Dispatch implementer (./implementer-prompt.md)" [label="yes (heavy)"];
     "More tasks remain?" -> "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" [label="no"];
     "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" -> "Light: squash to one commit";
-    "Light: squash to one commit" -> "Push branch, open PR";
+    "Light: squash to one commit" -> "Push branch, open draft PR";
 }
 ```
 
@@ -280,14 +281,16 @@ the next task while Critical or Important findings are open.
    ```
    Conventional Commits subject, no body beyond the trailer. Never squash
    with open Critical or Important findings or an unanswered ask-user.
-10. Push the branch and open the PR (`gh pr create`). Body sections, in
+10. Push the branch and open a draft PR (`gh pr create --draft`). Body
+    sections, in
     order: **Intent** (link to `intent.md`, one-line problem), **What
     changed**, **Plan deviations** (the Amendments list, or none),
     **Review** (the final Assessment line; Critical and Important findings
     fixed; Minors left and why; CLAUDE.md proposals), **Verification**
     (each command and its one-line result), **Decisions** (every human
     ruling during execution). End with the attribution the session
-    requires. Never merge, and never offer to: approval is a code owner's,
+    requires. Never mark it ready, never merge, and never offer to: the
+    human reads the PR, marks it ready, and approval is a code owner's
     through branch protection. If there is no remote, say so and stop.
 
 If a review ends without a report, read its findings file first and

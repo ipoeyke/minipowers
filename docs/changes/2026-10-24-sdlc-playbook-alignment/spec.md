@@ -25,7 +25,7 @@ Consulted: no policy skills exist in this repo. None.
    appended to an Amendments section in the same commit as the code.
 5. Each stage commits its artifact; the light tier squashes only the
    implementation commits.
-6. The controller never merges. It pushes and opens a PR whose body carries
+6. The controller never merges. It pushes and opens a draft PR whose body carries
    intent, changes, deviations, review, verification, and decisions.
 7. The final reviewer runs the repo's REVIEW.md passes when present, has an
    explicit compliance pass against spec and plan, caps Minors at five, and

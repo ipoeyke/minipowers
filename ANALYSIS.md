@@ -61,7 +61,7 @@ and (b) a read of every SKILL.md at v6.1.1.
 | executing-plans | **Cut** | High | Its own text says to prefer subagent-driven-development whenever subagents are available, and in Claude Code they always are. |
 | dispatching-parallel-agents | **Cut** | High | The harness's own Agent-tool documentation already teaches parallel dispatch and context isolation. The skill adds a small decision tree on top. |
 | using-git-worktrees | **Cut** | High | Superseded by native harness worktrees (worktree-isolated subagents and equivalent tools). 202 lines of obsolete mechanics. |
-| finishing-a-development-branch | **Cut** | Medium | A structured merge/PR questionnaire. In live use I declined it every time it fired. One line inside SDD replaced it: push the branch and open a PR when the plan is done. |
+| finishing-a-development-branch | **Cut** | Medium | A structured merge/PR questionnaire. In live use I declined it every time it fired. One line inside SDD replaced it: push the branch and open a draft PR when the plan is done. |
 
 ## What else was removed
 

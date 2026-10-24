@@ -16,7 +16,7 @@ Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 |---|---|
 | **brainstorming** | Capture the idea as a committed `intent.md` in the user's words, then turn it into an approved, committed `spec.md` through one-question-at-a-time dialogue, with the repo's policy skills applied and concerns flagged. Hands off to writing-plans. |
 | **writing-plans** | Turn a spec into bite-sized tasks with exact file paths, interfaces, and test intent, read-only until the plan is written. Sets the tier from the task count, takes one approval, commits `plan.md`. |
-| **subagent-driven-development** | Execute a committed plan with fresh implementer subagents (one per task, or one for a small plan), adversarial review, and a fix loop in which a fresh reviewer judges every fix round. Deviations are appended to the plan; the change ends as a pull request. |
+| **subagent-driven-development** | Execute a committed plan with fresh implementer subagents (one per task, or one for a small plan), adversarial review, and a fix loop in which a fresh reviewer judges every fix round. Deviations are appended to the plan; the change ends as a draft pull request. |
 | **test-driven-development** | Red-green-refactor, with the step that matters spelled out: watch the test fail, for the right reason. Includes a debugging stop rule (three failed fixes means the problem is architectural). |
 | **verification-before-completion** | No success claims without running the verification command in the same message. |
 | **writing-skills** | TDD for process documentation: pressure-test a skill on subagents before trusting it. |
@@ -60,7 +60,8 @@ policy is fixed: implementers run on Sonnet, task reviewers on Opus, and
 the final reviewer on the strongest available model (Fable, else Opus).
 
 The in-session final review is the layer before the PR, not the merge
-gate. The controller pushes and opens the PR; approval is a code owner's,
+gate. The controller pushes and opens a draft PR; marking it ready is the
+human's, and approval is a code owner's,
 through branch protection. If the repo has a `REVIEW.md` at its root, the
 final reviewer runs its passes and respects its nit cap and do-not-report
 list.
