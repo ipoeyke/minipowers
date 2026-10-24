@@ -23,7 +23,7 @@ Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 
 The flow follows Anthropic's
 [AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)
-(as published on 2026-10-24): each stage ends by committing an artifact the next stage reads, and the
+(published 2026-08-21, read 2026-10-24): each stage ends by committing an artifact the next stage reads, and the
 chain of commits is the audit trail.
 
 ```
@@ -123,7 +123,8 @@ only takes things away.
 The artifact chain (intent, spec, plan, diff, PR), plan approval, live plan
 amendments, the REVIEW.md pass structure, and the no-merge rule follow
 Anthropic's [AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook),
-as published on 2026-10-24 (the article carries no version). The review
+published 2026-08-21 and read 2026-10-24 (the article carries no version
+number). The review
 loop's fresh-reviewer, class-once, coverage-record, and ask-user rules are
 adapted from [kunchenguid/no-mistakes](https://github.com/kunchenguid/no-mistakes)
 v1.100.1 (commit
