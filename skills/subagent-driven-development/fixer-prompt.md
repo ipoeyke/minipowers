@@ -59,11 +59,12 @@ Subagent (general-purpose):
     - Never revert code the requirements call for. When in doubt whether
       the requirements need a path, leave it and report the finding
       unresolved with the question.
-    - Never edit an existing test to make it pass. A test is changed only
-      when the finding you are fixing says the test itself is wrong; any
-      other failing test is reported unresolved as a blocker.
-    - Follow minipowers:test-driven-development: a failing test that
-      reproduces the finding first, when one is possible.
+    - Test files are read-only in a fix round; a hook denies edits to them.
+      Never work around it. A finding that says a test itself is wrong, or
+      that needs a new reproducing test, gets the test change described
+      in your report (file, test name, assertion), marked "test change
+      pending"; the controller applies it outside the round. Any other
+      failing test is reported unresolved as a blocker.
     - Nothing you write, including commit messages, may cite the intent,
       spec, plan, review, or a task or round number. The one exception is
       the Plan Amendment section above, when present, applied to `plan.md`

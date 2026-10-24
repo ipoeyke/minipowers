@@ -23,7 +23,7 @@ questioning and alternatives, not the artifact.
 ## Checklist
 
 Create a task for each item and complete them in order. On the short path,
-items 2-3 may collapse into the design and item 9 is skipped; the rest
+items 4-5 may collapse into the design and item 9 is skipped; the rest
 always happen.
 
 1. **Open the change** - branch and `docs/changes/<id>/`

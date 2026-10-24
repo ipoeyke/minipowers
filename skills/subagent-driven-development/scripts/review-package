@@ -37,7 +37,7 @@ fi
 # Candidates only - the reviewer judges each. The change's own record
 # under docs/changes/ is skipped.
 provenance_leaks() {
-  git diff -U0 "${base}..${head}" -- . ':(exclude)docs/changes' | awk '
+  git diff -U0 "${base}..${head}" -- ':/' ':(exclude)docs/changes' | awk '
     /^\+\+\+ / { file = substr($0, 7); next }
     /^@@ / { split($3, a, ","); line = substr(a[1], 2) + 0; next }
     /^\+/ {

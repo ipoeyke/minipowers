@@ -19,7 +19,7 @@ if [ -n "$(find "$marker" -mmin +60 2>/dev/null)" ]; then
   exit 0
 fi
 
-pattern='(^|/)(tests?|__tests__|spec)/|(_|\.)(test|spec)\.[A-Za-z0-9]+$'
+pattern='(^|/)(tests?|__tests__|spec)/|(^|/)test_[^/]+\.[A-Za-z0-9]+$|(_|\.)(test|spec)\.[A-Za-z0-9]+$|Tests?\.(java|kt|cs|swift|scala)$'
 [ -s "$root/.minipowers/test-pattern" ] && pattern=$(head -1 "$root/.minipowers/test-pattern")
 
 case "$path" in "$root"/*) rel=${path#"$root"/} ;; *) rel=$path ;; esac

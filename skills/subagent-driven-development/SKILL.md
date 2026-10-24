@@ -198,7 +198,11 @@ same way.
   status, and before you resume a dead one: the plugin's hook denies
   test-file edits while it exists, and ignores a marker older than one
   hour. Re-dispatch the reviewer only once the fixer's
-  verification evidence is in the report file.
+  verification evidence is in the report file. A "test change pending"
+  entry in that report (a test the finding called wrong, or a new
+  reproducing test) is applied after the marker is gone by one more
+  implementer dispatch carrying only that entry, then the re-review covers
+  both commits.
 - **ask-user:** the reviewer tags a finding ask-user when its smallest
   honest remedy would extend the change (new state, schema, retry or
   persistence machinery, a subsystem), when it contradicts the spec's
@@ -328,6 +332,8 @@ failure is re-dispatching completed tasks. Keep a ledger at
 - Skip task review on the heavy tier, or accept a review missing either
   verdict
 - Dispatch implementers in parallel - they share one checkout
+- Dispatch with worktree isolation - the hook and the ledger resolve
+  paths from this checkout's root
 - Make a heavy-tier subagent read the whole plan - hand it its task brief
 - Fix a subagent's work yourself - dispatch a fixer; `/simplify` in Final
   Review is the one exception

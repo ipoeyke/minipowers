@@ -19,7 +19,9 @@ test intent, and constraints, as bite-sized tasks. DRY, YAGNI, TDD.
 docs, and the code; write only `docs/changes/<id>/plan.md`, beside the
 committed `intent.md` and `spec.md`. If brainstorming did not run and the
 spec lives elsewhere, derive `<id>` as `YYYY-MM-DD-<topic>`, create the
-directory, and move the spec in beside the plan. Feasibility-probe scratch work goes
+branch `<topic>` from main if you are not already on a feature branch,
+move the spec into the directory with `git mv`, and commit
+`docs: spec for <topic>` before writing the plan. Feasibility-probe scratch work goes
 in the scratchpad directory, never the repo. The plan is committed once,
 when the user approves it.
 

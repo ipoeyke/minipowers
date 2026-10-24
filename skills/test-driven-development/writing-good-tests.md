@@ -55,7 +55,7 @@ test at all.
 its boundaries - the route you register, the query you emit, the payload
 you produce. Upstream mechanics are their maintainers' tests to write
 (the classic: asserting your router invokes a registered handler - that
-is the framework's test, not yours). When upstream behavior genuinely
+is the framework's test, not yours). When upstream behavior
 surprised you, write one narrow characterization test naming the
 assumption. The same boundary applies inside your code: constructors,
 getters, constants, and trivial forwarding earn tests only when they
@@ -99,7 +99,7 @@ mock?"
 **Mock at the right level.** Learn every side effect of the real method
 before replacing it; mock the slow or external operation and keep what
 the test depends on real. When unsure, run the test against the real
-implementation first and observe what actually needs to happen.
+implementation first and observe what needs to happen.
 
 ```typescript
 // ❌ The mock swallows the config write that duplicate detection reads

@@ -133,7 +133,8 @@ Subagent (general-purpose):
       Assessment's CLAUDE.md proposals; you do not edit the file.
     - **Production readiness:** migrations, backward compatibility,
       performance and scalability, documentation.
-    - **Deferred Minors:** mark each as fix-before-merge or leave.
+    - **Deferred Minors:** mark every one as fix-before-merge or leave;
+      the Minor cap below applies to new findings only.
 
     Categorize by actual severity; not everything is Critical. Report a
     finding only from a concrete sequence that occurs under the change's
