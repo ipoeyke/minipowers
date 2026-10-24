@@ -89,8 +89,11 @@ treated as unreviewed, findings that enumerate every sibling site. The
 second aligned the artifacts with Anthropic's AI-native SDLC playbook: a
 committed `intent.md`, `spec.md`, and `plan.md` per change under
 `docs/changes/`, a human approval on the plan, amendments appended to the
-plan as the change is built, and a pull request rather than a local merge
-as the terminal state.
+plan as the change is built, and a draft pull request rather than a local
+merge as the terminal state. It also added the plugin's only hook: a
+PreToolUse guard that makes test files read-only during fix rounds, inert
+otherwise and free of context cost, unlike the SessionStart hook that was
+cut.
 
 ## Credit
 

@@ -65,27 +65,17 @@ human's, and approval is a code owner's through branch protection. If the
 repo has a `REVIEW.md` at its root, the final reviewer runs its passes and
 respects its nit cap and do-not-report list.
 
-### Optional hook: protect tests during fix rounds
+### The one hook: tests are read-only during fix rounds
 
-Fixers are told never to edit an existing test to make it pass. To make
-that deterministic, the controller creates `.minipowers/sdd/fix-round`
-before each fixer dispatch and removes it afterwards. A consuming repo can
-deny test edits while the marker exists, for example in
-`.claude/settings.json` (needs `jq`; adjust the test-path pattern):
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [{
-      "matcher": "Edit|Write|MultiEdit|NotebookEdit",
-      "hooks": [{
-        "type": "command",
-        "command": "f=$(jq -r .tool_input.file_path); if [ -e .minipowers/sdd/fix-round ] && echo \"$f\" | grep -qE '(^|/)(tests?|__tests__)/|_test\\.|\\.test\\.'; then echo 'fix round: test files are read-only' >&2; exit 2; fi"
-      }]
-    }]
-  }
-}
-```
+Fixers are told never to edit an existing test to make it pass. The plugin
+makes that deterministic with its only hook, a PreToolUse command that
+denies `Edit`, `Write`, and `NotebookEdit` on test files while
+`.minipowers/sdd/fix-round` exists. Subagent-driven-development creates the
+marker before each fixer dispatch and removes it after, so the hook is
+inert the rest of the time and injects nothing into context. The default
+pattern matches `tests/`, `test/`, `__tests__/`, `spec/`, and
+`*_test.*`, `*.test.*`, `*_spec.*`, `*.spec.*`; a repo with another layout
+puts one extended regex in `.minipowers/test-pattern`.
 
 ## Install
 
@@ -103,8 +93,9 @@ Or straight from GitHub:
 /plugin install minipowers@minipowers-dev
 ```
 
-There is no SessionStart hook. Skills trigger through Claude Code's normal
-description-based routing, or explicitly (`/minipowers:brainstorming`, etc.).
+There is no SessionStart hook; the only hook is the fix-round test guard
+above. Skills trigger through Claude Code's normal description-based
+routing, or explicitly (`/minipowers:brainstorming`, etc.).
 
 ## What was cut from upstream
 

@@ -193,8 +193,8 @@ same way.
 - **Critical and Important:** one fixer with
   [fixer-prompt.md](fixer-prompt.md) and the complete list, then a
   re-review by a fresh reviewer. Create `.minipowers/sdd/fix-round` before
-  the dispatch and delete it after: a repo hook can deny test-file edits
-  while it exists. Re-dispatch the reviewer only once the fixer's
+  the dispatch and delete it after: the plugin's hook denies test-file
+  edits while it exists. Re-dispatch the reviewer only once the fixer's
   verification evidence is in the report file.
 - **ask-user:** the reviewer tags a finding ask-user when its smallest
   honest remedy would extend the change (new state, schema, retry or

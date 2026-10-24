@@ -31,16 +31,17 @@ Consulted: no policy skills exist in this repo. None.
    explicit compliance pass against spec and plan, caps Minors at five, and
    proposes CLAUDE.md corrections.
 8. Fixers and implementers never edit an existing test to make it pass; a
-   fix-round marker file lets a consuming repo enforce it with a hook.
+   fix-round marker file and a plugin PreToolUse hook enforce it.
 9. The ledger records progress only; decisions live in plan Amendments and
    the PR body.
 
 ## Limitations
 - Plan approval adds one question per change. Cost accepted: the playbook
   requires an accepted plan, and the question is one word.
-- The test-protection hook ships as README guidance, not in the plugin,
-  because minipowers deliberately ships no hooks. Cost: advisory only
-  unless the consuming repo installs it.
+- The test-protection hook ships in the plugin, the first hook since the
+  SessionStart hook was cut. Cost: a shell check on every edit call in
+  every session with the plugin enabled; it exits immediately without the
+  marker file and injects no context.
 - No verifier subagent that runs the app, no CI evals for skill changes.
   Both optional in the playbook; deferred.
 - No ARCHITECTURE.md is created, although brainstorming says the first
