@@ -282,20 +282,11 @@ the next task while Critical or Important findings are open.
    Conventional Commits subject, no body beyond the trailer. Never squash
    with open Critical or Important findings or an unanswered ask-user.
 10. Push the branch and open a draft PR. Write the body to
-    `.minipowers/sdd/pr-body.md` first, then try in order and stop at the
-    first that works:
-    1. `gh pr create --draft --body-file <path>` if `gh` is installed and
-       `gh auth status` passes.
-    2. A GitHub MCP tool in this session that creates pull requests, with
-       `draft: true`.
-    3. The REST API when `GH_TOKEN` or `GITHUB_TOKEN` is set:
-       `POST /repos/<owner>/<repo>/pulls` with `draft: true`, owner and
-       repo parsed from the remote URL.
-    4. Other hosts: `glab mr create --draft` on GitLab when authenticated.
-    5. Otherwise print the remote's compare URL and the body path, and ask
-       the human to open the draft.
-
-    Body sections, in order: **Intent** (link to `intent.md`, one-line problem), **What
+    `.minipowers/sdd/pr-body.md`, then use the first available of: `gh`
+    (authenticated), a GitHub MCP tool, the GitHub REST API with a token
+    from the environment, the host's own CLI; failing all, print the
+    compare URL and the body path for the human. Body sections, in order:
+    **Intent** (link to `intent.md`, one-line problem), **What
     changed**, **Plan deviations** (the Amendments list, or none),
     **Review** (the final Assessment line; Critical and Important findings
     fixed; Minors left and why; CLAUDE.md proposals), **Verification**
