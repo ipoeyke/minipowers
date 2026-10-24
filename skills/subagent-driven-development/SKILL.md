@@ -218,6 +218,9 @@ same way.
 - **⚠️ Cannot verify from diff:** resolve each yourself before marking the
   task complete - you hold the cross-task context. A real gap is a failed
   spec review.
+- **Declined to judge (final review):** rule on each line the reviewer
+  set aside: a real gap becomes a finding for the next fixer, the rest are
+  dropped with a one-line reason in the PR body's Review section.
 
 ### Plan Amendments
 
