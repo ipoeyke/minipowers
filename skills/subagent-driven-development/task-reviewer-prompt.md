@@ -60,8 +60,14 @@ Subagent (general-purpose):
     suite. Run one focused test only when the code raises a specific doubt
     no existing run answers - never a package-wide suite, race detector
     run, or repeated loop. If heavier validation seems warranted, recommend
-    it instead. If you cannot run commands, name the test you would run. Warnings or noise in reported test
-    output are findings.
+    it instead. If you cannot run commands, name the test you would run.
+    Warnings or noise in reported test output are findings.
+
+    Evidence you cannot see is not evidence that does not exist. If the
+    report looks truncated or you cannot find the results it claims,
+    re-read the file at its stated path; if it is missing or garbled,
+    report that as a gap for the controller. Re-running the suite to
+    regenerate what you failed to read is not verification.
 
     ## Part 1: Spec Compliance
 

@@ -23,7 +23,8 @@ questioning and alternatives, not the artifact.
 ## Checklist
 
 Create a task for each item and complete them in order. On the short path,
-items 2-3 may collapse into the design; the rest always happen.
+items 2-3 may collapse into the design and item 9 is skipped; the rest
+always happen.
 
 1. **Open the change** - branch and `docs/changes/<id>/`
 2. **Capture intent** - `intent.md` in the user's words, confirm, commit
@@ -33,8 +34,9 @@ items 2-3 may collapse into the design; the rest always happen.
 6. **Present the design** - get approval per round
 7. **Write the spec** - `docs/changes/<id>/spec.md`
 8. **Self-review the spec**
-9. **User reviews the written spec** - approval commits it
-10. **Hand off** - invoke writing-plans
+9. **Builder check** - a fresh subagent reads the spec as its builder
+10. **User reviews the written spec** - approval commits it
+11. **Hand off** - invoke writing-plans
 
 Invoking writing-plans is the terminal state. Invoke no other implementation
 skill: writing-plans sizes the work and picks the execution tier.
@@ -194,12 +196,25 @@ Check with fresh eyes and fix inline:
     forward; the policy skills consulted are named.
 11. **Tables:** no literal `|` in any cell.
 
+## Builder Check
+
+Self-review finds what you can see; a reader without the conversation
+finds what you forgot to write down. After the self-review, dispatch
+[builder-check-prompt.md](builder-check-prompt.md): a fresh subagent reads
+the spec as the engineer who must plan from it and returns the questions it
+would still have to guess at. Tell the user a reviewer is reading the spec
+first and you may come back once with a few questions. Hold the spec
+until the check returns; the prompt file says how to sort its questions.
+
 ## User Review Gate
 
 Writing the design down introduces drift, and the file is what the next
 skill consumes. Ask:
 
 > "Spec written to `<path>`. Please review it and let me know if you want to make any changes before we proceed."
+
+List under it the calls you made during the builder check, so the user can
+check those while reading.
 
 Apply requested changes and re-run the self-review. On approval, commit
 `docs: spec for <topic>`, then invoke writing-plans. Every size of change

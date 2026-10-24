@@ -126,7 +126,13 @@ responsibility.]
 ## Risks
 
 [What this change could break and which task is the riskiest, with why.
-Name the existing behaviour each risk threatens.]
+Name the existing behaviour each risk threatens. Then the input classes
+and failure modes the spec implies but never names (empty, malformed,
+unauthorized, concurrent, boundary values): the spec says what the
+software must do, not everything it will meet, and its silence is not
+permission for an input to break the program. Each line names the test
+that pins it and the task that owns that test; a risk without a test is a
+gap in the Tasks below, not in this list.]
 
 ## Proof
 
@@ -193,7 +199,10 @@ Check the plan against the spec yourself and fix inline:
 4. **Living docs:** every Living docs impact entry lands in a task.
 5. **Summary sections:** Files that change, Order of work, Risks, and
    Proof agree with the tasks below them.
-6. **Tables:** no literal `|` in any cell.
+6. **Risks pinned:** every Risks line names a test, and that test appears
+   in the owning task's Step 1. An empty Risks section means you checked
+   and found none, not that you skipped the check.
+7. **Tables:** no literal `|` in any cell.
 
 ## Tier Triage
 
