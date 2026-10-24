@@ -22,8 +22,8 @@ Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 | **writing-skills** | TDD for process documentation: pressure-test a skill on subagents before trusting it. |
 
 The flow follows Anthropic's
-[AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook):
-each stage ends by committing an artifact the next stage reads, and the
+[AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)
+(as published on 2026-10-24): each stage ends by committing an artifact the next stage reads, and the
 chain of commits is the audit trail.
 
 ```
@@ -47,7 +47,7 @@ every size. Writing-plans sets the tier from the plan it just wrote:
 
 Both tiers use TDD inside implementation and verification before every
 completion claim. The review loop borrows from
-[no-mistakes](https://github.com/kunchenguid/no-mistakes): a fresh reviewer
+[no-mistakes](https://github.com/kunchenguid/no-mistakes) v1.100.1: a fresh reviewer
 every round, fix-round code reviewed as unreviewed new code, findings that
 enumerate every sibling site, a coverage record, and ask-user findings for
 remedies that would extend the change.
@@ -122,12 +122,16 @@ only takes things away.
 
 The artifact chain (intent, spec, plan, diff, PR), plan approval, live plan
 amendments, the REVIEW.md pass structure, and the no-merge rule follow
-Anthropic's [AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook).
-The review loop's fresh-reviewer, class-once, coverage-record, and
-ask-user rules are adapted from
-[kunchenguid/no-mistakes](https://github.com/kunchenguid/no-mistakes) (MIT).
+Anthropic's [AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook),
+as published on 2026-10-24 (the article carries no version). The review
+loop's fresh-reviewer, class-once, coverage-record, and ask-user rules are
+adapted from [kunchenguid/no-mistakes](https://github.com/kunchenguid/no-mistakes)
+v1.100.1 (commit
+[`c80c10f`](https://github.com/kunchenguid/no-mistakes/commit/c80c10f254ebf9a12524ad26b8eeb2f8714e97c4),
+MIT).
 
 Three questioning habits in the brainstorming skill (look up facts instead of
 asking, attach a recommended answer to every question, resolve decisions in
 dependency order) were adapted from Matt Pocock's
-[grilling skill](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md) (MIT).
+[grilling skill](https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/grilling/SKILL.md)
+(commit `5beb35b`, MIT).
