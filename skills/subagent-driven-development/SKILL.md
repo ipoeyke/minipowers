@@ -332,8 +332,10 @@ failure is re-dispatching completed tasks. Keep a ledger at
 - Skip task review on the heavy tier, or accept a review missing either
   verdict
 - Dispatch implementers in parallel - they share one checkout
-- Dispatch with worktree isolation - the hook and the ledger resolve
-  paths from this checkout's root
+- Dispatch a subagent into a different worktree than this session's
+  (the Agent tool's worktree isolation) - the marker and the ledger live
+  under this checkout's root. Running whole sessions in parallel
+  worktrees is fine; each has its own
 - Make a heavy-tier subagent read the whole plan - hand it its task brief
 - Fix a subagent's work yourself - dispatch a fixer; `/simplify` in Final
   Review is the one exception
