@@ -5,8 +5,9 @@ description: Use when executing implementation plans with independent tasks in t
 
 # Subagent-Driven Development
 
-Execute a plan with fresh implementer subagents, adversarial review, and a
-fix loop whose reviewer never judges its own prescription.
+Execute a committed plan with fresh implementer subagents, adversarial
+review, and a fix loop whose reviewer never judges its own prescription.
+The change ends as a pull request; approval belongs to a code owner.
 
 The plan's **Tier** header picks the mode:
 
@@ -42,15 +43,15 @@ digraph process {
         "Mark task complete in todos and ledger" [shape=box];
     }
 
-    "Kickoff: reset workspace, baseline, heavy commits spec+plan" [shape=box];
+    "Kickoff: reset workspace, baseline" [shape=box];
     "Read plan, note global constraints, create todos" [shape=box];
     "Pre-flight plan review" [shape=box];
     "More tasks remain?" [shape=diamond];
     "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" [shape=box];
     "Light: squash to one commit" [shape=box];
-    "Ask human about branch disposition" [shape=box style=filled fillcolor=lightgreen];
+    "Push branch, open PR" [shape=box style=filled fillcolor=lightgreen];
 
-    "Kickoff: reset workspace, baseline, heavy commits spec+plan" -> "Read plan, note global constraints, create todos";
+    "Kickoff: reset workspace, baseline" -> "Read plan, note global constraints, create todos";
     "Read plan, note global constraints, create todos" -> "Pre-flight plan review";
     "Pre-flight plan review" -> "Dispatch implementer (./implementer-prompt.md)";
     "Dispatch implementer (./implementer-prompt.md)" -> "Implementer asks questions?";
@@ -66,31 +67,26 @@ digraph process {
     "More tasks remain?" -> "Dispatch implementer (./implementer-prompt.md)" [label="yes (heavy)"];
     "More tasks remain?" -> "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" [label="no"];
     "Final review loop (./code-reviewer.md, ./fixer-prompt.md)" -> "Light: squash to one commit";
-    "Light: squash to one commit" -> "Ask human about branch disposition";
+    "Light: squash to one commit" -> "Push branch, open PR";
 }
 ```
 
 ## Kickoff
 
-Execution start is when the spec and plan are finalized; brainstorming and
-writing-plans leave them uncommitted so drafts don't spam history.
+Execution starts when `docs/changes/<id>/plan.md` is committed. The
+intent, spec, and plan are already on the branch; this skill adds code.
 
 1. Check for a ledger (see Durable Progress). If one lists completed work,
-   this is a resume: skip steps 2-5 and continue where it stops.
-2. Require a clean tree (`git status --porcelain` shows nothing but the
-   uncommitted spec and plan); otherwise ask the user to commit or stash.
-   Never start on main/master without explicit user consent.
+   this is a resume: skip steps 2-4 and continue where it stops.
+2. Require a clean tree (`git status --porcelain` empty) on the change's
+   feature branch; otherwise stop and ask. Never execute on main/master.
 3. Clear earlier runs' artifacts: `scripts/sdd-workspace --reset`. Stale
    briefs, diffs, and reports otherwise surface in reviewers' greps.
-4. **Heavy:** make ONE docs-only commit with the spec and plan (e.g. `docs:
-   spec and plan for <feature>`) BEFORE recording Task 1's base SHA, or
-   every review package drags the plan in. Commit later plan amendments as
-   they happen. **Light:** do not commit them; they land in the squash.
-5. Record the base SHA (`git rev-parse HEAD`) and run a **baseline**: each
-   verification command the project defines (tests, lint, type-check)
-   once, recording pass/fail with a one-line summary of each failure. It
-   proves the toolchain resolves and tells every later dispatch which
-   failures predate it.
+4. Record the base SHA (`git rev-parse HEAD`, the plan commit) and run a
+   **baseline**: each verification command the project defines (tests,
+   lint, type-check) once, recording pass/fail with a one-line summary of
+   each failure. It proves the toolchain resolves and tells every later
+   dispatch which failures predate it.
 
 ## Pre-Flight Plan Review
 
@@ -130,6 +126,7 @@ Fill [implementer-prompt.md](implementer-prompt.md) with:
 - the baseline, and (heavy) interfaces and decisions from earlier tasks
   that the brief cannot know, plus your resolution of any ambiguity you
   noticed;
+- any plan amendment this dispatch must apply (see Plan Amendments);
 - the report path, named after the brief (`task-N-brief.md` ->
   `task-N-report.md`; light: `plan-report.md`);
 - the exact Co-Authored-By line from your own session's attribution, or
@@ -163,10 +160,10 @@ After the light implementer reports, run `git diff --name-only
 <base>..HEAD | wc -l`. Switch to heavy when the count exceeds the plan's
 File Structure by more than 3, or when a non-DONE status reports
 ballooning scope or an interface ambiguity the plan did not anticipate.
-Commit the spec and plan now (`docs: ...`), run one task review over the
-commits so far with the plan as the brief and `plan-report.md` as the
-report, then dispatch any unfinished tasks one at a time. Nothing is
-squashed. Record the switch in the ledger.
+Run one task review over the commits so far with the plan as the brief
+and `plan-report.md` as the report, then dispatch any unfinished tasks one
+at a time. Nothing is squashed. Record the switch in the ledger and as a
+plan amendment.
 
 ## Task Review
 
@@ -194,8 +191,10 @@ same way.
 
 - **Critical and Important:** one fixer with
   [fixer-prompt.md](fixer-prompt.md) and the complete list, then a
-  re-review by a fresh reviewer. Re-dispatch the reviewer only once the
-  fixer's verification evidence is in the report file.
+  re-review by a fresh reviewer. Create `.minipowers/sdd/fix-round` before
+  the dispatch and delete it after: a repo hook can deny test-file edits
+  while it exists. Re-dispatch the reviewer only once the fixer's
+  verification evidence is in the report file.
 - **ask-user:** the reviewer tags a finding ask-user when its smallest
   honest remedy would extend the change (new state, schema, retry or
   persistence machinery, a subsystem), when it contradicts the spec's
@@ -203,17 +202,31 @@ same way.
   Never hand these to a fixer unruled. Batch them into one question for
   the human with your recommendation per item; a finding ruled "fix"
   becomes a plain finding for the next fixer, the rest are dropped or
-  amend the spec. Record each ruling in the ledger. Plan-mandated defects
+  amend the spec. Every ruling is a plan amendment. Plan-mandated defects
   and conflicts with the plan's text are ask-user too.
 - **The spec itself is wrong:** decide it yourself if the fix restores the
   spec's stated intent. Ask the human (one batched question with a
   recommendation) when it changes a published default, a threshold, or an
-  output's meaning. Either way, record a design correction.
+  output's meaning. Either way, amend the plan, and the spec when its
+  stated intent was wrong.
 - **Minor:** never a per-task round-trip. Record each in the ledger; the
   final reviewer triages the list for the final fix wave.
 - **⚠️ Cannot verify from diff:** resolve each yourself before marking the
   task complete - you hold the cross-task context. A real gap is a failed
   spec review.
+
+### Plan Amendments
+
+The plan describes what was built; the PR review checks the diff against
+it. Every deviation from the plan and every human ruling during execution
+is appended to the plan's `## Amendments` section: what changed, why,
+which task, and the ruling if a human made one. You write the entry. When
+a dispatch implements the change, it applies the entry in the same commit
+through the prompt's `[AMENDMENT]` block. When nothing in the code changes
+(a finding dropped, an escalation, a spec correction), you append it
+yourself and commit `docs: amend plan - <what>`; a spec whose stated
+intent was wrong is corrected in that same commit. The ledger is scratch
+memory and does not record decisions.
 
 ### Re-review Rounds
 
@@ -247,28 +260,35 @@ the next task while Critical or Important findings are open.
    `.minipowers/sdd/full-suite-<head7>.txt`. Failures also present in the
    baseline are reported, not blockers; anything newly red blocks.
 4. Run `scripts/review-package BASE HEAD` with the base SHA recorded at
-   Kickoff (after the docs commit on heavy, so the plan stays out of the
-   package).
+   Kickoff.
 5. Dispatch exactly one final reviewer with
    [code-reviewer.md](code-reviewer.md): the package path, the spec and
-   plan, the baseline, the full-suite output path, `git diff --name-only
-   BASE..HEAD` as the changed-file list, the ledger's Minor list, and a
-   findings file (`.minipowers/sdd/review-findings-BASE..HEAD.md`).
+   plan, `REVIEW.md` at the repo root if it exists, the baseline, the
+   full-suite output path, `git diff --name-only BASE..HEAD` as the
+   changed-file list, the ledger's Minor list, and a findings file
+   (`.minipowers/sdd/review-findings-BASE..HEAD.md`).
 6. Findings follow Handling Findings and Re-review Rounds: one fixer with
    the complete list, reporting to `.minipowers/sdd/fix-report-round-N.md`,
    then a fresh re-review that receives that report.
 7. If fixes changed code since step 3, run the full suite once more.
 8. Run minipowers:verification-before-completion.
-9. **Light:** squash, with the spec and plan in the same commit:
+9. **Light, unless escalated (see the ledger):** squash the implementation
+   commits onto the plan commit:
    ```
    git reset --soft <base SHA>
-   git add docs/specs/<spec>.md docs/plans/<plan>.md
    git commit -m "<type>: <description>" -m "<Co-Authored-By trailer>"
    ```
    Conventional Commits subject, no body beyond the trailer. Never squash
    with open Critical or Important findings or an unanswered ask-user.
-10. Ask the human once: merge locally, push + PR, or leave as-is. Never
-    merge or push without an answer.
+10. Push the branch and open the PR (`gh pr create`). Body sections, in
+    order: **Intent** (link to `intent.md`, one-line problem), **What
+    changed**, **Plan deviations** (the Amendments list, or none),
+    **Review** (the final Assessment line; Critical and Important findings
+    fixed; Minors left and why; CLAUDE.md proposals), **Verification**
+    (each command and its one-line result), **Decisions** (every human
+    ruling during execution). End with the attribution the session
+    requires. Never merge, and never offer to: approval is a code owner's,
+    through branch protection. If there is no remote, say so and stop.
 
 If a review ends without a report, read its findings file first and
 re-dispatch only for what it does not cover, handing the file over to be
@@ -286,9 +306,8 @@ failure is re-dispatching completed tasks. Keep a ledger at
   `Implementation: complete (<base7>..<head7>)`, then one line per review
   round.
 - Record Minor findings under a "Minors" heading as they arrive.
-- Record ask-user rulings under "Decisions", and each deviation from the
-  spec under "Design corrections" (what changed, why, commit); edit the
-  local spec file to match. The final report to the human lists these.
+- Decisions and deviations are not ledger entries: they go to the plan's
+  Amendments (committed) and the PR body.
 - After compaction, trust the ledger and `git log` over recollection. If
   `git clean -fdx` destroyed the ledger, recover from `git log`.
 
@@ -305,3 +324,5 @@ failure is re-dispatching completed tasks. Keep a ledger at
 - Hand an ask-user finding to a fixer
 - Run, or let any dispatch run, repo-wide format or lint autofix -
   path-scoped only
+- Merge the branch, or leave a deviation out of the plan's Amendments
+- Edit or weaken an existing test to make it pass, or let a dispatch do so

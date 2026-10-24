@@ -21,6 +21,8 @@ Subagent (general-purpose):
     [Where this fits; interfaces and decisions from earlier work that the
     brief cannot know; resolutions of ambiguities the controller noticed]
 
+    [AMENDMENT]
+
     ## Baseline
 
     At the base commit, verification results were:
@@ -54,7 +56,9 @@ Subagent (general-purpose):
     files you touched. [FULL_RUN_RULE] After review findings, re-run only
     the tests covering the amended code - never the full suite, even if a
     plan step says otherwise. Never run repo-wide autofix (`eslint . --fix`,
-    repo-wide `prettier --write`); path-scoped only.
+    repo-wide `prettier --write`); path-scoped only. Never edit an existing
+    test to make it pass: if a test is wrong, report it as a concern and
+    leave it red.
 
     ## Reading Files
 
@@ -82,10 +86,11 @@ Subagent (general-purpose):
 
     ## Code Stands Alone
 
-    The spec and plan are scaffolding, not part of the codebase. No file
-    you create or modify, and no commit message, may point at them: no
-    `docs/specs/` or `docs/plans/` paths, task or step numbers, section
-    names, "per the spec", or "as designed". State the rule itself and,
+    The intent, spec, and plan are the change's record, not part of the
+    codebase. No file you create or modify, and no commit message, may
+    point at them: no `docs/changes/` paths, task or step numbers, section
+    names, "per the spec", or "as designed". The one exception is the Plan
+    Amendment section above, when present, applied to `plan.md` verbatim. State the rule itself and,
     where non-obvious, its reason in domain terms ("retry 5x: upstream
     rate-limits bursts"). If the brief gives a value without a reason,
     leave the comment out. A value may cite the stable public source it
@@ -147,4 +152,13 @@ Subagent (general-purpose):
 
 Common placeholders: `[MODEL]`; `[PLAN_PATH]`; `[DIRECTORY]`, the working
 tree; `[REPORT_FILE]`; `[TRAILER]`, the exact Co-Authored-By line from the
-controller's own session attribution.
+controller's own session attribution; `[AMENDMENT]`, either omitted or:
+
+```
+    ## Plan Amendment
+
+    Append this entry verbatim to the `## Amendments` section of
+    [PLAN_PATH] and include that edit in the commit that implements it:
+
+    [entry: what changed, why, which task, the human ruling if any]
+```

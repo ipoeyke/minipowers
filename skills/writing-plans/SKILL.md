@@ -15,9 +15,13 @@ test intent, and constraints, as bite-sized tasks. DRY, YAGNI, TDD.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-Save to `docs/plans/YYYY-MM-DD-<feature-name>.md` unless the user prefers
-another location. Do not commit it or the spec: subagent-driven-development
-commits both at kickoff.
+**This skill is read-only except for the plan.** Read the spec, the living
+docs, and the code; write only `docs/changes/<id>/plan.md`, beside the
+committed `intent.md` and `spec.md`. If brainstorming did not run and the
+spec lives elsewhere, derive `<id>` as `YYYY-MM-DD-<topic>`, create the
+directory, and move the spec in beside the plan. Feasibility-probe scratch work goes
+in the scratchpad directory, never the repo. The plan is committed once,
+when the user approves it.
 
 If the spec covers multiple independent subsystems, suggest one plan per
 subsystem, each producing working, testable software.
@@ -102,6 +106,7 @@ runs the suite before the final review.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use minipowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Spec:** spec.md
 **Tier:** light or heavy (set by Tier Triage)
 
 **Goal:** [One sentence]
@@ -109,6 +114,26 @@ runs the suite before the final review.
 **Architecture:** [2-3 sentences]
 
 **Tech Stack:** [Key technologies]
+
+## Files that change
+
+[The File Structure map: each file, created or modified, one line on its
+responsibility.]
+
+## Order of work
+
+[One line per task, in execution order: "Task N: <name>".]
+
+## Risks
+
+[What this change could break and which task is the riskiest, with why.
+Name the existing behaviour each risk threatens.]
+
+## Proof
+
+[The tests and checks that, green, mean the change is done: scoped test
+files, the full-suite command, lint and type-check, any manual or visual
+check with its expected result.]
 
 ## Global Constraints
 
@@ -153,6 +178,11 @@ Markdown tables: no cell may contain a literal `|`, not even inside
 backticks. Write closed values as separate code spans
 (`` `gain`, `loss`, `flat` ``) and unions with "or" (`int or None`).
 
+The plan ends with an empty `## Amendments` section. Execution appends to
+it: one entry per deviation from the plan or human ruling (what changed,
+why, which task, the ruling if any). The plan is the record the PR review checks the
+diff against, so it must describe what was built, not what was intended.
+
 ## Self-Review
 
 Check the plan against the spec yourself and fix inline:
@@ -162,7 +192,9 @@ Check the plan against the spec yourself and fix inline:
 3. **Type consistency:** names and signatures match across tasks
    (`clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug).
 4. **Living docs:** every Living docs impact entry lands in a task.
-5. **Tables:** no literal `|` in any cell.
+5. **Summary sections:** Files that change, Order of work, Risks, and
+   Proof agree with the tasks below them.
+6. **Tables:** no literal `|` in any cell.
 
 ## Tier Triage
 
@@ -175,15 +207,17 @@ header from it:
 - **Heavy:** anything larger. One implementer and one review per task, a
   commit per task.
 
-Borderline goes heavy. State the tier and its reason in one line; do not
-ask for confirmation - the user gated the spec, and subagent-driven-
-development escalates a light plan whose scope balloons.
+Borderline goes heavy. Subagent-driven-development escalates a light plan
+whose scope balloons.
 
-## Execution Handoff
+## Plan Approval
 
-After the self-review and triage, proceed directly - do not ask the human
-to review the plan. Pre-flight and per-task reviews catch plan defects.
+Nothing is implemented without an accepted plan. Present the summary
+sections only - tier, Files that change, Order of work, Risks, Proof - and
+ask one question:
 
-Announce "Plan saved to `docs/plans/<filename>.md` (<tier> tier).
-Executing with subagent-driven development." and invoke
-minipowers:subagent-driven-development.
+> "Plan at `docs/changes/<id>/plan.md`, <tier> tier. Approve?"
+
+Apply requested changes and re-run the self-review. On approval, commit
+`docs: plan for <topic>`, announce "Executing with subagent-driven
+development.", and invoke minipowers:subagent-driven-development.

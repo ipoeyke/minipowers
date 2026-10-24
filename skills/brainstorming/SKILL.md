@@ -5,11 +5,12 @@ description: Use before creative work that is new or ambiguous - creating featur
 
 # Brainstorming Ideas Into Designs
 
-Turn an idea into an approved design and spec through collaborative
-dialogue.
+Turn an idea into a committed intent and an approved, committed spec
+through collaborative dialogue. The two files start the change's artifact
+chain: `intent.md`, `spec.md`, `plan.md`, the diff, the PR.
 
 <HARD-GATE>
-Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it.
+Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. Creating the branch and committing intent.md and spec.md are not implementation actions.
 </HARD-GATE>
 
 **Scale the process to the ambiguity.** A new system or an underspecified
@@ -24,23 +25,58 @@ questioning and alternatives, not the artifact.
 Create a task for each item and complete them in order. On the short path,
 items 2-3 may collapse into the design; the rest always happen.
 
-1. **Explore context** - living docs first, then files and recent commits
-2. **Ask clarifying questions** - one at a time
-3. **Propose 2-3 approaches** - trade-offs and your recommendation
-4. **Present the design** - get approval per round
-5. **Write the spec** - `docs/specs/YYYY-MM-DD-<topic>-design.md`, not committed
-6. **Self-review the spec**
-7. **User reviews the written spec**
-8. **Hand off** - invoke writing-plans
+1. **Open the change** - branch and `docs/changes/<id>/`
+2. **Capture intent** - `intent.md` in the user's words, confirm, commit
+3. **Explore context** - living docs first, then files and recent commits
+4. **Ask clarifying questions** - one at a time, intent's open questions first
+5. **Propose 2-3 approaches** - trade-offs and your recommendation
+6. **Present the design** - get approval per round
+7. **Write the spec** - `docs/changes/<id>/spec.md`
+8. **Self-review the spec**
+9. **User reviews the written spec** - approval commits it
+10. **Hand off** - invoke writing-plans
 
 Invoking writing-plans is the terminal state. Invoke no other implementation
 skill: writing-plans sizes the work and picks the execution tier.
 
+## Opening the Change
+
+The change id is `YYYY-MM-DD-<topic>`; every artifact lives in
+`docs/changes/<id>/`. Before writing anything, make sure you are on this
+change's branch: on main/master, create `<topic>` from it; on another
+branch, ask once whether this change belongs there or on a new branch from
+main. Every artifact commit and every code commit lands there, so the PR
+carries the whole chain. Never commit a change's artifacts to main.
+
+## Capturing Intent
+
+Write `docs/changes/<id>/intent.md` before exploring or asking anything,
+from what the user said, in their terms. If the user points at an existing
+`intent.md` (written by someone else, or by an incident process), read it
+instead of writing one.
+
+```
+# Intent: <topic>
+Author: <git user.name>. Status: draft.
+
+## Problem
+## Proposed outcome
+## Affected users and systems
+## Constraints
+## Open questions
+```
+
+Each section is one to three sentences. Everything the user left unclear
+goes under Open questions verbatim; the questioning phase works that list
+down first. Ask once: "Intent captured at `<path>`. Correct?" Apply
+corrections, set `Status: accepted`, commit `docs: intent for <topic>`.
+Intent is frozen from here; what changes later changes the spec.
+
 ## Living Docs
 
-Specs and plans are point-in-time records: they overlap, go stale, and are
-never edited after execution. The living docs describe the system as it is
-now:
+Intent, spec, and plan are the change's record: the plan is amended while
+the change is built, and all three freeze when it merges. They overlap and
+go stale by design. The living docs describe the system as it is now:
 
 - `ARCHITECTURE.md` at the repo root: components and boundaries, data
   flow, invariants, and key decisions with their reasons. No dates, no
@@ -54,8 +90,8 @@ Every change that alters what they describe updates them in the same work.
 
 ## Understanding the Idea
 
-- Read the living docs, then files and recent commits. Older specs are
-  history, not current truth.
+- Read the living docs, then files and recent commits. Older changes
+  under `docs/changes/` are history, not current truth.
 - If the request spans multiple independent subsystems, say so before
   detailed questions and help decompose it into sub-projects, each with
   its own spec and implementation cycle. Brainstorm the first one.
@@ -72,6 +108,12 @@ Every change that alters what they describe updates them in the same work.
 
 - Propose 2-3 approaches with trade-offs, leading with your recommendation.
   YAGNI: remove features the goal does not need.
+- Before designing, list the skills available in this repo and its
+  plugins whose description reads as policy: security, compliance, UX,
+  brand, API or data standards. Load the ones the change touches and
+  design within them. Where the design cannot satisfy one, or two
+  conflict, say so in the design round and record it in the spec's Areas
+  of concern.
 - Present the design once you understand what you're building, covering
   architecture, components, data flow, error handling, and testing. Scale
   each section to its complexity (a few sentences to 200-300 words).
@@ -87,20 +129,30 @@ Every change that alters what they describe updates them in the same work.
 
 ## Writing the Spec
 
-Write to `docs/specs/YYYY-MM-DD-<topic>-design.md` unless the user prefers
-another location. Do not commit it: drafts are file edits.
-Subagent-driven-development commits it with the plan.
+Write to `docs/changes/<id>/spec.md`. Drafts are file edits; the file is
+committed once, when the user approves it.
 
-Start with this header line:
+Start with these header lines:
 
 ```
-**Supersedes:** docs/specs/<older-spec>.md (what this changes), or none
+**Intent:** intent.md
+**Supersedes:** docs/changes/<older-id>/spec.md (what this changes), or none
 ```
 
-It names each older spec whose decisions this one changes. Find them by
-grepping `docs/specs/` for the components and terms you change.
+Supersedes names each older spec whose decisions this one changes. Find
+them by grepping `docs/changes/` (and `docs/specs/`, where older repos kept
+them) for the components and terms you change.
 
 The spec must contain:
+
+- **Open questions from intent**: each one, answered with the answer, or
+  carried forward with why it can wait and a statement that its answer
+  cannot change the plan. A carried question that could change the plan
+  is unresolved: resolve it.
+- **Areas of concern**: the policy skills consulted by name, then one
+  entry per place the design cannot satisfy a policy or two policies
+  conflict: the policy, the conflict, the proposed resolution, who owns
+  the call. "None" is valid only after the consulted list.
 
 - **Every decision from the conversation**: the chosen approach, each
   rejected alternative with its reason, preferences, definitions, and
@@ -139,7 +191,9 @@ Check with fresh eyes and fix inline:
 8. **Limitations:** every simplification listed with cost and justification.
 9. **Living docs and Supersedes:** every section this change makes wrong is
    named, and every older spec it overrides.
-10. **Tables:** no literal `|` in any cell.
+10. **Intent:** every open question from `intent.md` is answered or carried
+    forward; the policy skills consulted are named.
+11. **Tables:** no literal `|` in any cell.
 
 ## User Review Gate
 
@@ -148,8 +202,8 @@ skill consumes. Ask:
 
 > "Spec written to `<path>`. Please review it and let me know if you want to make any changes before we proceed."
 
-Apply requested changes and re-run the self-review. Proceed only on
-approval, then invoke writing-plans. Every size of change goes through
-it: the plan's task count, not a guess at spec time, decides whether
-execution runs light (one implementer for the whole plan) or heavy (one
-per task).
+Apply requested changes and re-run the self-review. On approval, commit
+`docs: spec for <topic>`, then invoke writing-plans. Every size of change
+goes through it: the plan's task count, not a guess at spec time, decides
+whether execution runs light (one implementer for the whole plan) or heavy
+(one per task).

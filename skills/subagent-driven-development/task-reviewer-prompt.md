@@ -57,7 +57,8 @@ Subagent (general-purpose):
     ## Part 1: Spec Compliance
 
     - **Missing:** requirements skipped or claimed without implementing
-    - **Extra:** features not requested, over-engineering
+    - **Extra:** features not requested, over-engineering. An edit that
+      only appends to the plan's Amendments section is expected, not extra.
     - **Misunderstood:** right feature built the wrong way
 
     A requirement you cannot verify from this diff (it lives in unchanged
@@ -76,9 +77,10 @@ Subagent (general-purpose):
       this change caused.
     - A docstring longer than a summary line plus one short paragraph, or
       a comment over two lines, is Minor.
-    - **Provenance:** anything added, in any file or commit subject, that
-      cites the spec or plan - a doc path, task or step number, section
-      name, "per the plan", "as designed" - is Important. Judge each grep
+    - **Provenance:** anything added outside `docs/changes/`, in any file
+      or commit subject, that cites the intent, spec, or plan - a doc path,
+      task or step number, section name, "per the plan", "as designed" -
+      is Important. Judge each grep
       candidate listed in the diff file ("task 3" in a job queue is not a
       leak) and look for paraphrased ones. Citing a stable public source (a
       published paper, a standard or RFC, a named public data series) is
@@ -124,8 +126,9 @@ Subagent (general-purpose):
     #### Critical (Must Fix)
     #### Important (Should Fix)
     #### Minor (Nice to Have)
-    For each: file:line, what is wrong, why it matters, how to fix if not
-    obvious; prefix the title with **ask-user** where that applies.
+    At most five, the rest as a count. For each: file:line, what is wrong,
+    why it matters, how to fix if not obvious; prefix the title with
+    **ask-user** where that applies.
 
     ### Assessment
     **Task quality:** Approved, or Needs fixes

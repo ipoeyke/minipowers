@@ -15,7 +15,9 @@ Subagent (general-purpose):
     ## Inputs
 
     - What was built: [DESCRIPTION]
-    - Requirements: [SPEC_FILE] and [PLAN_FILE]
+    - Requirements: [SPEC_FILE] and [PLAN_FILE], including the plan's
+      Amendments
+    - Repository review policy: [REVIEW_POLICY]
     - Diff (commit list, provenance-leak candidates, stat, full diff with
       context): [DIFF_FILE], range [BASE_SHA]..[HEAD_SHA]
     - Full-suite and lint output at HEAD: [FULL_SUITE_OUTPUT_FILE]
@@ -67,10 +69,16 @@ Subagent (general-purpose):
 
     ## What to Check
 
-    - **Requirements:** everything specified is present; deviations are
-      flagged as intended improvements or departures; plan defects are
-      named as such. For every invariant in the Global Constraints, name
-      the test that proves it, or report it untested. Conformance is
+    If a review policy file is given, run its passes and tag each finding
+    with the pass it belongs to, honour its do-not-report list, and apply
+    its nit cap. The checks below still apply.
+
+    - **Compliance:** the diff matches the spec (requirements, Areas of
+      concern resolutions) and the plan (files, order, proof, Global
+      Constraints). A deviation with a matching Amendments entry is a
+      recorded decision; one without is Important. Plan defects are named
+      as such. For every invariant in the Global Constraints, name the
+      test that proves it, or report it untested. Conformance is
       necessary, not sufficient: it never replaces checking that the code
       is correct.
     - **Correctness:** bugs, edge cases, error handling, type safety,
@@ -91,9 +99,9 @@ Subagent (general-purpose):
     - **Quality:** duplicated logic, unclear boundaries. A docstring longer
       than a summary line plus one short paragraph, or a comment over two
       lines, is Minor.
-    - **Provenance:** anything added, in any file, that cites the spec or
-      plan - a doc path, task or step number, section name, "per the
-      spec", "as designed" - is Important. Judge the grep candidates in the
+    - **Provenance:** anything added outside `docs/changes/` that cites
+      the intent, spec, or plan - a doc path, task or step number, section
+      name, "per the spec", "as designed" - is Important. Judge the grep candidates in the
       diff file and look for paraphrased ones. Citing a stable public source
       (a published paper, a standard or RFC, a named public data series) is
       not a leak.
@@ -101,6 +109,10 @@ Subagent (general-purpose):
       still match the code: every entry in the spec's Living docs impact
       section landed, and nothing else the change made wrong was missed.
       Drift is Important.
+    - **CLAUDE.md:** a statement in `CLAUDE.md` the change made wrong is
+      Important. A defect that `CLAUDE.md` should have prevented, or that
+      repeats a pattern it warns about, earns a one-line proposal in the
+      Assessment's CLAUDE.md proposals; you do not edit the file.
     - **Production readiness:** migrations, backward compatibility,
       performance and scalability, documentation.
     - **Deferred Minors:** mark each as fix-before-merge or leave.
@@ -127,9 +139,12 @@ Subagent (general-purpose):
     [Missed requirements, architecture problems, test gaps, provenance
     leaks, living-doc drift]
     #### Minor (Nice to Have)
+    Minor is what a review policy calls a nit. Report at most five, the
+    most useful first, and give the rest as a count.
     For each: file:line, what is wrong, why it matters, how to fix.
 
     ### Assessment
+    **CLAUDE.md proposals:** one line each, or none
     **Reviewed:** every changed file you examined and hold a current
     verdict on, one per line. This is a coverage record, not a summary: a
     changed file you omit is treated as unreviewed, never as clean, and
@@ -151,7 +166,8 @@ Fix Round block, for every re-review (omit on the first review):
     Prior findings and the fixer's report are claims, not evidence. A test
     added or changed in the same round as the code it exercises is part of
     that round's claim, not independent proof: judge whether it could still
-    pass with the code wrong.
+    pass with the code wrong. An existing test changed in a fix round is
+    Important unless the finding it answers said that test was wrong.
 
     For each prior finding (in [FINDINGS_FILE]), state resolved or still
     open. For a defect in fix-round code, or at a sibling site of an
@@ -163,7 +179,8 @@ Fix Round block, for every re-review (omit on the first review):
 ```
 
 **Placeholders:** `[MODEL]`; `[DESCRIPTION]`, a short summary;
-`[SPEC_FILE]` and `[PLAN_FILE]`; `[BASELINE]` from Kickoff; `[DIFF_FILE]` (from `scripts/review-package BASE
+`[SPEC_FILE]` and `[PLAN_FILE]`; `[REVIEW_POLICY]`, the path of `REVIEW.md`
+at the repo root, or "none"; `[BASELINE]` from Kickoff; `[DIFF_FILE]` (from `scripts/review-package BASE
 HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`; `[FULL_SUITE_OUTPUT_FILE]`;
 `[CHANGED_FILES]`, the output of `git diff --name-only BASE..HEAD`;
 `[MINORS]`, the ledger's Minor list, or "none"; `[FINDINGS_FILE]`

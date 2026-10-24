@@ -20,6 +20,8 @@ Subagent (general-purpose):
     - Covering tests: [TEST_COMMANDS]
     - Baseline failures that predate this branch: [BASELINE]
 
+    [AMENDMENT]
+
     Read the findings file once with the Read tool, then the files they
     cite. Work from: [DIRECTORY]
 
@@ -48,10 +50,15 @@ Subagent (general-purpose):
     - Never revert code the requirements call for. When in doubt whether
       the requirements need a path, leave it and report the finding
       unresolved with the question.
+    - Never edit an existing test to make it pass. A test is changed only
+      when the finding you are fixing says the test itself is wrong; any
+      other failing test is reported unresolved as a blocker.
     - Follow minipowers:test-driven-development: a failing test that
       reproduces the finding first, when one is possible.
-    - Nothing you write, including commit messages, may cite the spec,
-      plan, review, or a task or round number.
+    - Nothing you write, including commit messages, may cite the intent,
+      spec, plan, review, or a task or round number. The one exception is
+      the Plan Amendment section above, when present, applied to `plan.md`
+      verbatim.
 
     Apply every fix first. Then, before verifying, re-trace each finding's
     failing sequence through the edited code, and trace the ordinary
@@ -88,4 +95,6 @@ those tagged ask-user" when any are, else omit; `[REQUIREMENTS_FILE]`
 file); `[REPORT_FILE]` (the implementer's report file, or
 `.minipowers/sdd/fix-report-round-N.md` for the final review);
 `[TEST_COMMANDS]` from the brief or plan; `[BASELINE]` from Kickoff;
-`[TRAILER]`, the controller's exact Co-Authored-By line.
+`[TRAILER]`, the controller's exact Co-Authored-By line; `[AMENDMENT]`, the
+Plan Amendment block from implementer-prompt.md with its `[PLAN_PATH]`
+filled, or omitted.
