@@ -106,7 +106,6 @@ runs the suite before the final review.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use minipowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Spec:** spec.md
 **Tier:** light or heavy (set by Tier Triage)
 
 **Goal:** [One sentence]

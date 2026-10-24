@@ -1,4 +1,3 @@
-**Intent:** intent.md
 **Supersedes:** docs/changes/2026-07-26-two-tier-workflow/spec.md (spec and plan locations, commit timing, terminal state)
 
 # SDLC playbook alignment

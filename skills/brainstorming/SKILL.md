@@ -132,10 +132,9 @@ Every change that alters what they describe updates them in the same work.
 Write to `docs/changes/<id>/spec.md`. Drafts are file edits; the file is
 committed once, when the user approves it.
 
-Start with these header lines:
+Start with this header line:
 
 ```
-**Intent:** intent.md
 **Supersedes:** docs/changes/<older-id>/spec.md (what this changes), or none
 ```
 

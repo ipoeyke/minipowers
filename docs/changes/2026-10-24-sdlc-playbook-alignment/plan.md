@@ -1,6 +1,5 @@
 # SDLC Playbook Alignment Implementation Plan
 
-**Spec:** spec.md
 **Tier:** light
 
 **Goal:** Make minipowers' artifacts, gates, and terminal state match the
