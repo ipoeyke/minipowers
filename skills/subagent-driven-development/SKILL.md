@@ -281,9 +281,11 @@ the next task while Critical or Important findings are open.
    ```
    Conventional Commits subject, no body beyond the trailer. Never squash
    with open Critical or Important findings or an unanswered ask-user.
-10. Push the branch and open a draft PR (`gh pr create --draft`). Body
-    sections, in
-    order: **Intent** (link to `intent.md`, one-line problem), **What
+10. Push the branch and open a draft PR: `gh pr create --draft` when `gh`
+    is installed and authenticated, else the host's equivalent CLI if one
+    is, else write the body to `.minipowers/sdd/pr-body.md`, print the
+    host's compare URL derived from the remote, and tell the human to open
+    the draft from it. Body sections, in order: **Intent** (link to `intent.md`, one-line problem), **What
     changed**, **Plan deviations** (the Amendments list, or none),
     **Review** (the final Assessment line; Critical and Important findings
     fixed; Minors left and why; CLAUDE.md proposals), **Verification**
