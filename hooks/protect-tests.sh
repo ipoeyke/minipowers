@@ -6,7 +6,9 @@
 # test-file pattern with one extended regex in <repo>/.minipowers/test-pattern.
 #
 # The hook fires on every Edit, Write, and NotebookEdit, so the no-marker
-# path is bash builtins only: no sed, no git, no find.
+# path is bash builtins only: no sed, no git, no find. Measured at about
+# 3.5 ms per call (bash startup is 1.9 ms); the git rev-parse version it
+# replaced took about 20 ms.
 set -u
 
 input=$(cat)
