@@ -202,7 +202,12 @@ Check the plan against the spec yourself and fix inline:
 6. **Risks pinned:** every Risks line names a test, and that test appears
    in the owning task's Step 1. An empty Risks section means you checked
    and found none, not that you skipped the check.
-7. **Tables:** no literal `|` in any cell.
+7. **Proportion:** a plan several times longer than its spec, or one
+   where code blocks are most of the text, has written the program instead
+   of the decisions. Replace bodies with signatures, test names, and
+   assertions, keeping only load-bearing code, and check each step is
+   still unambiguous.
+8. **Tables:** no literal `|` in any cell.
 
 ## Tier Triage
 
