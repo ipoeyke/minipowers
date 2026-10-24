@@ -4,16 +4,30 @@
 # it. Inert when the marker is absent, and a marker older than one hour is
 # treated as stranded by a crashed run: removed, edit allowed. Override the
 # test-file pattern with one extended regex in <repo>/.minipowers/test-pattern.
+#
+# The hook fires on every Edit, Write, and NotebookEdit, so the no-marker
+# path is bash builtins only: no sed, no git, no find.
 set -u
 
 input=$(cat)
-path=$(printf '%s' "$input" | sed -nE 's/.*"(file_path|notebook_path)"[[:space:]]*:[[:space:]]*"([^"]*)".*/\2/p' | head -1)
-[ -n "$path" ] || exit 0
+[[ $input =~ \"(file_path|notebook_path)\"[[:space:]]*:[[:space:]]*\"([^\"]*)\" ]] || exit 0
+path=${BASH_REMATCH[2]}
+case "$path" in
+  /*) ;;
+  *) [[ $input =~ \"cwd\"[[:space:]]*:[[:space:]]*\"([^\"]*)\" ]] || exit 0
+     path="${BASH_REMATCH[1]}/$path" ;;
+esac
 
-cwd=$(printf '%s' "$input" | sed -nE 's/.*"cwd"[[:space:]]*:[[:space:]]*"([^"]*)".*/\1/p' | head -1)
-root=$(git -C "${cwd:-.}" rev-parse --show-toplevel 2>/dev/null) || exit 0
+# Walk up from the file's directory; the controller puts the marker at the
+# repo root, which is always an ancestor.
+root=
+dir=$path
+while dir=${dir%/*}; [ -n "$dir" ]; do
+  if [ -e "$dir/.minipowers/sdd/fix-round" ]; then root=$dir; break; fi
+done
+[ -n "$root" ] || exit 0
+
 marker="$root/.minipowers/sdd/fix-round"
-[ -e "$marker" ] || exit 0
 if [ -n "$(find "$marker" -mmin +60 2>/dev/null)" ]; then
   rm -f "$marker"
   exit 0
@@ -22,8 +36,8 @@ fi
 pattern='(^|/)(tests?|__tests__|spec)/|(^|/)test_[^/]+\.[A-Za-z0-9]+$|(_|\.)(test|spec)\.[A-Za-z0-9]+$|Tests?\.(java|kt|cs|swift|scala)$'
 [ -s "$root/.minipowers/test-pattern" ] && pattern=$(head -1 "$root/.minipowers/test-pattern")
 
-case "$path" in "$root"/*) rel=${path#"$root"/} ;; *) rel=$path ;; esac
-if printf '%s' "$rel" | grep -qE "$pattern"; then
+rel=${path#"$root"/}
+if [[ $rel =~ $pattern ]]; then
   echo "fix round in progress: test files are read-only ($rel). Report the test as a blocker instead." >&2
   exit 2
 fi
