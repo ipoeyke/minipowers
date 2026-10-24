@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # PreToolUse hook: while a fix round is running (marker file present), deny
 # edits to test files so a fixer cannot make a failing test pass by editing
-# it. Inert when the marker is absent, and a marker older than two hours is
+# it. Inert when the marker is absent, and a marker older than one hour is
 # treated as stranded by a crashed run: removed, edit allowed. Override the
 # test-file pattern with one extended regex in <repo>/.minipowers/test-pattern.
 set -u
@@ -14,7 +14,7 @@ cwd=$(printf '%s' "$input" | sed -nE 's/.*"cwd"[[:space:]]*:[[:space:]]*"([^"]*)
 root=$(git -C "${cwd:-.}" rev-parse --show-toplevel 2>/dev/null) || exit 0
 marker="$root/.minipowers/sdd/fix-round"
 [ -e "$marker" ] || exit 0
-if [ -n "$(find "$marker" -mmin +120 2>/dev/null)" ]; then
+if [ -n "$(find "$marker" -mmin +60 2>/dev/null)" ]; then
   rm -f "$marker"
   exit 0
 fi

@@ -195,7 +195,7 @@ same way.
   re-review by a fresh reviewer. Create `.minipowers/sdd/fix-round` before
   the dispatch and delete it as soon as the fixer returns, whatever its
   status, and before you resume a dead one: the plugin's hook denies
-  test-file edits while it exists, and ignores a marker older than two
+  test-file edits while it exists, and ignores a marker older than one
   hours. Re-dispatch the reviewer only once the fixer's
   verification evidence is in the report file.
 - **ask-user:** the reviewer tags a finding ask-user when its smallest

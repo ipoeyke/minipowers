@@ -73,7 +73,7 @@ denies `Edit`, `Write`, and `NotebookEdit` on test files while
 `.minipowers/sdd/fix-round` exists. Subagent-driven-development creates the
 marker before each fixer dispatch and removes it after, so the hook is
 inert the rest of the time and injects nothing into context. A marker a
-crashed run leaves behind expires after two hours, so it can never block
+crashed run leaves behind expires after one hour, so it can never block
 a later session for longer than that. The default
 pattern matches `tests/`, `test/`, `__tests__/`, `spec/`, and
 `*_test.*`, `*.test.*`, `*_spec.*`, `*.spec.*`; a repo with another layout
