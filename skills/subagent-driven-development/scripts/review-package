@@ -20,22 +20,29 @@ head=$2
 git rev-parse --verify --quiet "$base" >/dev/null || { echo "bad BASE: $base" >&2; exit 2; }
 git rev-parse --verify --quiet "$head" >/dev/null || { echo "bad HEAD: $head" >&2; exit 2; }
 
+# Range guards (exit 3): a wrong-branch HEAD gives a range that is empty or
+# not rooted at BASE; either would silently produce a bogus package.
+git merge-base --is-ancestor "$base" "$head" || { echo "HEAD is not a descendant of BASE: ${base}..${head}" >&2; exit 3; }
+[ "$(git rev-list --count "${base}..${head}")" -gt 0 ] || { echo "empty commit range: ${base}..${head}" >&2; exit 3; }
+
 if [ $# -eq 3 ]; then
   out=$3
 else
-  dir=$("$(cd "$(dirname "$0")" && pwd)/sdd-workspace")
+  # Via bash, not direct exec: some plugin extractors strip exec bits.
+  dir=$("${BASH:-bash}" "$(cd "$(dirname "$0")" && pwd)/sdd-workspace")
   out="$dir/review-$(git rev-parse --short "$base")..$(git rev-parse --short "$head").diff"
 fi
 
 # Added lines that cite the spec/plan (paths, task numbers, "per the spec").
-# Candidates only - the reviewer judges each. Spec/plan docs are skipped.
+# Candidates only - the reviewer judges each. The change's own record
+# under docs/changes/ is skipped.
 provenance_leaks() {
-  git diff -U0 "${base}..${head}" -- . ':(exclude)docs/specs' ':(exclude)docs/plans' | awk '
+  git diff -U0 "${base}..${head}" -- ':/' ':(exclude)docs/changes' | awk '
     /^\+\+\+ / { file = substr($0, 7); next }
     /^@@ / { split($3, a, ","); line = substr(a[1], 2) + 0; next }
     /^\+/ {
       l = tolower(substr($0, 2))
-      if (l ~ /docs\/(specs|plans)\// ||
+      if (l ~ /docs\/(changes|specs|plans)\// ||
           l ~ /(^|[^a-z])task[ _-]?[0-9]+/ ||
           l ~ /(^|[^a-z])(per|see|from|in|by|to) the (spec|plan|design doc|brainstorm)/ ||
           l ~ /(^|[^a-z])as (specified|designed|planned)([^a-z]|$)/ ||

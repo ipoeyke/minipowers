@@ -20,7 +20,8 @@ n=$2
 if [ $# -eq 3 ]; then
   out=$3
 else
-  dir=$("$(cd "$(dirname "$0")" && pwd)/sdd-workspace")
+  # Via bash, not direct exec: some plugin extractors strip exec bits.
+  dir=$("${BASH:-bash}" "$(cd "$(dirname "$0")" && pwd)/sdd-workspace")
   out="$dir/task-${n}-brief.md"
 fi
 
@@ -44,7 +45,7 @@ cat >> "$out" <<'EOF2'
 Reminders: read each file once with the Read tool, not cat/sed via Bash.
 Iterate on scoped tests; fix rounds re-run only the covering tests. Nothing
 you write, including commit messages, may mention the plan, spec, or task
-numbers.
+numbers, except a Plan Amendment block applied verbatim to plan.md.
 EOF2
 
 echo "wrote ${out}: $(wc -l < "$out" | tr -d ' ') lines"

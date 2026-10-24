@@ -70,12 +70,13 @@ a bug without a test — the test proves the fix and prevents regression.
 | Must mock everything | Code too coupled — inject dependencies |
 | Test setup huge | Extract helpers; still complex? simplify the design |
 
-## Anti-Patterns
+## Writing Good Tests
 
-When adding mocks or test utilities, read
-[testing-anti-patterns.md](testing-anti-patterns.md): testing mock behavior
-instead of real behavior, test-only methods on production classes, mocking
-without understanding the dependency.
+When writing or changing any test, adding a mock, or adding a test helper,
+read [writing-good-tests.md](writing-good-tests.md): name the production
+change that would make the test fail before writing it, derive expected
+values by hand, never assert on mock behavior, keep test-only code out of
+production classes, and run the mutation check before finishing.
 
 ## Final Rule
 

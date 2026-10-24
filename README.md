@@ -4,9 +4,9 @@ A minimal fork of [obra/superpowers](https://github.com/obra/superpowers) for
 Claude Code. Six skills survived the cut. The hooks, the ports to other
 harnesses, and most of the process scaffolding did not survive.
 
-Forked from upstream **v6.1.1** (commit
-[`d884ae0`](https://github.com/obra/superpowers/commit/d884ae04edebef577e82ff7c4e143debd0bbec99),
-July 2026). Upstream history is preserved in this repo up to that commit.
+Forked from upstream v6.1.1, with selected later changes ported through
+v7.0.1; exact commits are pinned under Credit. Upstream history is
+preserved in this repo up to the fork point.
 
 Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 
@@ -14,15 +14,30 @@ Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 
 | Skill | What it does |
 |---|---|
-| **brainstorming** | Turn an ambiguous idea into an approved design spec through one-question-at-a-time dialogue, before any code. Hands off to writing-plans. |
-| **writing-plans** | Turn a spec into bite-sized tasks with exact file paths, interfaces, and test intent. Pinned requirements rather than pre-written code. Ends with a tier triage on the plan's task count. |
-| **subagent-driven-development** | Execute a plan with fresh implementer subagents (one per task, or one for a small plan), adversarial review, and a fix loop in which a fresh reviewer judges every fix round. File-based handoffs (the `task-brief` and `review-package` scripts) keep the orchestrator's context small, and a progress ledger survives compaction. |
+| **brainstorming** | Capture the idea as a committed `intent.md` in the user's words, then turn it into an approved, committed `spec.md` through one-question-at-a-time dialogue, with the repo's policy skills applied and concerns flagged. Hands off to writing-plans. |
+| **writing-plans** | Turn a spec into bite-sized tasks with exact file paths, interfaces, and test intent, read-only until the plan is written. Sets the tier from the task count, takes one approval, commits `plan.md`. |
+| **subagent-driven-development** | Execute a committed plan with fresh implementer subagents (one per task, or one for a small plan), adversarial review, and a fix loop in which a fresh reviewer judges every fix round. Deviations are appended to the plan; the change ends as a draft pull request. |
 | **test-driven-development** | Red-green-refactor, with the step that matters spelled out: watch the test fail, for the right reason. Includes a debugging stop rule (three failed fixes means the problem is architectural). |
 | **verification-before-completion** | No success claims without running the verification command in the same message. |
 | **writing-skills** | TDD for process documentation: pressure-test a skill on subagents before trusting it. |
 
-The flow is **brainstorming → writing-plans → subagent-driven-development**
-at every size. Writing-plans sets the tier from the plan it just wrote:
+The flow follows Anthropic's
+[AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)
+(published 2026-08-21, read 2026-10-24): each stage ends by committing an artifact the next stage reads, and the
+chain of commits is the audit trail.
+
+```
+docs/changes/<YYYY-MM-DD-topic>/
+  intent.md    the idea in the user's words      brainstorming, committed on confirm
+  spec.md      requirements and design           brainstorming, committed on approval
+  plan.md      tasks, risks, proof, amendments   writing-plans, committed on approval
+the diff                                         subagent-driven-development
+the PR         findings, verification, decisions subagent-driven-development
+```
+
+`docs/changes/` is the playbook's `intent/` home under a clearer name. The
+flow is **brainstorming → writing-plans → subagent-driven-development** at
+every size. Writing-plans sets the tier from the plan it just wrote:
 
 - **Light** (at most 3 tasks, about 10 files): one implementer for the
   whole plan, no per-task gates, one whole-branch review, one squashed
@@ -32,15 +47,40 @@ at every size. Writing-plans sets the tier from the plan it just wrote:
 
 Both tiers use TDD inside implementation and verification before every
 completion claim. The review loop borrows from
-[no-mistakes](https://github.com/kunchenguid/no-mistakes): a fresh reviewer
+[no-mistakes](https://github.com/kunchenguid/no-mistakes) v1.100.1: a fresh reviewer
 every round, fix-round code reviewed as unreviewed new code, findings that
 enumerate every sibling site, a coverage record, and ask-user findings for
-remedies that would extend the change. Specs and plans are point-in-time records that nothing
-else in the repo may cite; `ARCHITECTURE.md` at the repo root is the living
-description of the current system, updated by every change that alters it.
-Subagent model policy is fixed: implementers run on Sonnet, task reviewers
-on Opus, and the final reviewer on the strongest available model (Fable,
-else Opus).
+remedies that would extend the change.
+
+Intent, spec, and plan are the change's record: the plan is amended as the
+change is built and all three freeze at merge. Nothing in the codebase may
+cite them. `ARCHITECTURE.md` at the repo root is the living description of
+the current system, updated by every change that alters it. Subagent model
+policy is fixed: implementers run on Sonnet, task reviewers on Opus, and
+the final reviewer on the strongest available model (Fable, else Opus).
+
+The in-session final review is the layer before the PR, not the merge
+gate. The controller pushes and opens a draft PR; marking it ready is the
+human's, and approval is a code owner's through branch protection. If the
+repo has a `REVIEW.md` at its root, the final reviewer runs its passes and
+respects its nit cap and do-not-report list.
+
+### The one hook: tests are read-only during fix rounds
+
+Fixers are told never to edit an existing test to make it pass. The plugin
+backs that with its only hook, a PreToolUse command that
+denies `Edit`, `Write`, and `NotebookEdit` on test files while
+`.minipowers/sdd/fix-round` exists. Subagent-driven-development creates the
+marker before each fixer dispatch and removes it after, so the hook is
+inert the rest of the time and injects nothing into context: when no
+marker exists it exits with bash builtins only, about 2 ms over bash
+startup per edit, and prints nothing. A marker a
+crashed run leaves behind expires after one hour, so it can never block
+a later session for longer than that. The default
+pattern matches `tests/`, `test/`, `__tests__/`, `spec/`, `test_*.*`,
+`*_test.*`, `*.test.*`, `*_spec.*`, `*.spec.*`, and `*Test.java` style
+names in Java, Kotlin, C#, Swift, and Scala; a repo with another layout
+puts one extended regex in `.minipowers/test-pattern`.
 
 ## Install
 
@@ -58,8 +98,9 @@ Or straight from GitHub:
 /plugin install minipowers@minipowers-dev
 ```
 
-There is no SessionStart hook. Skills trigger through Claude Code's normal
-description-based routing, or explicitly (`/minipowers:brainstorming`, etc.).
+There is no SessionStart hook; the only hook is the fix-round test guard
+above. Skills trigger through Claude Code's normal description-based
+routing, or explicitly (`/minipowers:brainstorming`, etc.).
 
 ## What was cut from upstream
 
@@ -71,11 +112,36 @@ deleted outright. The full list and per-skill rationale are in
 
 ## Credit
 
-The good ideas here are Jesse Vincent's
-([obra/superpowers](https://github.com/obra/superpowers), MIT). This fork
-only takes things away.
+Everything here is adapted from four sources. Each is pinned to the exact
+commit that was read, so the derivation can be checked.
 
-Three questioning habits in the brainstorming skill (look up facts instead of
-asking, attach a recommended answer to every question, resolve decisions in
-dependency order) were adapted from Matt Pocock's
-[grilling skill](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md) (MIT).
+The skills, their dispatch templates, scripts, and the whole execution
+model come from Jesse Vincent's [obra/superpowers](https://github.com/obra/superpowers)
+v6.1.1 (commit
+[`d884ae0`](https://github.com/obra/superpowers/commit/d884ae04edebef577e82ff7c4e143debd0bbec99),
+MIT). Six later changes were ported from v7.0.1 (commit
+[`2ce8aa1`](https://github.com/obra/superpowers/commit/2ce8aa15d05bd57213e6f746f953aafb7ded7a8b)):
+the no-subagents contract in every dispatch template, the
+writing-good-tests reference, review-package range guards, the final
+reviewer's vision-document and declined-to-judge rules, the brainstorming
+builder check, and `bash` invocation of bundled scripts.
+
+The artifact chain (intent, spec, plan, diff, PR), plan approval, live plan
+amendments, the REVIEW.md pass structure, and the no-merge rule follow
+Anthropic's [AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook),
+published 2026-08-21 and read 2026-10-24 (the article carries no version
+number).
+
+The review loop's fresh-reviewer, sibling-enumeration, coverage-record, and ask-user
+rules are adapted from [kunchenguid/no-mistakes](https://github.com/kunchenguid/no-mistakes)
+v1.100.1 (commit
+[`c80c10f`](https://github.com/kunchenguid/no-mistakes/commit/c80c10f254ebf9a12524ad26b8eeb2f8714e97c4),
+MIT).
+
+Three questioning habits in the brainstorming skill (look up facts instead
+of asking, attach a recommended answer to every question, resolve decisions
+in dependency order) are adapted from Matt Pocock's
+[grilling skill](https://github.com/mattpocock/skills/blob/5beb35b040e3de97e54fa9e386d7e42d15c295c2/skills/productivity/grilling/SKILL.md)
+(commit
+[`5beb35b`](https://github.com/mattpocock/skills/commit/5beb35b040e3de97e54fa9e386d7e42d15c295c2),
+MIT).

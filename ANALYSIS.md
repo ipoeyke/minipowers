@@ -61,7 +61,7 @@ and (b) a read of every SKILL.md at v6.1.1.
 | executing-plans | **Cut** | High | Its own text says to prefer subagent-driven-development whenever subagents are available, and in Claude Code they always are. |
 | dispatching-parallel-agents | **Cut** | High | The harness's own Agent-tool documentation already teaches parallel dispatch and context isolation. The skill adds a small decision tree on top. |
 | using-git-worktrees | **Cut** | High | Superseded by native harness worktrees (worktree-isolated subagents and equivalent tools). 202 lines of obsolete mechanics. |
-| finishing-a-development-branch | **Cut** | Medium | A structured merge/PR questionnaire. In live use I declined it every time it fired. One line inside SDD replaced it: ask the human what to do with the branch when the plan is done. |
+| finishing-a-development-branch | **Cut** | Medium | A structured merge/PR questionnaire. In live use I declined it every time it fired. One line inside SDD replaced it: push the branch and open a draft PR when the plan is done. |
 
 ## What else was removed
 
@@ -78,6 +78,22 @@ Everything not needed to run these six skills in Claude Code:
 
 The result keeps most of the value I actually observed, at a small fraction of
 the original's context cost, with a single-harness surface.
+
+## Later alignment
+
+Two later rounds reshaped the flow without changing the verdicts above. The
+first routed every change through writing-plans and let the plan's task
+count pick a light or heavy execution tier, and borrowed the review-loop
+discipline of no-mistakes: a fresh reviewer every round, fix-round code
+treated as unreviewed, findings that enumerate every sibling site. The
+second aligned the artifacts with Anthropic's AI-native SDLC playbook: a
+committed `intent.md`, `spec.md`, and `plan.md` per change under
+`docs/changes/`, a human approval on the plan, amendments appended to the
+plan as the change is built, and a draft pull request rather than a local
+merge as the terminal state. It also added the plugin's only hook: a
+PreToolUse guard that makes test files read-only during fix rounds, inert
+otherwise and free of context cost, unlike the SessionStart hook that was
+cut.
 
 ## Credit
 
