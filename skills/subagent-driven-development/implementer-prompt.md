@@ -60,6 +60,15 @@ Subagent (general-purpose):
     test to make it pass: if a test is wrong, report it as a concern and
     leave it red.
 
+    ## You Do Not Dispatch Subagents
+
+    Do all of this work yourself. Never spawn a subagent to implement part
+    of it, and never spawn a reviewer to check it. Review is the
+    controller's job: after you report, it dispatches a fresh reviewer
+    against your diff. A reviewer you spawn duplicates that review at full
+    cost and its approval counts for nothing. Self-review means reading
+    your own diff.
+
     ## Reading Files
 
     Read each file once, in full, with the Read tool - not `cat`, `sed`, or
@@ -143,7 +152,7 @@ Subagent (general-purpose):
 | Placeholder | Heavy (one task) | Light (whole plan) |
 |---|---|---|
 | `[WHAT]` | Task N: [name] | the plan at [PLAN_PATH], every task in order |
-| `[BRIEF_FILE]` | the task brief from `scripts/task-brief` | the plan file |
+| `[BRIEF_FILE]` | the task brief from `bash scripts/task-brief` | the plan file |
 | `[BRIEF_NOTE]` | It holds the task's full text from the plan. | Work the tasks in order; each task's steps and tests apply as written. |
 | `[COMMIT_NOTE]` | Conventional Commits subject; these commits are kept. | Commit after each task as its steps say; the controller squashes them later. |
 | `[FULL_RUN_RULE]` | You get one full-suite run and one whole-repo lint and type-check pass, immediately before your final commit; state the count in your report. | Never run the full suite or whole-repo lint or type-check; the controller's Final Review owns those. |

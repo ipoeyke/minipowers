@@ -7,6 +7,12 @@ harnesses, and most of the process scaffolding did not survive.
 Forked from upstream **v6.1.1** (commit
 [`d884ae0`](https://github.com/obra/superpowers/commit/d884ae04edebef577e82ff7c4e143debd0bbec99),
 July 2026). Upstream history is preserved in this repo up to that commit.
+Selected changes up to **v7.0.1** (commit
+[`2ce8aa1`](https://github.com/obra/superpowers/commit/2ce8aa1)) were ported
+afterwards: the no-subagents contract in every dispatch template, the
+writing-good-tests reference, review-package range guards, the final
+reviewer's vision-document and declined-to-judge rules, the brainstorming
+builder check, and `bash` invocation of bundled scripts.
 
 Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 

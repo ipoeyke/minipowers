@@ -37,6 +37,15 @@ Subagent (general-purpose):
     worktree (`git worktree add /tmp/review-[SHA] [SHA]`). The only file you
     write is the findings file.
 
+    ## You Do Not Dispatch Subagents
+
+    Do all of this review yourself. Never spawn a subagent to review part
+    of the diff, and never spawn another reviewer for a second opinion.
+    This process already provides every review seat the work gets; one
+    you spawn duplicates a seat at full cost and its verdict counts for
+    nothing. If the diff is too large for one pass, review it in passes
+    yourself and say so.
+
     ## Findings File
 
     Append to [FINDINGS_FILE] as you go, not at the end - your final
@@ -66,6 +75,15 @@ Subagent (general-purpose):
 
     Finish by appending the Assessment block with its **Reviewed** list, so
     a reader can tell a complete review from a truncated one.
+
+    ## The Spec Is a Vision Document
+
+    The spec says what the software must do, not every input,
+    environment, or condition it will meet. Where the spec is silent,
+    judge by what a reasonable person using this software would expect:
+    that expectation is a requirement, and silence is not permission.
+    Grade such findings by their effect on that person, not by whether
+    the spec names the trigger.
 
     ## What to Check
 
@@ -143,6 +161,12 @@ Subagent (general-purpose):
     most useful first, and give the rest as a count.
     For each: file:line, what is wrong, why it matters, how to fix.
 
+    ### Declined to judge
+    Every behavior you considered and set aside as outside the spec or
+    plan, one line each with the reason, so the controller can rule on
+    it; nothing set aside is dropped silently. "None" means you set
+    nothing aside.
+
     ### Assessment
     **CLAUDE.md proposals:** one line each, or none
     **Reviewed:** every changed file you examined and hold a current
@@ -180,8 +204,8 @@ Fix Round block, for every re-review (omit on the first review):
 
 **Placeholders:** `[MODEL]`; `[DESCRIPTION]`, a short summary;
 `[SPEC_FILE]` and `[PLAN_FILE]`; `[REVIEW_POLICY]`, the path of `REVIEW.md`
-at the repo root, or "none"; `[BASELINE]` from Kickoff; `[DIFF_FILE]` (from `scripts/review-package BASE
-HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`; `[FULL_SUITE_OUTPUT_FILE]`;
+at the repo root, or "none"; `[BASELINE]` from Kickoff; `[DIFF_FILE]` (from `bash scripts/review-package
+BASE HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`; `[FULL_SUITE_OUTPUT_FILE]`;
 `[CHANGED_FILES]`, the output of `git diff --name-only BASE..HEAD`;
 `[MINORS]`, the ledger's Minor list, or "none"; `[FINDINGS_FILE]`
 (`.minipowers/sdd/review-findings-BASE..HEAD.md`); `[FIX_ROUND_BLOCK]`,

@@ -81,7 +81,7 @@ intent, spec, and plan are already on the branch; this skill adds code.
    this is a resume: skip steps 2-4 and continue where it stops.
 2. Require a clean tree (`git status --porcelain` empty) on the change's
    feature branch; otherwise stop and ask. Never execute on main/master.
-3. Clear earlier runs' artifacts: `scripts/sdd-workspace --reset`. Stale
+3. Clear earlier runs' artifacts: `bash scripts/sdd-workspace --reset`. Stale
    briefs, diffs, and reports otherwise surface in reviewers' greps.
 4. Record the base SHA (`git rev-parse HEAD`, the plan commit) and run a
    **baseline**: each verification command the project defines (tests,
@@ -115,7 +115,8 @@ changes, map by tier.
 
 ## Dispatching an Implementer
 
-**Heavy:** run `scripts/task-brief PLAN_FILE N`; it writes the task's text
+**Heavy:** run `bash scripts/task-brief PLAN_FILE N` (always through
+`bash`: plugin packagers can strip exec bits); it writes the task's text
 to a file and prints the path. **Light:** the plan file itself is the
 brief - the implementer works every task in order, committing after each.
 
@@ -138,7 +139,7 @@ accumulated summaries of earlier tasks.
 
 ## Handling Implementer Status
 
-- **DONE:** heavy: run `scripts/review-package BASE HEAD` (BASE = the SHA
+- **DONE:** heavy: run `bash scripts/review-package BASE HEAD` (BASE = the SHA
   you recorded before dispatching, never `HEAD~1`, which drops all but the
   last commit) and dispatch the task reviewer with the printed path. Light:
   run the escalation check, then go to Final Review.
@@ -262,7 +263,7 @@ the next task while Critical or Important findings are open.
 3. Run the full suite and lint once at HEAD, output to
    `.minipowers/sdd/full-suite-<head7>.txt`. Failures also present in the
    baseline are reported, not blockers; anything newly red blocks.
-4. Run `scripts/review-package BASE HEAD` with the base SHA recorded at
+4. Run `bash scripts/review-package BASE HEAD` with the base SHA recorded at
    Kickoff.
 5. Dispatch exactly one final reviewer with
    [code-reviewer.md](code-reviewer.md): the package path, the spec and

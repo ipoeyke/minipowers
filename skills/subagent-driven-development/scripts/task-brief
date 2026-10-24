@@ -20,7 +20,8 @@ n=$2
 if [ $# -eq 3 ]; then
   out=$3
 else
-  dir=$("$(cd "$(dirname "$0")" && pwd)/sdd-workspace")
+  # Via bash, not direct exec: some plugin extractors strip exec bits.
+  dir=$("${BASH:-bash}" "$(cd "$(dirname "$0")" && pwd)/sdd-workspace")
   out="$dir/task-${n}-brief.md"
 fi
 

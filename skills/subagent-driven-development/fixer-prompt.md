@@ -25,6 +25,15 @@ Subagent (general-purpose):
     Read the findings file once with the Read tool, then the files they
     cite. Work from: [DIRECTORY]
 
+    ## You Do Not Dispatch Subagents
+
+    Do all of this work yourself. Never spawn a subagent to implement part
+    of it, and never spawn a reviewer to check it. Review is the
+    controller's job: after you report, it dispatches a fresh reviewer
+    against your diff. A reviewer you spawn duplicates that review at full
+    cost and its approval counts for nothing. Self-review means reading
+    your own diff.
+
     ## Before Editing
 
     Check each finding against the code. A finding that is wrong gets a

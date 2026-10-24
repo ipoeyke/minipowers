@@ -39,6 +39,15 @@ Subagent (general-purpose):
     Your review is read-only: never mutate the working tree, index, HEAD,
     or branches.
 
+    ## You Do Not Dispatch Subagents
+
+    Do all of this review yourself. Never spawn a subagent to review part
+    of the diff, and never spawn another reviewer for a second opinion.
+    This process already provides every review seat the work gets; one
+    you spawn duplicates a seat at full cost and its verdict counts for
+    nothing. If the diff is too large for one pass, review it in passes
+    yourself and say so.
+
     ## The Report Is Unverified
 
     Treat the report as claims to verify against the diff. Design
@@ -151,9 +160,9 @@ Fix Round block, for every re-review (omit on the first review):
     moved it.
 ```
 
-**Placeholders:** `[MODEL]`; `[BRIEF_FILE]` (from `scripts/task-brief`,
+**Placeholders:** `[MODEL]`; `[BRIEF_FILE]` (from `bash scripts/task-brief`,
 the same file the implementer read); `[REPORT_FILE]`; `[DIFF_FILE]` (from
-`scripts/review-package BASE HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`;
+`bash scripts/review-package BASE HEAD`); `[BASE_SHA]` and `[HEAD_SHA]`;
 `[GLOBAL_CONSTRAINTS]` copied verbatim from the plan's Global Constraints
 or the spec - exact values, formats, and stated relationships, not process
 rules; `[REVIEW_FILE]` (`.minipowers/sdd/task-N-review.md`, with
