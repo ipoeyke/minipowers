@@ -61,10 +61,9 @@ the final reviewer on the strongest available model (Fable, else Opus).
 
 The in-session final review is the layer before the PR, not the merge
 gate. The controller pushes and opens a draft PR; marking it ready is the
-human's, and approval is a code owner's,
-through branch protection. If the repo has a `REVIEW.md` at its root, the
-final reviewer runs its passes and respects its nit cap and do-not-report
-list.
+human's, and approval is a code owner's through branch protection. If the
+repo has a `REVIEW.md` at its root, the final reviewer runs its passes and
+respects its nit cap and do-not-report list.
 
 ### Optional hook: protect tests during fix rounds
 
