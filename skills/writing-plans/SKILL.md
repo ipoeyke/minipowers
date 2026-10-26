@@ -96,10 +96,10 @@ surfaces mid-execution as several recalibration commits.
 
 Use the project's documented test commands (README, Makefile,
 CONTRIBUTING, CI config), including an already-configured parallel runner
-such as pytest-xdist; add no dependencies for speed. Never write a
-full-suite run into a task step: a heavy-tier implementer gets one full
-run before its final commit, a light-tier one none, and the controller
-runs the suite before the final review.
+such as pytest-xdist; add no dependencies for speed. Every `Run:` line
+names the task's test files; never a bare runner. Never write a
+full-suite run into a task step: implementers on either tier never run
+it, and the controller runs it once before the final review.
 
 ## Plan Header
 
@@ -178,6 +178,7 @@ includes it.]
 - [ ] **Step 3: Implement** - [requirements + Interfaces; literal code only
   if load-bearing, marked binding]
 - [ ] **Step 4: Run this task's tests and lint on touched files; all green**
+  Run: [same command as Step 2]
 - [ ] **Step 5: Commit** - `git commit -m "feat: add specific feature"`
 ````
 

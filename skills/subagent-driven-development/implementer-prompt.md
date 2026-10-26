@@ -52,13 +52,16 @@ Subagent (general-purpose):
 
     ## Test Runs
 
-    Iterate on the scoped test command plus lint and type-check on the
-    files you touched. [FULL_RUN_RULE] After review findings, re-run only
-    the tests covering the amended code - never the full suite, even if a
-    plan step says otherwise. Never run repo-wide autofix (`eslint . --fix`,
-    repo-wide `prettier --write`); path-scoped only. Never edit an existing
-    test to make it pass: if a test is wrong, report it as a concern and
-    leave it red.
+    The scoped test command is the `Run:` line in the task's steps, or the
+    test files the task lists; nothing wider. Iterate on that plus lint and
+    type-check on the files you touched. Never run the full suite, a bare
+    runner with no path (`pytest`, `npm test`, `go test ./...`), or
+    whole-repo lint: the controller's Final Review owns those, and "tests
+    pass" in your report means the scoped command. After review findings,
+    re-run only the tests covering the amended code. Never run repo-wide
+    autofix (`eslint . --fix`, repo-wide `prettier --write`); path-scoped
+    only. Never edit an existing test to make it pass: if a test is wrong,
+    report it as a concern and leave it red.
 
     ## You Do Not Dispatch Subagents
 
@@ -155,9 +158,8 @@ Subagent (general-purpose):
 | `[BRIEF_FILE]` | the task brief from `bash scripts/task-brief` | the plan file |
 | `[BRIEF_NOTE]` | It holds the task's full text from the plan. | Work the tasks in order; each task's steps and tests apply as written. |
 | `[COMMIT_NOTE]` | Conventional Commits subject; these commits are kept. | Commit after each task as its steps say; the controller squashes them later. |
-| `[FULL_RUN_RULE]` | You get one full-suite run and one whole-repo lint and type-check pass, immediately before your final commit; state the count in your report. | Never run the full suite or whole-repo lint or type-check; the controller's Final Review owns those. |
 | `[REPORT_RULE]` | Write the report below to [REPORT_FILE]; fix rounds append to it. Then reply with only status, commits, the test summary, concerns, and the file path, under 15 lines. | Same, with one commit line per task. |
-| `[TEST_SUMMARY_FIELDS]` | counts, and full-suite runs with a reason for each beyond the first | counts per task, and any run wider than a task's scoped command with its reason |
+| `[TEST_SUMMARY_FIELDS]` | counts, and any run wider than the scoped command with its reason | counts per task, and any run wider than a task's scoped command with its reason |
 
 Common placeholders: `[MODEL]`; `[PLAN_PATH]`; `[DIRECTORY]`, the working
 tree; `[REPORT_FILE]`; `[TRAILER]`, the exact Co-Authored-By line from the
