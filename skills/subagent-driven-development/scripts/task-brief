@@ -43,7 +43,8 @@ cat >> "$out" <<'EOF2'
 
 ---
 Reminders: read each file once with the Read tool, not cat/sed via Bash.
-Iterate on scoped tests; fix rounds re-run only the covering tests. Nothing
+Run only the Run: commands above; never the full suite or a bare runner
+with no path. Fix rounds re-run only the covering tests. Nothing
 you write, including commit messages, may mention the plan, spec, or task
 numbers, except a Plan Amendment block applied verbatim to plan.md.
 EOF2

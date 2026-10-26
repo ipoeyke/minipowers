@@ -32,8 +32,9 @@ it tests existing behavior — fix the test.
 **GREEN — write the simplest code that passes.** No extra features, no
 speculative options, no "while I'm here" improvements. YAGNI.
 
-**Verify GREEN — run it and watch it pass.** Other tests still green, output
-pristine (no new warnings). Test fails? Fix the code, not the test.
+**Verify GREEN — run it and watch it pass.** The covering tests still green
+(the file or module you changed, not the whole suite), output pristine (no
+new warnings). Test fails? Fix the code, not the test.
 
 **REFACTOR — after green only.** Remove duplication, improve names, extract
 helpers. Stay green. Then repeat with the next failing test.
