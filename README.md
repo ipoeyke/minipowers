@@ -113,10 +113,8 @@ routing, or explicitly (`/minipowers:brainstorming`, etc.).
 Nine skills, the SessionStart hook, and all the packaging for other
 harnesses. Three of the nine (requesting-code-review, receiving-code-review,
 systematic-debugging) were folded into the surviving skills rather than
-deleted outright. A fourth, writing-skills, was condensed into
-`.claude/skills/writing-skills/`: it guides work on this repository and
-does not ship with the plugin. The full list and per-skill rationale are
-in [ANALYSIS.md](ANALYSIS.md).
+deleted outright. The full list and per-skill rationale are in
+[ANALYSIS.md](ANALYSIS.md).
 
 ## Credit
 
