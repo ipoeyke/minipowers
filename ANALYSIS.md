@@ -111,10 +111,3 @@ evidence table; stated the TDD rule once and scoped it to behavior;
 removed the per-task test-first steps from plans; dropped the narration
 limit from subagent-driven-development; and gave both reviewers a check
 that each new test can fail for a bug, with deletion as the fix.
-
-## Credit
-
-Most of the good ideas here are Jesse Vincent's
-([obra/superpowers](https://github.com/obra/superpowers)). This fork takes
-most of the original away; what it adds is adapted from the other sources
-credited in the [README](README.md#credit).
