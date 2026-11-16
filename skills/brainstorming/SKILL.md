@@ -10,7 +10,7 @@ through collaborative dialogue. The two files start the change's artifact
 chain: `intent.md`, `spec.md`, `plan.md`, the diff, the PR.
 
 <HARD-GATE>
-Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. Creating the branch and committing intent.md and spec.md are not implementation actions.
+Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. Creating the branch, committing intent.md and spec.md, and writing a missing ARCHITECTURE.md are not implementation actions.
 </HARD-GATE>
 
 **Scale the process to the ambiguity.** A new system or an underspecified
@@ -28,7 +28,8 @@ always happen.
 
 1. **Open the change** - branch and `docs/changes/<id>/`
 2. **Capture intent** - `intent.md` in the user's words, confirm, commit
-3. **Explore context** - living docs first, then files and recent commits
+3. **Explore context** - living docs first (write `ARCHITECTURE.md` if
+   missing), then files and recent commits
 4. **Ask clarifying questions** - one at a time, intent's open questions first
 5. **Propose 2-3 approaches** - trade-offs and your recommendation
 6. **Present the design** - get approval per round
@@ -80,20 +81,27 @@ Intent, spec, and plan are the change's record: the plan is amended while
 the change is built, and all three freeze when it merges. They overlap and
 go stale by design. The living docs describe the system as it is now:
 
-- `ARCHITECTURE.md` at the repo root: components and boundaries, data
-  flow, invariants, and key decisions with their reasons. No dates, no
-  history, no spec or plan references.
+- `ARCHITECTURE.md` at the repo root: a map of the whole repository - what
+  it is for, how it runs, a codemap, invariants and boundaries,
+  cross-cutting concerns, and key decisions with their reasons. No dates,
+  no history, no spec or plan references.
 - An area that outgrows the root file moves to
   `docs/architecture/<area>.md`, linked from `ARCHITECTURE.md`.
-- If no `ARCHITECTURE.md` exists, the first spec creates it, covering only
-  the areas it touches.
+- If no `ARCHITECTURE.md` exists, write it while exploring context, before
+  any design work, following [architecture-doc.md](architecture-doc.md).
+  It covers the whole repository as it stands, every area at the same
+  depth: the area this change touches gets no more space than any other.
+  Commit it alone as `docs: add ARCHITECTURE.md`. The spec's Living docs
+  impact then lists what the change alters in it, as for any existing doc.
 
-Every change that alters what they describe updates them in the same work.
+Every change that alters what they describe updates them in the same work,
+under the same rules.
 
 ## Understanding the Idea
 
-- Read the living docs, then files and recent commits. Older changes
-  under `docs/changes/` are history, not current truth.
+- Read the living docs, then files and recent commits. If
+  `ARCHITECTURE.md` is missing, write it first (see Living Docs). Older
+  changes under `docs/changes/` are history, not current truth.
 - If the request spans multiple independent subsystems, say so before
   detailed questions and help decompose it into sub-projects, each with
   its own spec and implementation cycle. Brainstorm the first one.
@@ -214,7 +222,9 @@ skill consumes. Ask:
 > "Spec written to `<path>`. Please review it and let me know if you want to make any changes before we proceed."
 
 List under it the calls you made during the builder check, so the user can
-check those while reading.
+check those while reading. If this change created `ARCHITECTURE.md`, name
+it there too: its invariants and key decisions are claims about the
+user's system that only they can confirm.
 
 Apply requested changes and re-run the self-review. On approval, commit
 `docs: spec for <topic>`, then invoke writing-plans. Every size of change
