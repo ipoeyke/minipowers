@@ -47,9 +47,8 @@ retried 5 times and the 6th attempt never happens."
 **Behavior, not text.** Asserting that a script, skill, or config
 contains an exact line proves only that the source is the source. Run
 scripts against controlled inputs and assert outputs, side effects, or
-exit codes. Documents that instruct agents are tested by the consuming
-agent's behavior (minipowers:writing-skills); prose for humans earns no
-test at all.
+exit codes. Documents that instruct agents are tested by the behavior of
+a fresh agent that reads them; prose for humans earns no test at all.
 
 **Your code, not the framework.** Test the contract your code makes at
 its boundaries - the route you register, the query you emit, the payload
@@ -167,6 +166,11 @@ should fail for each realistic mutation:
 
 A mutation nothing catches marks the behavior as unprotected - or the
 test as tautological.
+
+Then run the check the other way: for each test, name the mutation it
+catches. A test that catches none is deleted, not kept as extra coverage.
+A test that catches only what another test already catches is deleted
+too.
 
 ## Quick Reference
 

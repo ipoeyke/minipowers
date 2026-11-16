@@ -1,14 +1,14 @@
 # minipowers
 
 A minimal fork of [obra/superpowers](https://github.com/obra/superpowers) for
-Claude Code. Six skills survived the cut. The hooks, the ports to other
+Claude Code. Five skills survived the cut. The hooks, the ports to other
 harnesses, and most of the process scaffolding did not survive.
 
 Forked from upstream v6.1.1, with selected later changes ported through
 v7.0.1; exact commits are pinned under Credit. Upstream history is
 preserved in this repo up to the fork point.
 
-Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
+Why each skill survived (and nine didn't): see [ANALYSIS.md](ANALYSIS.md).
 
 ## Skills
 
@@ -17,9 +17,8 @@ Why each skill survived (and eight didn't): see [ANALYSIS.md](ANALYSIS.md).
 | **brainstorming** | Capture the idea as a committed `intent.md` in the user's words, then turn it into an approved, committed `spec.md` through one-question-at-a-time dialogue, with the repo's policy skills applied and concerns flagged. Hands off to writing-plans. |
 | **writing-plans** | Turn a spec into bite-sized tasks with exact file paths, interfaces, and test intent, read-only until the plan is written. Sets the tier from the task count, takes one approval, commits `plan.md`. |
 | **subagent-driven-development** | Execute a committed plan with fresh implementer subagents (one per task, or one for a small plan), adversarial review, and a fix loop in which a fresh reviewer judges every fix round. Deviations are appended to the plan; the change ends as a draft pull request. |
-| **test-driven-development** | Red-green-refactor, with the step that matters spelled out: watch the test fail, for the right reason. Includes a debugging stop rule (three failed fixes means the problem is architectural). |
+| **test-driven-development** | Red-green-refactor, with the step that matters spelled out: watch the test fail, for the right reason. The rule covers behavior: code with none of its own gets no test of its own. Includes a debugging stop rule (three failed fixes means the problem is architectural). |
 | **verification-before-completion** | No success claims without running the verification command in the same message. |
-| **writing-skills** | TDD for process documentation: pressure-test a skill on subagents before trusting it. |
 
 The flow follows Anthropic's
 [AI-native SDLC playbook](https://claude.com/resources/articles/the-ai-native-sdlc-playbook)
@@ -46,7 +45,9 @@ every size. Writing-plans sets the tier from the plan it just wrote:
   commit per task, then the whole-branch review.
 
 Both tiers use TDD inside implementation and verification before every
-completion claim. The review loop borrows from
+completion claim. Both reviewers ask of each new test which bug in the
+code it covers would make it fail; a test with no answer is a finding
+whose fix is deletion. The review loop borrows from
 [no-mistakes](https://github.com/kunchenguid/no-mistakes) v1.100.1: a fresh reviewer
 every round, fix-round code reviewed as unreviewed new code, findings that
 enumerate every sibling site, a coverage record, and ask-user findings for
@@ -109,11 +110,13 @@ routing, or explicitly (`/minipowers:brainstorming`, etc.).
 
 ## What was cut from upstream
 
-Eight skills, the SessionStart hook, and all the packaging for other
-harnesses. Three of the eight (requesting-code-review, receiving-code-review,
+Nine skills, the SessionStart hook, and all the packaging for other
+harnesses. Three of the nine (requesting-code-review, receiving-code-review,
 systematic-debugging) were folded into the surviving skills rather than
-deleted outright. The full list and per-skill rationale are in
-[ANALYSIS.md](ANALYSIS.md).
+deleted outright. A fourth, writing-skills, was condensed into
+`.claude/skills/writing-skills/`: it guides work on this repository and
+does not ship with the plugin. The full list and per-skill rationale are
+in [ANALYSIS.md](ANALYSIS.md).
 
 ## Credit
 

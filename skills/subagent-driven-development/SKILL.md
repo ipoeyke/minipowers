@@ -23,8 +23,7 @@ coordination.
 
 **Continuous execution:** do not pause between tasks to check in. Stop only
 for a BLOCKED status you cannot resolve, ambiguity that prevents progress,
-a finding tagged ask-user, or completion. Between tool calls, narrate at
-most one short line - the ledger and tool results carry the record.
+a finding tagged ask-user, or completion.
 
 ## The Process
 

@@ -52,8 +52,8 @@ Subagent (general-purpose):
 
     ## Test Runs
 
-    The scoped test command is the `Run:` line in the task's steps, or the
-    test files the task lists; nothing wider. Iterate on that plus lint and
+    The scoped test command is the task's `Run:` line, or the test files
+    the task lists; nothing wider. Iterate on that plus lint and
     type-check on the files you touched. Never run the full suite, a bare
     runner with no path (`pytest`, `npm test`, `go test ./...`), or
     whole-repo lint: the controller's Final Review owns those, and "tests
@@ -156,8 +156,8 @@ Subagent (general-purpose):
 |---|---|---|
 | `[WHAT]` | Task N: [name] | the plan at [PLAN_PATH], every task in order |
 | `[BRIEF_FILE]` | the task brief from `bash scripts/task-brief` | the plan file |
-| `[BRIEF_NOTE]` | It holds the task's full text from the plan. | Work the tasks in order; each task's steps and tests apply as written. |
-| `[COMMIT_NOTE]` | Conventional Commits subject; these commits are kept. | Commit after each task as its steps say; the controller squashes them later. |
+| `[BRIEF_NOTE]` | It holds the task's full text from the plan. | Work the tasks in order; each task's requirements and tests apply as written. |
+| `[COMMIT_NOTE]` | Conventional Commits subject; these commits are kept. | Commit after each task; the controller squashes them later. |
 | `[REPORT_RULE]` | Write the report below to [REPORT_FILE]; fix rounds append to it. Then reply with only status, commits, the test summary, concerns, and the file path, under 15 lines. | Same, with one commit line per task. |
 | `[TEST_SUMMARY_FIELDS]` | counts, and any run wider than the scoped command with its reason | counts per task, and any run wider than a task's scoped command with its reason |
 

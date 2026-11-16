@@ -13,9 +13,13 @@ Write the test first. Watch it fail. Write minimal code to pass.
 tests the right thing. Tests written after code pass immediately — and passing
 immediately proves nothing: they test what you built, not what was required.
 
-**The rule:** no production code without a failing test first. Wrote code
-before the test? Delete it and start from the test. Exceptions (throwaway
-prototypes, generated code, config) need your human partner's sign-off.
+**The rule:** no new or changed behavior without a failing test first.
+Behavior is what a caller or user can observe: a result, a side effect, an
+error, a boundary. Code with no behavior of its own (a constant, a stored
+field, a re-export, wiring, config) gets no test of its own: the first
+test of the behavior that depends on it covers it. Wrote behavior before
+its test? Delete it and start from the test. Throwaway prototypes and
+generated code are exempt with your human partner's sign-off.
 
 ## Red-Green-Refactor
 
@@ -49,9 +53,9 @@ helpers. Stay green. Then repeat with the next failing test.
 
 ## Bug Fixes
 
-A bug fix is a feature whose test is the reproduction. Write a failing test
-that reproduces the bug, verify it fails on current code, then fix. Never fix
-a bug without a test — the test proves the fix and prevents regression.
+A bug fix is a behavior change whose test is the reproduction: write a
+test that reproduces the bug, watch it fail on current code, then fix. The
+test proves the fix and keeps the bug from returning.
 
 **Before hypothesizing a fix, find the root cause:**
 - Read the full error and stack trace; check what changed recently.
@@ -77,11 +81,4 @@ When writing or changing any test, adding a mock, or adding a test helper,
 read [writing-good-tests.md](writing-good-tests.md): name the production
 change that would make the test fail before writing it, derive expected
 values by hand, never assert on mock behavior, keep test-only code out of
-production classes, and run the mutation check before finishing.
-
-## Final Rule
-
-```
-Production code → a test exists and you watched it fail first
-Otherwise → not TDD
-```
+production classes, and run the mutation check both ways before finishing.

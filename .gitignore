@@ -1,5 +1,6 @@
 .worktrees/
 .minipowers/
-.claude/
+.claude/*
+!.claude/skills/
 .DS_Store
 node_modules/
