@@ -13,8 +13,6 @@ context, who knows nothing about this codebase or domain and is weak at
 test design. The plan's job is to remove ambiguity: files, interfaces,
 test intent, and constraints, as bite-sized tasks. DRY, YAGNI, TDD.
 
-**Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
-
 **This skill is read-only except for the plan.** Read the spec, the living
 docs, and the code; write only `docs/changes/<id>/plan.md`, beside the
 committed `intent.md` and `spec.md`. If brainstorming did not run and the
@@ -51,7 +49,7 @@ each is responsible for. This locks in the decomposition.
 A task is the smallest unit with its own test cycle that a reviewer could
 reject while approving its neighbor. Fold setup, configuration, and docs
 into the task whose deliverable needs them. Each task ends with an
-independently testable deliverable, in steps of one action each.
+independently testable deliverable.
 
 Each task MUST pin down exactly:
 
@@ -98,15 +96,15 @@ Use the project's documented test commands (README, Makefile,
 CONTRIBUTING, CI config), including an already-configured parallel runner
 such as pytest-xdist; add no dependencies for speed. Every `Run:` line
 names the task's test files; never a bare runner. Never write a
-full-suite run into a task step: implementers on either tier never run
-it, and the controller runs it once before the final review.
+full-suite run into a task: implementers on either tier never run it, and
+the controller runs it once before the final review.
 
 ## Plan Header
 
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use minipowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+Execute with minipowers:subagent-driven-development.
 
 **Tier:** light or heavy (set by Tier Triage)
 
@@ -120,10 +118,6 @@ it, and the controller runs it once before the final review.
 
 [The File Structure map: each file, created or modified, one line on its
 responsibility.]
-
-## Order of work
-
-[One line per task, in execution order: "Task N: <name>".]
 
 ## Risks
 
@@ -170,17 +164,18 @@ includes it.]
 - Produces: [exact names and types later tasks rely on - an implementer
   sees only their own task]
 
-- [ ] **Step 1: Write failing tests** - [per test: name, behavior proved,
-  edge cases, expected red-phase failure]
-- [ ] **Step 2: Run them; they fail for the right reason**
-  Run: `pytest tests/path/test.py -v`
-  Expected: FAIL with [missing symbol, wrong value]
-- [ ] **Step 3: Implement** - [requirements + Interfaces; literal code only
-  if load-bearing, marked binding]
-- [ ] **Step 4: Run this task's tests and lint on touched files; all green**
-  Run: [same command as Step 2]
-- [ ] **Step 5: Commit** - `git commit -m "feat: add specific feature"`
+**Tests:** [per test: name, behavior proved, edge cases, expected
+red-phase failure]
+
+**Requirements:** [what to build beyond the Interfaces; literal code only
+if load-bearing, marked binding]
+
+**Run:** `pytest tests/path/test.py -v`
 ````
+
+The task states what to build and how it is proved. The test-first cycle,
+the lint run, and the commit are the implementer's standing instructions,
+so a task never repeats them as steps.
 
 Markdown tables: no cell may contain a literal `|`, not even inside
 backticks. Write closed values as separate code spans
@@ -200,15 +195,15 @@ Check the plan against the spec yourself and fix inline:
 3. **Type consistency:** names and signatures match across tasks
    (`clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug).
 4. **Living docs:** every Living docs impact entry lands in a task.
-5. **Summary sections:** Files that change, Order of work, Risks, and
-   Proof agree with the tasks below them.
+5. **Summary sections:** Files that change, Risks, and Proof agree with
+   the tasks below them.
 6. **Risks pinned:** every Risks line names a test, and that test appears
-   in the owning task's Step 1. An empty Risks section means you checked
+   in the owning task's Tests block. An empty Risks section means you checked
    and found none, not that you skipped the check.
 7. **Proportion:** a plan several times longer than its spec, or one
    where code blocks are most of the text, has written the program instead
    of the decisions. Replace bodies with signatures, test names, and
-   assertions, keeping only load-bearing code, and check each step is
+   assertions, keeping only load-bearing code, and check each task is
    still unambiguous.
 8. **Tables:** no literal `|` in any cell.
 
@@ -228,12 +223,12 @@ whose scope balloons.
 
 ## Plan Approval
 
-Nothing is implemented without an accepted plan. Present the summary
-sections only - tier, Files that change, Order of work, Risks, Proof - and
-ask one question:
+Nothing is implemented without an accepted plan. Present the tier, Files
+that change, the task headings in order, Risks, and Proof, and ask one
+question:
 
 > "Plan at `docs/changes/<id>/plan.md`, <tier> tier. Approve?"
 
 Apply requested changes and re-run the self-review. On approval, commit
-`docs: plan for <topic>`, announce "Executing with subagent-driven
-development.", and invoke minipowers:subagent-driven-development.
+`docs: plan for <topic>` and invoke
+minipowers:subagent-driven-development.

@@ -87,6 +87,15 @@ Subagent (general-purpose):
       duplication of logic.
     - Tests verify real behavior, not mocks, and cover the task's edge
       cases.
+    - **Tests that cannot catch a bug:** for each test in the diff, name a
+      bug in the code it covers that would make it fail. A test with no
+      such bug is a defect, not spare coverage: it asserts a constant's
+      value, exact wording, or private structure; its expected value comes
+      from the same expression as the code; or it covers code with no
+      behavior of its own (a stored field, a re-export, wiring). List them
+      all in one Important finding. The fix for each is deletion when
+      another test already covers the behavior, otherwise the assertion
+      it should make instead.
     - Each file has one responsibility and follows the brief's file
       structure. Flag new files that are already large, or large growth
       this change caused.
@@ -105,8 +114,8 @@ Subagent (general-purpose):
 
     Important means the task cannot be trusted until fixed: incorrect or
     fragile behavior, a missed requirement, duplicated logic, swallowed
-    errors, tests that assert nothing. Polish and "coverage could be
-    broader" are Minor. Something the brief mandates that this rubric calls
+    errors, tests that assert nothing or cannot catch a bug. Polish and
+    "coverage could be broader" are Minor. Something the brief mandates that this rubric calls
     a defect is still Important, labeled plan-mandated - the human decides.
 
     Report a defect class once: anchor it at one file:line and list, in

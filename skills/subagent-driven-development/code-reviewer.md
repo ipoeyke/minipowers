@@ -113,7 +113,15 @@ Subagent (general-purpose):
       validating, or documenting it. A defect inside such a component
       names removal as its fix.
     - **Tests:** real behavior, not mocks; integration tests where
-      components meet; suite output green and pristine.
+      components meet; suite output green and pristine. For each test the
+      change adds, name a bug in the code it covers that would make it
+      fail. A test with no such bug is a defect, not spare coverage: it
+      asserts a constant's value, exact wording, or private structure; its
+      expected value comes from the same expression as the code; or it
+      covers code with no behavior of its own (a stored field, a
+      re-export, wiring). List them all in one Important finding. The fix
+      for each is deletion when another test already covers the behavior,
+      otherwise the assertion it should make instead.
     - **Quality:** duplicated logic, unclear boundaries. A docstring longer
       than a summary line plus one short paragraph, or a comment over two
       lines, is Minor.
@@ -155,8 +163,8 @@ Subagent (general-purpose):
     #### Critical (Must Fix)
     [Bugs, security, data loss, broken functionality]
     #### Important (Should Fix)
-    [Missed requirements, architecture problems, test gaps, provenance
-    leaks, living-doc drift]
+    [Missed requirements, architecture problems, test gaps, tests that
+    cannot catch a bug, provenance leaks, living-doc drift]
     #### Minor (Nice to Have)
     Minor is what a review policy calls a nit. Report at most five, the
     most useful first, and give the rest as a count.
