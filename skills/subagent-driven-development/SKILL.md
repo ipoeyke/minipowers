@@ -224,7 +224,7 @@ same way.
   spec review.
 - **Declined to judge (final review):** rule on each line the reviewer
   set aside: a real gap becomes a finding for the next fixer, the rest are
-  dropped with a one-line reason in the PR body's Review section.
+  dropped with a one-line reason in the PR body's Risks/deferred section.
 
 ### Plan Amendments
 
@@ -291,18 +291,13 @@ the next task while Critical or Important findings are open.
    ```
    Conventional Commits subject, no body beyond the trailer. Never squash
    with open Critical or Important findings or an unanswered ask-user.
-10. Push the branch and open a draft PR. Write the body to
-    `.minipowers/sdd/pr-body.md`, then use the first available of: `gh`
-    (authenticated), a GitHub MCP tool, the GitHub REST API with a token
-    from the environment, the host's own CLI; failing all, print the
-    compare URL and the body path for the human. Body sections, in order:
-    **Intent** (link to `intent.md`, one-line problem), **What
-    changed**, **Plan deviations** (the Amendments list, or none),
-    **Review** (the final Assessment line; Critical and Important findings
-    fixed; Minors left and why; CLAUDE.md proposals), **Verification**
-    (each command and its one-line result), **Decisions** (every human
-    ruling during execution). End with the attribution the session
-    requires. Never mark it ready, never merge, and never offer to: the
+10. Push the branch and open a draft PR. Fill
+    [pr-template.md](pr-template.md) for the title and the body, and
+    write the body to `.minipowers/sdd/pr-body.md`. Then use the first
+    available of: `gh` (authenticated), a GitHub MCP tool, the GitHub
+    REST API with a token from the environment, the host's own CLI;
+    failing all, print the compare URL, the title, and the body path for
+    the human. Never mark it ready, never merge, and never offer to: the
     human reads the PR, marks it ready, and approval is a code owner's
     through branch protection. If there is no remote, say so and stop.
 

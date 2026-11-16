@@ -32,7 +32,7 @@ docs/changes/<YYYY-MM-DD-topic>/
   spec.md      requirements and design           brainstorming, committed on approval
   plan.md      tasks, risks, proof, amendments   writing-plans, committed on approval
 the diff                                         subagent-driven-development
-the PR         findings, verification, decisions subagent-driven-development
+the PR         why, changes, validation, risks   subagent-driven-development
 ```
 
 `docs/changes/` is the playbook's `intent/` home under a clearer name. The
@@ -54,16 +54,21 @@ remedies that would extend the change.
 
 Intent, spec, and plan are the change's record: the plan is amended as the
 change is built and all three freeze at merge. Nothing in the codebase may
-cite them. `ARCHITECTURE.md` at the repo root is the living description of
-the current system, updated by every change that alters it. Subagent model
+cite them. `ARCHITECTURE.md` at the repo root is the living map of the
+whole repository: brainstorming writes it before any design work when a
+repo has none, so it is never shaped around one feature, and every change
+that alters what it describes updates it. Subagent model
 policy is fixed: implementers run on Sonnet, task reviewers on Opus, and
 the final reviewer on the strongest available model (Fable, else Opus).
 
 The in-session final review is the layer before the PR, not the merge
 gate. The controller pushes and opens a draft PR; marking it ready is the
-human's, and approval is a code owner's through branch protection. If the
-repo has a `REVIEW.md` at its root, the final reviewer runs its passes and
-respects its nit cap and do-not-report list.
+human's, and approval is a code owner's through branch protection. The PR
+body follows a fixed template written for a reviewer who was not there:
+what and why, changes, validation, the fixes the review caught, and risks
+or deferred items. A skipped check is stated, and the body makes no claim
+about CI. If the repo has a `REVIEW.md` at its root, the final reviewer
+runs its passes and respects its nit cap and do-not-report list.
 
 ### The one hook: tests are read-only during fix rounds
 
@@ -112,8 +117,9 @@ deleted outright. The full list and per-skill rationale are in
 
 ## Credit
 
-Everything here is adapted from four sources. Each is pinned to the exact
-commit that was read, so the derivation can be checked.
+Everything here is adapted from five sources. Each is pinned to the exact
+commit that was read, or to its read date where it has no commits, so the
+derivation can be checked.
 
 The skills, their dispatch templates, scripts, and the whole execution
 model come from Jesse Vincent's [obra/superpowers](https://github.com/obra/superpowers)
@@ -137,6 +143,13 @@ rules are adapted from [kunchenguid/no-mistakes](https://github.com/kunchenguid/
 v1.100.1 (commit
 [`c80c10f`](https://github.com/kunchenguid/no-mistakes/commit/c80c10f254ebf9a12524ad26b8eeb2f8714e97c4),
 MIT).
+
+The `ARCHITECTURE.md` guidance (whole-repository scope, a codemap,
+labelled invariants, names instead of links, stable facts only) follows
+matklad's [ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html),
+published 2021-02-06 and read 2026-11-16. Its section order was checked
+against the architecture docs of rust-analyzer, Tauri, esbuild, VS Code,
+the Linux crypto API, Neovim, and OXVG as they stood on that date.
 
 Three questioning habits in the brainstorming skill (look up facts instead
 of asking, attach a recommended answer to every question, resolve decisions
